@@ -45,7 +45,7 @@ jobs:
       - name: Prepare and validate Terraform
         run: |
             cd ./configs/terraform
-            printf "%s" "${{ secrets.TERRAFORM_TFVARS }}" > test.tfvars
+            cat <<EOF > test.tfvars ${{ secrets.TERRAFORM_TFVARS }} EOF
             cat test.tfvars
             terraform init
             terraform validate
