@@ -1,0 +1,94 @@
+name: Portfolio
+description: Final project for the Postgraduate in Data Engineer at the Data Science Academy
+
+
+on:
+    push:
+        branches:
+            [main, dev_matheus]
+    pull_request:
+        branches:
+            [main, dev_matheus]
+
+jobs:
+  code-test:
+    name: Code Python Test
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    container: python:3.11-bullseye
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential
+
+      - name: Run tests
+        run: |
+            echo "Running tests 👀"
+            sleep 5
+            echo "Tests successfully completed 🫦"
+
+
+  tf-test:
+    name: Terraform Test
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    container:
+      image: mattheusxs/tf-1.11-cloud-sdk-515
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare and validate Terraform
+        run: |
+          cd ./configs/terraform
+          echo "${{ secrets.TERRAFORM_TFVARS }}" > terraform.tfvars
+          terraform init
+          terraform validate
+          echo "Tests successfully completed 🫦"
+
+
+  tf-deploy-prd:
+    name: Terraform Deploy (PRD)
+    runs-on: ubuntu-latest
+    container:
+      image: mattheusxs/tf-1.11-cloud-sdk-515
+      options: --entrypoint=""
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Terraform Deploy
+        run: |
+          cd ./configs/terraform
+          echo "${{ secrets.GOOGLE_CREDENTIALS }}" > credentials.json
+          gcloud auth activate-service-account --key-file=credentials.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          echo "${{ secrets.TERRAFORM_TFVARS }}" > terraform.tfvars
+          terraform init
+          terraform apply -auto-approve
+
+  tf-destroy-prd:
+    name: Terraform Destroy (PRD)
+    runs-on: ubuntu-latest
+    container:
+      image: mattheusxs/tf-1.11-cloud-sdk-515
+      options: --entrypoint=""
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Terraform Destroy
+        run: |
+          cd ./configs/terraform
+          echo "${{ secrets.GOOGLE_CREDENTIALS }}" > credentials.json
+          gcloud auth activate-service-account --key-file=credentials.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+          echo "${{ secrets.TERRAFORM_TFVARS }}" > terraform.tfvars
+          terraform init
+          terraform destroy -auto-approve

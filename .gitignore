@@ -172,3 +172,23 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform-version
+terraform.tfvars
+*.tfvars.json
+*.tfplan
+*.tfplan.json
+# Terraform workspace files
+*.tfworkspace
+# Terraform module cache
+.terraform-cache/
+# Terraform plan files
+*.tfplan
+# Terraform variable files
+
+# GCP
+mts-default-projetct-7f79c1863782.json
