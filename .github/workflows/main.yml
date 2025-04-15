@@ -44,11 +44,12 @@ jobs:
 
       - name: Prepare and validate Terraform
         run: |
-          cd ./configs/terraform
-          printf "%s" "${{ secrets.TERRAFORM_TFVARS }}" > terraform.tfvars
-          terraform init
-          terraform validate
-          echo "Tests successfully completed 🫦"
+            cd ./configs/terraform
+            printf "%s" "${{ secrets.TERRAFORM_TFVARS }}" > test.tfvars
+            cat test.tfvars
+            terraform init
+            terraform validate
+            echo "Tests successfully completed 🫦"
 
 
   tf-deploy-prd:
