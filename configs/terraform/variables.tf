@@ -2,6 +2,17 @@
 #   ********************************************************************************************************    #
 #                                                    Cloud Project                                              #
 #   ********************************************************************************************************    #
+variable "project" {
+    description = "Project name"
+    type        = map(string)
+}
+
+variable "project_id" {
+    description = "What is the project id number"
+    type    = map(string)
+}
+
+
 variable "region" {
     description = "where the resources will be created"
     type        = string
@@ -13,15 +24,6 @@ variable "environment" {
     default     = "development"
 }
 
-variable "project" {
-    description = "What is the project name"
-    type        = string
-}
-
-variable "project_id" {
-    description = "What is the project name"
-    type        = string
-}
 
 #   ********************************************************************************************************    #
 #                                             Google Cloud Storage                                              #
@@ -89,6 +91,31 @@ variable "members" {
     type        = list(string)
 }
 
+variable "service_accounts" {
+    description = "The service accounts that will have access to the buckets"
+    type        = list(string)
+}
+variable "roles_sa_dataflow" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}
+variable "roles_sa_pub_sub" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}
+# variable "roles_sa_dataproc" {
+#     description = "The roles to assign to the service account"
+#     type        = list(string)
+# }
+# variable "roles_sa_cloud_function" {
+#     description = "The roles to assign to the service account"
+#     type        = list(string)
+# }
+variable "roles_sa_composer" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}
+
 #   ********************************************************************************************************    #
 #                                              Google Cloud Function                                            #
 #   ********************************************************************************************************    #
@@ -105,10 +132,15 @@ variable "sa_cloud_function" {
 #   ********************************************************************************************************    #
 #                                                   Secret Manager                                              #
 #   ********************************************************************************************************    #
-variable "secret_db_credentials" {
-    description = "secret name of the db credentials"
+variable "access_authorization" {
+    description = "Secret ID"
     type        = string
 }
+
+# variable "database_credentials" {
+#     description = "Password for database"
+#     type        = string
+# }
 
 #   ********************************************************************************************************    #
 #                                               Cloud Composer                                                  #
@@ -121,4 +153,71 @@ variable "airflow_name" {
 variable "image_version" {
     description = "The version of the Composer environment"
     type        = string
+}
+
+#   ********************************************************************************************************    #
+#                                                   BigQuery                                                    #
+#   ********************************************************************************************************    #
+#   ~~~~~~~~~~~~~~~~~~~~~~~>>>> Dataset <<<<~~~~~~~~~~~~~~~~~~~~~~~
+variable "bq_dataset" {
+    description = "The name of the dataset"
+    type        = list(string)
+}
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~>>>> Table <<<<~~~~~~~~~~~~~~~~~~~~~~~
+#   ~~~~~~~~~~~~~~~~~~~~~~>>>> Raw <<<<~~~~~~~~~~~~~~~~~~~~~~~
+variable "tb_raw_backup_sensor" {
+    description = "The name of the table"
+    type        = string
+}
+
+#   ~~~~~~~~~~~~~~~~~~~~~~>>>> Trusted <<<<~~~~~~~~~~~~~~~~~~~~~~~
+variable "tb_dw_messages" {
+    description = "The name of the table"
+    type        = string
+}
+
+#   ********************************************************************************************************    #
+#                                                   Pub/Sub                                                     #
+#   ********************************************************************************************************    #
+variable "pub_sub_topic" {
+    description = "The name of the Pub/Sub topic"
+    type        = string
+}
+
+variable "pub_sub_subscription" {
+    description = "The name of the Pub/Sub subscription"
+    type        = string
+}
+
+variable "pub_sub_subscription_bq" {
+    description = "The name of the Pub/Sub subscription"
+    type        = string
+}
+
+
+#   ********************************************************************************************************    #
+#                                                   Dataflow                                                    #
+#   ********************************************************************************************************    #
+variable "dfl_job_name" {
+    description = "The name of the Dataflow job"
+    type        = string
+}
+
+variable "dfl_template" {
+    description = "The name of the Dataflow template"
+    type        = string
+}
+variable "python_script_path" {
+    description = "The path to the Python script"
+    type        = string
+}
+
+
+#   ********************************************************************************************************    #
+#                                                  Enable Api                                                   #
+#   ********************************************************************************************************    #
+variable "api_enabled" {
+    description = "Enable API"
+    type        = list(string)
 }

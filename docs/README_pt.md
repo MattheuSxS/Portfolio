@@ -3,21 +3,21 @@
 
 ## Objetivo 💁🏾‍♂️ --> 🇧🇷
 
-The purpose of the practical project is to assess your ability to describe the solution to a given problem.
+O objetivo do projeto prático é avaliar sua capacidade de descrever a solução para um determinado problema.
 
 
 ## Instruções a seguir ‼️
 
 ```
 1 ~~> O Projeto Prático Final deve ser realizado após a conclusão do exame teórico.
-2 ~~> O Projeto Prático Final consiste em propor a solução paraum problema de negócio.
+2 ~~> O Projeto Prático Final consiste em propor a solução para um problema de negócio.
 3 ~~> Leia atentamente o problema apresentado no cenário de negócio.
 4 ~~> Crie uma proposta de solução para o problema de negócio apresentado.
 5 ~~> Justifique a escolha da solução proposta.
-6 ~~> Indique  as  ferramentas  e  plataformas que  poderiam  ser utilizadas  para  solucionar  o problema de negócio.
+6 ~~> Indique as ferramentas e plataformas que poderiam ser utilizadas para solucionar o problema de negócio.
 7 ~~> Estime o tempo médio necessário para implementar a solução proposta.
 8 ~~> Apresenteos benefícios e desafios da solução proposta.
-9 ~~> Você deverá criar uma solução eentãoresponder às perguntas no item de aprendizagem a seguir.
+9 ~~> Você deverá criar uma solução e então responder às perguntas no item de aprendizagem a seguir.
 ```
 
 ## Empresa: LogiStream Solutions 🚛
@@ -27,11 +27,11 @@ The purpose of the practical project is to assess your ability to describe the s
 A empresa possui várias fontes de dados que incluem:
 
 ```
-~~> informações de pedidos
-~~> dados de logistica
-~~> feedback de clientes
-~~> dados de sensores de seus armazéns
-~~> frota de entrega
+~~> Informações de pedidos
+~~> Dados de logistica
+~~> Feedback de clientes
+~~> Dados de sensores de seus armazéns
+~~> Frota de entrega
 ```
 
 A empresa necessita fazer a integração desses dados para **[ Previsāo de demanda ]** e otimização de rota considerando a variação no volume e na velocidade dos dados coletados.
@@ -40,15 +40,15 @@ A empresa necessita fazer a integração desses dados para **[ Previsāo de dema
 
 - Dados de Pedidos:
     - Informaçôes sobre produtos
-    - quantidades
+    - Quantidades
     - Localizaçôes de entregas
-    - tempo de processsamento
+    - Tempo de processsamento
 
 
 - Dados Logísticos:
     - Detalhes sobre rotas de entrega
-    - custos de transporte
-    - prazos de entrega
+    - Custos de transporte
+    - Prazos de entrega
 
 
 - Feedback dos Clientes:
@@ -58,11 +58,10 @@ A empresa necessita fazer a integração desses dados para **[ Previsāo de dema
 
 - Dados de Sensores:
     - Dados em tempo real de sensores instalados em armazéns
-    - Dados em tempo real de sensores instalados em veículos de entrega
-    - Incluindo
         - Temperatura
-        - umidade
-        - localização GPS
+        - Umidade
+    - Dados em tempo real de sensores instalados em veículos de entrega
+        - Localização GPS
 
 
 ## Infraestrutura Disponível Atualmente ⚙️

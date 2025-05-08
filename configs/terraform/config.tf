@@ -2,7 +2,7 @@ terraform {
   required_providers {
     google = {
       source = "hashicorp/google"
-      version = "6.29.0"
+      version = "6.34.0"
     }
     archive = {
       source = "hashicorp/archive"
@@ -21,6 +21,6 @@ terraform {
 }
 
 provider "google" {
-  project     = var.project
+  project     = var.project[terraform.workspace]
   region      = var.region
 }
