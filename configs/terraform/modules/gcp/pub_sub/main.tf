@@ -1,6 +1,6 @@
-resource "google_pubsub_topic" "pub_sub_topic" {
+resource "google_pubsub_topic" "pub_sub_wh_sensor_topic" {
   project = var.project
-  name = var.pub_sub_topic
+  name = var.pub_sub_wh_sensor_topic
 
   labels = {
     "created_by": "terraform",
@@ -15,9 +15,9 @@ resource "google_pubsub_topic" "pub_sub_topic" {
 
 }
 
-resource "google_pubsub_subscription" "pub_sub_subscription" {
-  topic                 = google_pubsub_topic.pub_sub_topic.id
-  name                  = var.pub_sub_subscription
+resource "google_pubsub_subscription" "pub_sub_wh_sensor_subscription" {
+  topic                 = google_pubsub_topic.pub_sub_wh_sensor_topic.id
+  name                  = var.pub_sub_wh_sensor_subscription
   ack_deadline_seconds  = 30
   retain_acked_messages = true
 
@@ -28,11 +28,11 @@ resource "google_pubsub_subscription" "pub_sub_subscription" {
 }
 
 
-resource "google_pubsub_subscription" "pub_sub_subscription_bq" {
+resource "google_pubsub_subscription" "pub_sub_wh_sensor_subscription_bq" {
   depends_on = [var.pubsub_bq_role]
   project                     = var.project
-  name                        = var.pub_sub_subscription_bq
-  topic                       = google_pubsub_topic.pub_sub_topic.id
+  name                        = var.pub_sub_wh_sensor_subscription_bq
+  topic                       = google_pubsub_topic.pub_sub_wh_sensor_topic.id
   message_retention_duration  = "250000s"
 
   bigquery_config {

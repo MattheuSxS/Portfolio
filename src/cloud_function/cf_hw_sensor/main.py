@@ -4,7 +4,7 @@ import time
 import logging
 from time import sleep
 from modules.pub_sub import PubSub
-from modules.sensor import FakeSensorData
+from modules.sensor import FakeWhSensorData
 from google.cloud import secretmanager
 import google.api_core.exceptions
 
@@ -72,7 +72,7 @@ def main(request: dict) -> dict:
 
     while True:
         try:
-            fk = FakeSensorData()
+            fk = FakeWhSensorData()
 
             pub = PubSub(
                 dt_request["project_id"], dt_request["topic_id"],

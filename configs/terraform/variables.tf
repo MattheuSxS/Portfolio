@@ -91,10 +91,11 @@ variable "members" {
     type        = list(string)
 }
 
-variable "service_accounts" {
-    description = "The service accounts that will have access to the buckets"
+variable "creating_sa" {
+    description = "The service account to create"
     type        = list(string)
 }
+
 variable "roles_sa_dataflow" {
     description = "The roles to assign to the service account"
     type        = list(string)
@@ -107,10 +108,12 @@ variable "roles_sa_pub_sub" {
 #     description = "The roles to assign to the service account"
 #     type        = list(string)
 # }
-# variable "roles_sa_cloud_function" {
-#     description = "The roles to assign to the service account"
-#     type        = list(string)
-# }
+
+variable "roles_sa_cf_hw_sensor" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}
+
 variable "roles_sa_composer" {
     description = "The roles to assign to the service account"
     type        = list(string)
@@ -121,11 +124,6 @@ variable "roles_sa_composer" {
 #   ********************************************************************************************************    #
 variable "function_name" {
     description = "name of the function"
-    type        = string
-}
-
-variable "sa_cloud_function" {
-    description = "The service account to grant the roles"
     type        = string
 }
 
@@ -180,17 +178,17 @@ variable "tb_dw_messages" {
 #   ********************************************************************************************************    #
 #                                                   Pub/Sub                                                     #
 #   ********************************************************************************************************    #
-variable "pub_sub_topic" {
+variable "pub_sub_wh_sensor_topic" {
     description = "The name of the Pub/Sub topic"
     type        = string
 }
 
-variable "pub_sub_subscription" {
+variable "pub_sub_wh_sensor_subscription" {
     description = "The name of the Pub/Sub subscription"
     type        = string
 }
 
-variable "pub_sub_subscription_bq" {
+variable "pub_sub_wh_sensor_subscription_bq" {
     description = "The name of the Pub/Sub subscription"
     type        = string
 }
@@ -199,16 +197,16 @@ variable "pub_sub_subscription_bq" {
 #   ********************************************************************************************************    #
 #                                                   Dataflow                                                    #
 #   ********************************************************************************************************    #
-variable "dfl_job_name" {
+variable "dfl_wh_sensor_job_name" {
     description = "The name of the Dataflow job"
     type        = string
 }
 
-variable "dfl_template" {
+variable "dfl_wh_sensor_template" {
     description = "The name of the Dataflow template"
     type        = string
 }
-variable "python_script_path" {
+variable "dfl_wh_sensor_script_path" {
     description = "The path to the Python script"
     type        = string
 }

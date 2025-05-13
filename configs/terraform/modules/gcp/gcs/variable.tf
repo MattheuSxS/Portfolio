@@ -40,7 +40,7 @@ variable "bkt_class_archive" {
     type        = string
 }
 
-variable "cf_path_sensor_files" {
+variable "cf_path_wh_sensor_files" {
     description = "path of the cloud function file"
     type        = string
 }

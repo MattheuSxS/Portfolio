@@ -1,4 +1,4 @@
-output "bkt_mts_cf_sensor" {
+output "bkt_mts_cf_wh_sensor" {
     description = "Cloud Function Sensor"
     value       = google_storage_bucket.bucket[0].name
 }
@@ -33,7 +33,7 @@ output "bkt_mts_airflow" {
     value       = google_storage_bucket.bucket[6].name
 }
 
-output "bkt_mts_cf_sensor_file_name" {
+output "bkt_mts_cf_wh_sensor_file_name" {
     description = "Ready sensor files"
     value       = google_storage_bucket_object.archive.name
 }

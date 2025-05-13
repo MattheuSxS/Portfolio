@@ -1,18 +1,17 @@
 import time
 import random
 import datetime
-
 from faker import Faker
 
 
-class FakeSensorData:
+class FakeWhSensorData:
 
     def __init__(self, country:str = 'en_US') -> None:
         self.fake   = Faker(country)
         self.fake.seed_instance(0)
 
 
-    def temperatura(self) -> dict:
+    def temperature(self) -> dict:
         """
         Generates fake sensor data.
         Returns:
@@ -21,7 +20,7 @@ class FakeSensorData:
 
         return {
             "sensor_id": self.fake.unique.uuid4(),
-            "timestamp": datetime.datetime.now().isoformat(),
+            "time_stamp": datetime.datetime.now().isoformat(),
             "temperature": round(random.uniform(5.0, 30.0), 2),
             "humidity": round(random.uniform(30.0, 70.0), 2),
             "pressure": round(random.uniform(1000.0, 1020.0), 2)
@@ -63,12 +62,12 @@ class FakeSensorData:
             ]
 
         for index in list_warehouse:
-            yield self.warehouse(index, self.temperatura())
+            yield self.warehouse(index, self.temperature())
             time.sleep(1)
 
 
 if __name__ == "__main__":
-    test = FakeSensorData()
+    test = FakeWhSensorData()
 
     print("Generating fake sensor data...")
     for i in range(5):

@@ -11,7 +11,7 @@ module "GCP_Buckets" {
     bkt_class_nearline      = var.bkt_class_nearline
     bkt_class_coldline      = var.bkt_class_coldline
     bkt_class_archive       = var.bkt_class_archive
-    cf_path_sensor_files    = module.GCP_Cloud_function_sensor.cf_path_sensor_files
+    cf_path_wh_sensor_files = module.GCP_Cloud_function_wh_sensor.cf_path_wh_sensor_files
 }
 
 #   ********************************************************************************************************    #
@@ -36,16 +36,30 @@ module "GCP_BigQuery" {
 #   ********************************************************************************************************    #
 #                                           Google Cloud Function                                               #
 #   ********************************************************************************************************    #
-module "GCP_Cloud_function_sensor" {
-    source                      = "./modules/gcp/cloud_function/cf_sensor"
-    project                     = var.project[terraform.workspace]
-    region                      = var.region
-    environment                 = var.environment
-    function_name               = var.function_name
-    bkt_mts_cf_sensor           = module.GCP_Buckets.bkt_mts_cf_sensor
-    bkt_mts_cf_sensor_file_name = module.GCP_Buckets.bkt_mts_cf_sensor_file_name
+module "GCP_Cloud_function_wh_sensor" {
+    source                          = "./modules/gcp/cloud_function/cf_wh_sensor"
+    project                         = var.project[terraform.workspace]
+    region                          = var.region
+    environment                     = var.environment
+    function_name                   = var.function_name
+    bkt_mts_cf_wh_sensor            = module.GCP_Buckets.bkt_mts_cf_wh_sensor
+    bkt_mts_cf_wh_sensor_file_name  = module.GCP_Buckets.bkt_mts_cf_wh_sensor_file_name
+    sa_cf_hw_sensor                 = module.GCP_Iam.sa_cf_hw_sensor
 }
 
+# module "GCP_Cloud_function_delivery_sensor" {
+#     source                      = "./modules/gcp/cloud_function/cf_delivery_sensor"
+#     project                     = var.project[terraform.workspace]
+#     region                      = var.region
+#     environment                 = var.environment
+# }
+
+# module "GCP_Cloud_function_feedback" {
+#     source                      = "./modules/gcp/cloud_function/cf_feedback"
+#     project                     = var.project[terraform.workspace]
+#     region                      = var.region
+#     environment                 = var.environment
+# }
 #   ********************************************************************************************************    #
 #                                          IAM Members Permissions                                              #
 #   ********************************************************************************************************    #
@@ -55,7 +69,9 @@ module "GCP_Iam" {
     project_id              = var.project_id[terraform.workspace]
     region                  = var.region
     environment             = var.environment
+    creating_sa             = var.creating_sa
     roles_sa_pub_sub        = var.roles_sa_pub_sub
+    roles_sa_cf_hw_sensor   = var.roles_sa_cf_hw_sensor
 #     members                 = var.members
 #     service_accounts        = var.service_accounts
 #     roles_sa_dataflow       = var.roles_sa_dataflow
@@ -83,17 +99,30 @@ module "GCP_Secret_manager" {
 #                                                 Pub / Sub                                                     #
 #   ********************************************************************************************************    #
 module "GCP_Pub_sub" {
-    source                  = "./modules/gcp/pub_sub"
-    project                 = var.project[terraform.workspace]
-    region                  = var.region
-    environment             = var.environment
-    pub_sub_topic           = var.pub_sub_topic
-    pub_sub_subscription    = var.pub_sub_subscription
-    pub_sub_subscription_bq = var.pub_sub_subscription_bq
-    tb_raw_dw_messages      = module.GCP_BigQuery.tb_raw_dw_messages
-    pubsub_bq_role          = module.GCP_Iam.pubsub_bq_role
+    source                              = "./modules/gcp/pub_sub"
+    project                             = var.project[terraform.workspace]
+    region                              = var.region
+    environment                         = var.environment
+    pub_sub_wh_sensor_topic             = var.pub_sub_wh_sensor_topic
+    pub_sub_wh_sensor_subscription      = var.pub_sub_wh_sensor_subscription
+    pub_sub_wh_sensor_subscription_bq   = var.pub_sub_wh_sensor_subscription_bq
+    tb_raw_dw_messages                  = module.GCP_BigQuery.tb_raw_dw_messages
+    pubsub_bq_role                      = module.GCP_Iam.pubsub_bq_role
 }
 
 #   ********************************************************************************************************    #
 #                                                 Dataflow                                                      #
 #   ********************************************************************************************************    #
+# module "GCP_Dataflow_hw_sensor" {
+#     source                          = "./modules/gcp/dataflow/wh_sensor"
+#     project                         = var.project[terraform.workspace]
+#     region                          = var.region
+#     environment                     = var.environment
+#     dfl_wh_sensor_template          = var.dfl_wh_sensor_template
+#     dfl_wh_sensor_job_name          = var.dfl_wh_sensor_job_name
+#     dfl_wh_sensor_script_path       = var.dfl_wh_sensor_script_path
+#     bkt_mts_dataflow                = module.GCP_Buckets.bkt_mts_dataflow
+#     sa_dataflow                     = module.GCP_Iam.sa_dataflow
+#     pub_sub_wh_sensor_subscription  = var.pub_sub_wh_sensor_subscription
+#     dataset_trusted                 = var.dataset_trusted
+# }

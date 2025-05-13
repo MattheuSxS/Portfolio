@@ -25,17 +25,17 @@ variable "environment" {
     type        = string
 }
 
-variable "bkt_mts_cf_sensor" {
+variable "bkt_mts_cf_wh_sensor" {
     description = "path of the cloud function file"
     type        = string
 }
 
-variable "bkt_mts_cf_sensor_file_name" {
+variable "bkt_mts_cf_wh_sensor_file_name" {
     description = "name of the cloud function file"
     type        = string
 }
 
-# variable "ready_sensor_files" {
-#     description = "ready the cloud function file"
-#     type        = string
-# }
+variable "sa_cf_hw_sensor" {
+    description = "service account of the cloud function"
+    type        = string
+}

@@ -60,7 +60,7 @@ resource "google_storage_bucket" "bucket" {
 resource "google_storage_bucket_object" "archive" {
     name          = "index.zip"
     bucket        = google_storage_bucket.bucket[0].name
-    source        = var.cf_path_sensor_files
+    source        = var.cf_path_wh_sensor_files
     content_type  = "application/zip"
 
     lifecycle {

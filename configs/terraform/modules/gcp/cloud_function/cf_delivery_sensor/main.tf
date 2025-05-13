@@ -1,7 +1,7 @@
 #   ********************************************************************************************************    #
 #                                             Cloud Function Sensor                                             #
 #   ********************************************************************************************************    #
-data "archive_file" "cf_path_sensor_files" {
+data "archive_file" "cf_path_wh_sensor_files" {
     type        = "zip"
     source_dir  = "../../src/cloud_function/cf_sensor/"
     output_path = "../../src/cloud_function/cf_sensor/index.zip"
@@ -19,8 +19,8 @@ resource "google_cloudfunctions2_function" "function" {
     entry_point = "main"
     source {
       storage_source {
-        bucket = var.bkt_mts_cf_sensor
-        object = var.bkt_mts_cf_sensor_file_name
+        bucket = var.bkt_mts_cf_wh_sensor
+        object = var.bkt_mts_cf_wh_sensor_file_name
       }
     }
   }

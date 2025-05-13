@@ -10,35 +10,49 @@ variable "region" {
     description = "Region of bucket"
     type        = string
 }
+
 variable "environment" {
     description = "Environment Development"
     type        = string
 }
 
 #   ********************************************************************************************************    #
-#                                                Pub/Sub Variables                                              #
+#                                                Dataflow Variables                                             #
 #   ********************************************************************************************************    #
-variable "pub_sub_wh_sensor_topic" {
-    description = "Pub/Sub Topic"
+variable "dfl_sensor_template" {
+    description = "Dataflow template for sensor"
+    type        = string
+}
+
+variable "dfl_sensor_job_name" {
+    description = "Dataflow job name for sensor"
+    type        = string
+}
+variable "dfl_script_path" {
+    description = "Path to the Dataflow script"
+    type        = string
+}
+
+variable "bkt_mts_dataflow" {
+    description = "Bucket for Dataflow"
+    type        = string
+}
+
+variable "sa_dataflow" {
+    description = "Service account for Dataflow"
     type        = string
 }
 
 variable "pub_sub_wh_sensor_subscription" {
-    description = "Pub/Sub Subscription"
+    description = "Pub/Sub Subscription for warehouse sensor"
+    type        = string
+}
+variable "dataset_trusted" {
+    description = "Dataset for trusted data"
     type        = string
 }
 
-variable "pub_sub_wh_sensor_subscription_bq" {
-    description = "Pub/Sub Subscription BQ"
-    type        = string
-}
 
-variable "tb_raw_dw_messages" {
-    description = "Table Raw"
-    type        = string
-}
-
-variable "pubsub_bq_role" {
-    description = "Pub/Sub BQ Role"
-    type        = list(string)
-}
+# dfl_template    dfl_data_fake_nrt
+# dfl_job_name    dfl-data-fake-nrt
+# python_script_path  ../../src/gcp_dataflow
