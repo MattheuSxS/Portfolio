@@ -1,11 +1,10 @@
+import os
 import json
 import time
 import logging
 from time import sleep
-import google.api_core.exceptions
-from modules.pub_sub import PubSub
 from google.cloud import secretmanager
-from modules.sensor import FakeWhSensorData
+import google.api_core.exceptions
 
 
 logging.basicConfig(
@@ -65,6 +64,7 @@ def main(request: dict) -> dict:
     logging.info("Publishing fake data")
     success, fail = 0, 0
 
+    # Define a duração máxima em segundos (3 minutos = 160 segundos)
     max_duration = 330
     start_time = time.time()
 

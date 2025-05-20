@@ -16,9 +16,14 @@ variable "environment" {
 }
 
 #   ********************************************************************************************************    #
-#                                                Pub/Sub Variables                                              #
+#                                             Secret Manager Variables                                          #
 #   ********************************************************************************************************    #
-variable "access_authorization" {
-    description = "Secret ID"
-    type        = string
+variable "sm_create_secrets" {
+    description = "All secrets to be created"
+    type        = list(string)
+}
+
+variable "bq_fb_access_authorization" {
+    description = "BigQuery Secret ID"
+    type        = map(string)
 }

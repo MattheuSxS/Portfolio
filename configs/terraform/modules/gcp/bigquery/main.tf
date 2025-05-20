@@ -20,9 +20,9 @@ resource "google_bigquery_dataset" "bq_dataset" {
 #   ********************************************************************************************************   #
 #                                                    Table Raw                                                 #
 #   ********************************************************************************************************   #
-resource "google_bigquery_table" "tb_raw_backup_sensor" {
+resource "google_bigquery_table" "tb_raw_dw_messages" {
     dataset_id            = google_bigquery_dataset.bq_dataset[0].dataset_id
-    table_id              = var.tb_raw_backup_sensor
+    table_id              = var.tb_raw_hw_sensor
     schema                = file("${path.module}/schemas/tb_raw_dw_messages.json")
     deletion_protection   = false
 
@@ -51,4 +51,19 @@ resource "google_bigquery_table" "tb_dw_messages" {
     }
 
     clustering = ["warehouse_id", "message_id"]
+}
+
+resource "google_bigquery_table" "tb_feedback" {
+    dataset_id            = google_bigquery_dataset.bq_dataset[2].dataset_id
+    table_id              = var.tb_feedback
+    schema                = file("${path.module}/schemas/tb_feedback.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "fb_date"
+        expiration_ms = 7776000000
+    }
+
+    clustering = ["type", "category", "rating", "verified_purchase"]
 }

@@ -57,10 +57,23 @@ resource "google_storage_bucket" "bucket" {
 }
 
 
-resource "google_storage_bucket_object" "archive" {
+resource "google_storage_bucket_object" "cf_wh_sensor_files" {
     name          = "index.zip"
     bucket        = google_storage_bucket.bucket[0].name
     source        = var.cf_path_wh_sensor_files
+    content_type  = "application/zip"
+
+    lifecycle {
+        ignore_changes = [
+        detect_md5hash,
+        ]
+    }
+}
+
+resource "google_storage_bucket_object" "cf_feedback_files" {
+    name          = "index.zip"
+    bucket        = google_storage_bucket.bucket[2].name
+    source        = var.cf_path_feedback_files
     content_type  = "application/zip"
 
     lifecycle {

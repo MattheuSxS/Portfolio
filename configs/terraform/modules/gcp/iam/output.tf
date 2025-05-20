@@ -32,3 +32,8 @@ output "sa_pub_sub" {
     description = "value of sa cf sensor"
     value       = "${google_service_account.creating_sa[5].email}"
 }
+
+output "sa_cf_feedback" {
+    description = "value of sa cf sensor"
+    value       = "${google_service_account.creating_sa[6].email}"
+}

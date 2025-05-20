@@ -5,6 +5,7 @@ from faker import Faker
 
 
 class FakeWhSensorData:
+
     def __init__(self, country:str = 'en_US') -> None:
         self.fake   = Faker(country)
         self.fake.seed_instance(0)

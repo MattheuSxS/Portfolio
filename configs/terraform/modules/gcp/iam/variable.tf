@@ -37,3 +37,8 @@ variable "roles_sa_cf_hw_sensor" {
     description = "The roles to assign to the service account"
     type        = list(string)
 }
+
+variable "roles_sa_cf_feedback" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}

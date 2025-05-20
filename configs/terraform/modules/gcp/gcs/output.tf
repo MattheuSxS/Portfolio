@@ -28,12 +28,12 @@ output "bkt_mts_dataproc" {
     value       = google_storage_bucket.bucket[5].name
 }
 
-output "bkt_mts_airflow" {
-    description = "Airflow"
-    value       = google_storage_bucket.bucket[6].name
-}
-
 output "bkt_mts_cf_wh_sensor_file_name" {
     description = "Ready sensor files"
-    value       = google_storage_bucket_object.archive.name
+    value       = google_storage_bucket_object.cf_wh_sensor_files.name
+}
+
+output "bkt_mts_cf_feedback_file_name" {
+    description = "Ready sensor files"
+    value       = google_storage_bucket_object.cf_feedback_files.name
 }

@@ -44,3 +44,8 @@ variable "cf_path_wh_sensor_files" {
     description = "path of the cloud function file"
     type        = string
 }
+
+variable "cf_path_feedback_files" {
+    description = "path of the cloud function file"
+    type        = string
+}

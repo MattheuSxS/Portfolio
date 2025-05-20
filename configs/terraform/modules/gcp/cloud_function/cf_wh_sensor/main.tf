@@ -11,7 +11,7 @@ data "archive_file" "cf_path_wh_sensor_files" {
 resource "google_cloudfunctions2_function" "function" {
   project       = var.project
   location      = var.region
-  name          = var.function_name
+  name          = var.cf_name_wh_sensor
   description   = "It will be triggered via airflow and will send data to the pub/sub"
 
   build_config {

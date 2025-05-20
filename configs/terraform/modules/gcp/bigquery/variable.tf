@@ -26,13 +26,18 @@ variable "bq_dataset" {
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~>>>> Table <<<<~~~~~~~~~~~~~~~~~~~~~~~
 #   ~~~~~~~~~~~~~~~~~~~~~~>>>> Raw <<<<~~~~~~~~~~~~~~~~~~~~~~~
-variable "tb_raw_backup_sensor" {
+variable "tb_raw_hw_sensor" {
     description = "The name of the table"
     type        = string
 }
 
 #   ~~~~~~~~~~~~~~~~~~~~~~>>>> Trusted <<<<~~~~~~~~~~~~~~~~~~~~~~~
 variable "tb_dw_messages" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_feedback" {
     description = "The name of the table"
     type        = string
 }

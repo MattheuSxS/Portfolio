@@ -114,15 +114,26 @@ variable "roles_sa_cf_hw_sensor" {
     type        = list(string)
 }
 
+variable "roles_sa_cf_feedback" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}
+
 variable "roles_sa_composer" {
     description = "The roles to assign to the service account"
     type        = list(string)
 }
 
+
 #   ********************************************************************************************************    #
 #                                              Google Cloud Function                                            #
 #   ********************************************************************************************************    #
-variable "function_name" {
+variable "cf_name_wh_sensor" {
+    description = "name of the function"
+    type        = string
+}
+
+variable "cf_name_feedback" {
     description = "name of the function"
     type        = string
 }
@@ -130,9 +141,9 @@ variable "function_name" {
 #   ********************************************************************************************************    #
 #                                                   Secret Manager                                              #
 #   ********************************************************************************************************    #
-variable "access_authorization" {
-    description = "Secret ID"
-    type        = string
+variable "sm_create_secrets" {
+    description = "All secret ids"
+    type        = list(string)
 }
 
 # variable "database_credentials" {
@@ -164,7 +175,7 @@ variable "bq_dataset" {
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~>>>> Table <<<<~~~~~~~~~~~~~~~~~~~~~~~
 #   ~~~~~~~~~~~~~~~~~~~~~~>>>> Raw <<<<~~~~~~~~~~~~~~~~~~~~~~~
-variable "tb_raw_backup_sensor" {
+variable "tb_raw_hw_sensor" {
     description = "The name of the table"
     type        = string
 }
@@ -175,6 +186,10 @@ variable "tb_dw_messages" {
     type        = string
 }
 
+variable "tb_feedback" {
+    description = "The name of the table"
+    type        = string
+}
 #   ********************************************************************************************************    #
 #                                                   Pub/Sub                                                     #
 #   ********************************************************************************************************    #

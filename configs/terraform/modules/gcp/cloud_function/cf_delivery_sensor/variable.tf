@@ -15,7 +15,7 @@ variable "region" {
 #   ********************************************************************************************************    #
 #                                                Global Variables                                               #
 #   ********************************************************************************************************    #
-variable "function_name" {
+variable "cf_name_wh_sensor" {
     description = "name of cloud function"
     type        = string
 }

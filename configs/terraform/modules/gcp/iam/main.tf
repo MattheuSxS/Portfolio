@@ -22,3 +22,10 @@ resource "google_project_iam_member" "roles_sa_cf_hw_sensor" {
   role    = var.roles_sa_cf_hw_sensor[count.index]
   member  = "serviceAccount:${google_service_account.creating_sa[3].email}"
 }
+
+resource "google_project_iam_member" "roles_sa_cf_feedback" {
+  project = var.project
+  count   = length(var.roles_sa_cf_feedback)
+  role    = var.roles_sa_cf_feedback[count.index]
+  member  = "serviceAccount:${google_service_account.creating_sa[6].email}"
+}

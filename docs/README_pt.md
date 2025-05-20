@@ -49,6 +49,7 @@ A empresa necessita fazer a integração desses dados para **[ Previsāo de dema
     - Detalhes sobre rotas de entrega
     - Custos de transporte
     - Prazos de entrega
+    - ..
 
 
 - Feedback dos Clientes:
