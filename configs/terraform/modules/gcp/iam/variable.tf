@@ -33,12 +33,17 @@ variable "roles_sa_pub_sub" {
     type        = list(string)
 }
 
-variable "roles_sa_cf_hw_sensor" {
+variable "roles_sa_cf_wh_sensor" {
     description = "The roles to assign to the service account"
     type        = list(string)
 }
 
 variable "roles_sa_cf_feedback" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}
+
+variable "roles_sa_dataflow" {
     description = "The roles to assign to the service account"
     type        = list(string)
 }

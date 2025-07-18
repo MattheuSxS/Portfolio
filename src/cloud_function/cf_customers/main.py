@@ -1,10 +1,12 @@
-import os
 import json
 import time
 import logging
-from time import sleep
-from google.cloud import secretmanager
 import google.api_core.exceptions
+from modules.bigquery import BigQuery
+from google.cloud import secretmanager
+from modules.fk_ids import FakeDataPerson
+from modules.fk_address import FakeDataAddress
+from modules.transformation import hide_data, add_columns, split_data
 
 
 logging.basicConfig(
@@ -42,16 +44,29 @@ def check_authorization(data_dict: dict) -> bool:
         raise f"Access denied! --> {e}"
 
 
-def main(request: dict) -> dict:
+def generate_fake_data() -> dict:
     """
-    Entry point function for the Cloud Function.
+    Generates fake customer and card data.
 
     Args:
-        request (dict): The request payload.
+        row_numbers (dict): A dictionary containing the number of customers and cards to generate.
 
     Returns:
-        dict: The response payload.
+        dict: A dictionary containing lists of fake customer and card data.
     """
+
+    fk_person   = FakeDataPerson()
+    fk_address  = FakeDataAddress()
+
+    return \
+        {
+            "customers" : fk_person.dict_customers(),
+            "cards"     : fk_person.dict_card(),
+            "address"   : fk_address.get_random_address()
+        }
+
+
+def main(request: dict) -> dict:
 
     if type(request) != dict:
         dt_request = request.get_json()
@@ -60,70 +75,54 @@ def main(request: dict) -> dict:
 
     logging.info("Validating access, please wait...")
     check_authorization(dt_request)
+    logging.info("Access granted, proceeding with data generation...")
 
-    logging.info("Publishing fake data")
-    success, fail = 0, 0
+    logging.info("Generating fake data...")
+    list_fake_data = [generate_fake_data() for _ in range(dt_request['row_number'])]
 
-    # Define a duração máxima em segundos (3 minutos = 160 segundos)
-    max_duration = 330
-    start_time = time.time()
+    logging.info("Hiding sensitive data...")
+    list_fake_data = hide_data(list_fake_data)
 
-    while True:
-        try:
-            fk = FakeWhSensorData()
 
-            pub = PubSub(
-                dt_request["project_id"], dt_request["topic_id"],
-                dt_request["subscriber"], dt_request["option"]
-            )
+    logging.info("Adding columns to the data...")
+    list_fake_data = add_columns(list_fake_data)
+    logging.info("Columns added successfully.")
 
-            logging.info(f"Publishing data to topic: {dt_request['topic_id']}")
-            for _ in range(5):
-                for data in fk.generate_sensor_data():
-                    pub.publisher(json.dumps(data))
-                    logging.info(f"Data published: {data}")
+    logging.info("Splitting data into customers, cards, and address...")
+    structured_data = split_data(list_fake_data)
+    logging.info("Data split successfully.")
 
-            success += 1
+    logging.info("Data structure ready for insertion into BigQuery.")
+    logging.info("Inserting data into BigQuery...")
+    bq_client = BigQuery(project=dt_request['project_id'])
+    for table in dt_request['table_id']:
+        logging.info(f"Inserting data into {dt_request['dataset_id']}.{table}...")
+        bq_client.batch_load_from_memory(
+            data    = structured_data[table],
+            dataset = dt_request['dataset_id'],
+            table   = table
+        )
+        logging.info(f"Data inserted successfully into {dt_request['dataset_id']}.{table}.")
 
-            if (time.time() - start_time) >= max_duration:
-                break
-            else:
-                sleep(5)
-
-        except Exception as e:
-            logging.error(f"Problem sending data \_O.o_/ ~~> {e}")
-            fail += 1
-            if fail >= 9:
-                break
-
-    logging.info(f"All data submissions completed")
-
-    if fail >= 8:
-        status = 401
-    else:
-        status = 200
-
-    result = {
-        "status": status,
-        "body": \
-            {
-                "success": success,
-                "fail:": fail
-            }
-    }
-
-    return result
+    return list_fake_data
 
 
 if __name__ == "__main__":
-    data_dict = \
-        dict(
-            project_id  = "mts-default-projetct",
-            secret_id   = "access_authorization",
-            topic_id    = "portfolio-topic",
-            subscriber  = "portfolio-subscription",
-            option      = 1
-        )
-    main(data_dict)
+    request_dict = \
+        {
+            "row_number"    : 100_000,
+            'project_id'    : 'mts-default-portofolio',
+            'dataset_id'    : 'ls_customers',
+            'table_id'      : ['tb_customers', 'tb_cards', 'tb_address'],
+            'secret_id'     : 'your_secret_id'
+        }
 
 
+    main(request_dict)
+    # for _ in list_data:
+    #     # print(f"--- Endereço {i+1} ---")
+    #     for chave, valor in _.items():
+    #         print(f"{chave}: {valor}")
+    #     print("-" * 20 + "\n")
+    #     # i+= 1
+        # print(_)

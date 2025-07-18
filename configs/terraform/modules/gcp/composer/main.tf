@@ -1,21 +1,19 @@
-resource "google_composer_environment" "sicredi-composer" {
-  depends_on = [var.sa_airflow,
-    var.sa_role_composer_worker,
-    var.sa_role_storage_object_admin,
-    var.sa_role_cloudfunctions_invoker
-    ]
-
-  provider = google-beta
-  project = var.project
-  region = var.region
-  name = var.airflow_name
+resource "google_composer_environment" "portfolio-composer" {
+  provider  = google-beta
+  project   = var.project
+  region    = var.region
+  name      = var.composer_name
 
   config {
 
     environment_size = "ENVIRONMENT_SIZE_MEDIUM"
 
+    database_config {
+      zone = var.region
+    }
+
     software_config {
-      image_version = var.image_version
+      image_version = var.composer_image_version
     }
 
     workloads_config {
@@ -154,28 +152,22 @@ resource "local_file" "create_airflow_variable_script" {
           logging.error(f"Error setting variables from file '{file_name}' - {e}")
 
 
-    bucket_name = "${replace(replace(google_composer_environment.sicredi-composer.config[0].dag_gcs_prefix, "gs://", ""), "/dags", "")}"
+    bucket_name = "${replace(replace(google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix, "gs://", ""), "/dags", "")}"
     prefix = "variables/"
 
     set_airflow_variables(bucket_name, prefix)
   EOT
 }
 
-resource "null_resource" "create_airflow_variable" {
-
-  depends_on = [
-    google_composer_environment.sicredi-composer,
-    local_file.create_airflow_variable_script
-  ]
-
-  provisioner "local-exec" {
-    command = <<EOT
-      echo "Waiting for Composer to be ready..."
-      sleep 30
-      gcloud composer environments storage plugins import \
-        --environment ${var.airflow_name} \
-        --location ${var.region} \
-        --source ${local_file.create_airflow_variable_script.filename}
-    EOT
-  }
-}
+# resource "null_resource" "create_airflow_variable" {
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       echo "Waiting for Composer to be ready..."
+#       sleep 30
+#       gcloud composer environments storage plugins import \
+#         --environment ${var.composer_name} \
+#         --location ${var.region} \
+#         --source ${local_file.create_airflow_variable_script.filename}
+#     EOT
+#   }
+# }

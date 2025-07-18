@@ -1,60 +1,35 @@
-variable "region" {
-    description = "where the resources will be created"
-    type        = string
-}
-
-variable "environment" {
-    description = "What is the environment"
-    type        = string
-    default     = "development"
-}
-
+#   ********************************************************************************************************    #
+#                                                Global Variables                                               #
+#   ********************************************************************************************************    #
 variable "project" {
-    description = "What is the project name"
+    description = "value of project"
     type        = string
 }
 
-variable "airflow_name" {
-    description = "The name of the Composer environment"
+variable "region" {
+    description = "Region of bucket"
+    type        = string
+}
+variable "environment" {
+    description = "Environment Development"
     type        = string
 }
 
-variable "project_id" {
-    description = "What is the project name"
+
+#   ********************************************************************************************************    #
+#                                               Composer Variables                                              #
+#   ********************************************************************************************************    #
+variable "composer_name" {
+    description = "Name of the Composer environment"
     type        = string
 }
 
-variable "secret_id" {
-    description = "What is the project name"
-    type        = string
-}
-
-variable "image_version" {
-    description = "The version of the Composer image"
+variable "composer_image_version" {
+    description = "Image version of the Composer environment"
     type        = string
 }
 
 variable "sa_airflow" {
-    description = "The service account to grant the roles"
-    type        = string
-}
-
-variable "sa_role_composer_worker" {
-    description = "The service account to grant the roles"
-    type        = string
-}
-
-variable "sa_role_storage_object_admin" {
-    description = "The service account to grant the roles"
-    type        = string
-}
-
-variable "sa_role_cloudfunctions_invoker" {
-    description = "The service account to grant the roles"
-    type        = string
-}
-
-variable "cloud_function_url" {
-    description = "The URL of the cloud function"
+    description = "Service account for Airflow"
     type        = string
 }

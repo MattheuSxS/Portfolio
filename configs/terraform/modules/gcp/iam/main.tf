@@ -16,10 +16,17 @@ resource "google_service_account" "creating_sa" {
   }
 }
 
-resource "google_project_iam_member" "roles_sa_cf_hw_sensor" {
+resource "google_project_iam_member" "roles_sa_dataflow" {
   project = var.project
-  count   = length(var.roles_sa_cf_hw_sensor)
-  role    = var.roles_sa_cf_hw_sensor[count.index]
+  count   = length(var.roles_sa_dataflow)
+  role    = var.roles_sa_dataflow[count.index]
+  member  = "serviceAccount:${google_service_account.creating_sa[1].email}"
+}
+
+resource "google_project_iam_member" "roles_sa_cf_wh_sensor" {
+  project = var.project
+  count   = length(var.roles_sa_cf_wh_sensor)
+  role    = var.roles_sa_cf_wh_sensor[count.index]
   member  = "serviceAccount:${google_service_account.creating_sa[3].email}"
 }
 

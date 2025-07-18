@@ -109,7 +109,7 @@ variable "roles_sa_pub_sub" {
 #     type        = list(string)
 # }
 
-variable "roles_sa_cf_hw_sensor" {
+variable "roles_sa_cf_wh_sensor" {
     description = "The roles to assign to the service account"
     type        = list(string)
 }
@@ -154,12 +154,12 @@ variable "sm_create_secrets" {
 #   ********************************************************************************************************    #
 #                                               Cloud Composer                                                  #
 #   ********************************************************************************************************    #
-variable "airflow_name" {
+variable "composer_name" {
     description = "The name of the Composer environment"
     type        = string
 }
 
-variable "image_version" {
+variable "composer_image_version" {
     description = "The version of the Composer environment"
     type        = string
 }
@@ -187,6 +187,23 @@ variable "tb_dw_messages" {
 }
 
 variable "tb_feedback" {
+    description = "The name of the table"
+    type        = string
+}
+
+
+
+variable "tb_customers" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_cards" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_address" {
     description = "The name of the table"
     type        = string
 }

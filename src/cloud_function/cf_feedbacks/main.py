@@ -85,11 +85,9 @@ def main(request: dict) -> dict:
         }
 
 if __name__ == "__main__":
-    data_dict = \
-        dict(
-            project_id  = "mts-default-projetct",
-            secret_id   = "bq_fb_access_authorization"
-        )
-    main(data_dict)
+    main({
+            "project_id": "mts-default-projetct",
+            "secret_id": "bq_fb_access_authorization"
+        })
 
 

@@ -77,12 +77,13 @@ class FakeFeedbackData:
             rating = random.randint(1, 5)
             sentiment = random.choice(self.sentiment_words[rating])
             feedback = self.schema_feedback.copy()
+            fake_name = self.fake.name()
             feedback.update({
                 "feedback_id"       : f"fb_{self.fake.uuid4()}",
                 "type"              : random.choice(self.feedback_types),
                 "category"          : self.fake.product_categories(),
-                "customer_name"     : self.fake.name(),
-                "customer_email"    : self.fake.email(),
+                "customer_name"     : fake_name,
+                "customer_email"    : f"{fake_name.lower().replace(' ', '.')}{'@'}{self.fake.free_email_domain()}",
                 "rating"            : rating,
                 "title"             : f"{sentiment.capitalize()} experience with the {self.fake.word().capitalize()}",
                 "comment"           : self.generate_comment(rating),

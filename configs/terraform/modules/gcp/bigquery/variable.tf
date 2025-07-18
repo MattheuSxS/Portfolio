@@ -41,3 +41,19 @@ variable "tb_feedback" {
     description = "The name of the table"
     type        = string
 }
+
+#   ~~~~~~~~~~~~~~~~~~~~~~>>>> ls_customers <<<<~~~~~~~~~~~~~~~~~~~~~~~
+variable "tb_customers" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_cards" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_address" {
+    description = "The name of the table"
+    type        = string
+}

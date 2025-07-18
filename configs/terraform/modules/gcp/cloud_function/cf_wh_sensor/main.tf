@@ -3,8 +3,8 @@
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_wh_sensor_files" {
   type        = "zip"
-  source_dir  = "../../src/cloud_function/cf_hw_sensor/"
-  output_path = "../../src/cloud_function/cf_hw_sensor/index.zip"
+  source_dir  = "../../src/cloud_function/cf_wh_sensor/"
+  output_path = "../../src/cloud_function/cf_wh_sensor/index.zip"
 }
 
 
@@ -35,7 +35,7 @@ resource "google_cloudfunctions2_function" "function" {
     min_instance_count    = 1
     available_memory      = "256M"
     timeout_seconds       = 3000
-    service_account_email = var.sa_cf_hw_sensor
+    service_account_email = var.sa_cf_wh_sensor
     ingress_settings      = "ALLOW_ALL"
   }
 

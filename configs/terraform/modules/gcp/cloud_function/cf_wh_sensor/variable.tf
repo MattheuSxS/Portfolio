@@ -35,7 +35,7 @@ variable "bkt_mts_cf_wh_sensor_file_name" {
     type        = string
 }
 
-variable "sa_cf_hw_sensor" {
+variable "sa_cf_wh_sensor" {
     description = "service account of the cloud function"
     type        = string
 }

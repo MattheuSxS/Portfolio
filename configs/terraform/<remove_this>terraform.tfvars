@@ -47,4 +47,4 @@ secret_db_credentials = ""
 #                                                   Cloud Composer                                              #
 #   ********************************************************************************************************    #
 airflow_name = ""
-image_version = ""
+composer_image_version = ""

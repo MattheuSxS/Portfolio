@@ -36,7 +36,7 @@ resource "google_bigquery_table" "tb_raw_dw_messages" {
 }
 
 #   ********************************************************************************************************   #
-#                                                 Table production                                             #
+#                                             DataSet production |  Table production                           #
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_dw_messages" {
     dataset_id            = google_bigquery_dataset.bq_dataset[2].dataset_id
@@ -66,4 +66,52 @@ resource "google_bigquery_table" "tb_feedback" {
     }
 
     clustering = ["type", "category", "rating", "verified_purchase"]
+}
+
+
+#   ********************************************************************************************************   #
+#                                                   DataSet ls_customers                                       #
+#   ********************************************************************************************************   #
+
+
+resource "google_bigquery_table" "tb_customers" {
+    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    table_id              = var.tb_customers
+    schema                = file("${path.module}/schemas/tb_customers.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["associate_id", "name", "last_name", "cpf"]
+}
+
+resource "google_bigquery_table" "tb_cards" {
+    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    table_id              = var.tb_cards
+    schema                = file("${path.module}/schemas/tb_cards.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["card_id", "fk_associate_id", "card_flag", "Enabled"]
+}
+
+resource "google_bigquery_table" "tb_address" {
+    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    table_id              = var.tb_address
+    schema                = file("${path.module}/schemas/tb_address.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["address_id", "neighborhood", "city", "state"]
 }
