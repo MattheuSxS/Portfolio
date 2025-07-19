@@ -1,0 +1,32 @@
+[
+  {
+    "name": "message_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "ID da mensagem"
+  },
+  {
+    "name": "publish_time",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Date and time when the message was published"
+  },
+  {
+    "name": "subscription_name",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Name of the subscription that received the message"
+  },
+  {
+    "name": "data",
+    "type": "JSON",
+    "mode": "REQUIRED",
+    "description": "Payload completo da mensagem em formato JSON"
+  },
+  {
+    "name": "attributes",
+    "type": "JSON",
+    "mode": "NULLABLE",
+    "description": "Atributes of the message"
+  }
+]

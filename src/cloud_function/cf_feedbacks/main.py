@@ -38,6 +38,7 @@ def check_authorization(data_dict: dict) -> bool:
         return json.loads(result.payload.data.decode("UTF-8"))
 
     except google.api_core.exceptions.GoogleAPICallError as e:
+        logging.error(f"Access to secret key denied")
         raise f"Access denied! --> {e}"
 
 #TODO: I need to try this function yet..
@@ -86,7 +87,7 @@ def main(request: dict) -> dict:
 
 if __name__ == "__main__":
     main({
-            "project_id": "mts-default-projetct",
+            "project_id": "mts-default-portofolio",
             "secret_id": "bq_fb_access_authorization"
         })
 

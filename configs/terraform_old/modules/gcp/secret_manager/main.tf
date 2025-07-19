@@ -28,3 +28,13 @@ resource "google_secret_manager_secret_version" "bq_fb_access_authorization" {
     secret      = google_secret_manager_secret.create_secrets[1].id
     secret_data = jsonencode(var.bq_fb_access_authorization)
 }
+
+resource "google_secret_manager_secret_version" "bq_customers_access_authorization" {
+    secret      = google_secret_manager_secret.create_secrets[2].id
+    secret_data = jsonencode({
+        "project_id"        = var.project
+        "dataset_id"        = var.ls_customers_dataset
+        "table_id"          = [var.tb_customers, var.tb_cards, var.tb_address]
+        "number_customers"  = var.number_customers
+    })
+}
