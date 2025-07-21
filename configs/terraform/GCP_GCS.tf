@@ -58,8 +58,8 @@ resource "google_storage_bucket" "bucket" {
 
 
 resource "google_storage_bucket_object" "cf_wh_sensor_files" {
-    name            = "index.zip"
-    bucket          = google_storage_bucket.bucket[0].name
+    name            = "cf_wh_sensor/index.zip"
+    bucket          = "${google_storage_bucket.bucket[0].name}"
     source          = data.archive_file.cf_path_wh_sensor_files.output_path
     content_type    = "application/zip"
 
@@ -70,9 +70,10 @@ resource "google_storage_bucket_object" "cf_wh_sensor_files" {
     }
 }
 
+
 resource "google_storage_bucket_object" "cf_feedback_files" {
-    name            = "index.zip"
-    bucket          = google_storage_bucket.bucket[2].name
+    name            = "cf_feedback/index.zip"
+    bucket          = "${google_storage_bucket.bucket[0].name}"
     source          = data.archive_file.cf_path_feedback_files.output_path
     content_type    = "application/zip"
 
@@ -83,9 +84,10 @@ resource "google_storage_bucket_object" "cf_feedback_files" {
     }
 }
 
+
 resource "google_storage_bucket_object" "cf_customers_files" {
-    name            = "index.zip"
-    bucket          = google_storage_bucket.bucket[3].name
+    name            = "cf_customers/index.zip"
+    bucket          = "${google_storage_bucket.bucket[0].name}"
     source          = data.archive_file.cf_path_customers_files.output_path
     content_type    = "application/zip"
 

@@ -108,6 +108,11 @@ variable "roles_sa_pub_sub" {
 #     type        = list(string)
 # }
 
+variable "roles_sa_cf_customers" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}
+
 variable "roles_sa_cf_wh_sensor" {
     description = "The roles to assign to the service account"
     type        = list(string)
@@ -220,21 +225,30 @@ variable "tb_address" {
 #   ********************************************************************************************************    #
 #                                                   Pub/Sub                                                     #
 #   ********************************************************************************************************    #
-variable "pub_sub_wh_sensor_topic" {
-    description = "The name of the Pub/Sub topic"
-    type        = string
+variable "pub_sub_topics" {
+    description = "The names of the Pub/Sub topics"
+    type        = list(string)
 }
 
-variable "pub_sub_wh_sensor_subscription" {
+variable "pub_sub_wh_sensor_subs" {
     description = "The name of the Pub/Sub subscription"
     type        = string
 }
 
-variable "pub_sub_wh_sensor_subscription_bq" {
+variable "pub_sub_wh_sensor_subs_bq" {
     description = "The name of the Pub/Sub subscription"
     type        = string
 }
 
+variable "pub_sub_delivery_sensor_subs" {
+    description = "The name of the Pub/Sub subscription for delivery sensor"
+    type        = string
+}
+
+variable "pub_sub_delivery_sensor_subs_bq" {
+    description = "The name of the Pub/Sub subscription for delivery sensor in BigQuery"
+    type        = string
+}
 
 #   ********************************************************************************************************    #
 #                                                   Dataflow                                                    #

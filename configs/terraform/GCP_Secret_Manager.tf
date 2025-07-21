@@ -19,24 +19,28 @@ resource "google_secret_manager_secret" "create_secrets" {
 
 }
 
-resource "google_secret_manager_secret_version" "access_authorization" {
+resource "google_secret_manager_secret_version" "bq_wh_sensor_access_authorization" {
     secret      = google_secret_manager_secret.create_secrets[0].id
-    secret_data = jsonencode({validation = "ok"})
+    secret_data = jsonencode({
+        "project_id"    = var.project[terraform.workspace]
+        "topic_id"      = google_pubsub_topic.pub_sub_topics[0].name
+        "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
+    })
 }
 
-resource "google_secret_manager_secret_version" "bq_fb_access_authorization" {
+resource "google_secret_manager_secret_version" "bq_feedback_access_authorization" {
     secret      = google_secret_manager_secret.create_secrets[1].id
     secret_data = jsonencode({
-        "project"   = var.project[terraform.workspace]
-        "dataset"   = google_bigquery_dataset.bq_dataset[2].dataset_id
-        "table"     = var.tb_feedback
+        "project_id"   = var.project[terraform.workspace]
+        "dataset_id"   = google_bigquery_dataset.bq_dataset[2].dataset_id
+        "table_id"     = var.tb_feedback
     })
 }
 
 resource "google_secret_manager_secret_version" "bq_customers_access_authorization" {
     secret      = google_secret_manager_secret.create_secrets[2].id
     secret_data = jsonencode({
-        "project_id"        = var.project
+        "project_id"        = var.project[terraform.workspace]
         "dataset_id"        = google_bigquery_dataset.bq_dataset[3].dataset_id
         "table_id"          = [var.tb_customers, var.tb_cards, var.tb_address]
         "number_customers"  = var.number_customers

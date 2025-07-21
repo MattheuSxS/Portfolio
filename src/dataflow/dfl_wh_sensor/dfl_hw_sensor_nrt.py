@@ -3,7 +3,7 @@ import apache_beam as beam
 from apache_beam.transforms import window
 from apache_beam.options.pipeline_options import PipelineOptions
 
-
+#TODO: Redoing whole file, because had plan changes.
 def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
                  bkt_dataflow:str, project:str, dataset:str, subscription:str) -> None:
 

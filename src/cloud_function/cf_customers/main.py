@@ -1,6 +1,6 @@
 import json
-import time
 import logging
+from flask import jsonify
 import google.api_core.exceptions
 from modules.bigquery import BigQuery
 from google.cloud import secretmanager
@@ -97,45 +97,53 @@ def main(request: dict) -> dict:
     else:
         dt_request = request
 
-    logging.info("Validating access, please wait...")
-    credentials = check_authorization(dt_request)
-    logging.info("Access granted, proceeding with data generation...")
+    try:
+        logging.info("Validating access, please wait...")
+        credentials = check_authorization(dt_request)
+        logging.info("Access granted, proceeding with data generation...")
 
-    logging.info("Generating fake data...")
-    list_fake_data = [generate_fake_data() for _ in range(credentials['number_customers'])]
+        logging.info("Generating fake data...")
+        list_fake_data = [generate_fake_data() for _ in range(credentials['number_customers'])]
 
-    logging.info("Hiding sensitive data...")
-    list_fake_data = hide_data(list_fake_data)
+        logging.info("Hiding sensitive data...")
+        list_fake_data = hide_data(list_fake_data)
 
+        logging.info("Adding columns to the data...")
+        list_fake_data = add_columns(list_fake_data)
+        logging.info("Columns added successfully.")
 
-    logging.info("Adding columns to the data...")
-    list_fake_data = add_columns(list_fake_data)
-    logging.info("Columns added successfully.")
+        logging.info("Splitting data into customers, cards, and address...")
+        structured_data = split_data(list_fake_data)
+        logging.info("Data split successfully.")
 
-    logging.info("Splitting data into customers, cards, and address...")
-    structured_data = split_data(list_fake_data)
-    logging.info("Data split successfully.")
+        logging.info("Data structure ready for insertion into BigQuery.")
+        logging.info("Inserting data into BigQuery...")
+        bq_client = BigQuery(project=credentials['project_id'])
+        for table in credentials['table_id']:
+            logging.info(f"Inserting data into {credentials['dataset_id']}.{table}...")
+            bq_client.batch_load_from_memory(
+                data    = structured_data[table],
+                dataset = credentials['dataset_id'],
+                table   = table
+            )
+            logging.info(f"Data inserted successfully into {credentials['dataset_id']}.{table}.")
 
-    logging.info("Data structure ready for insertion into BigQuery.")
-    logging.info("Inserting data into BigQuery...")
-    bq_client = BigQuery(project=credentials['project_id'])
-    for table in credentials['table_id']:
-        logging.info(f"Inserting data into {credentials['dataset_id']}.{table}...")
-        bq_client.batch_load_from_memory(
-            data    = structured_data[table],
-            dataset = credentials['dataset_id'],
-            table   = table
-        )
-        logging.info(f"Data inserted successfully into {credentials['dataset_id']}.{table}.")
+        logging.info("All data inserted successfully into BigQuery tables.")
 
-    logging.info("All data inserted successfully into BigQuery tables.")
+        return \
+            jsonify(
+                {
+                    "body": f"Whole process completed successfully! {credentials['number_customers'] * 3} records processed.",
+                    "status": 200
+                })
 
-    return \
-        {
-            "status": 200,
-            "message": f"Whole process completed successfully! {credentials['number_customers'] * 3} records processed."
-        },
-
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        return jsonify(
+                {
+                    "body": f"Please check the logs for more details. Error: {e}",
+                    "status": 500
+                })
 
 
 if __name__ == "__main__":

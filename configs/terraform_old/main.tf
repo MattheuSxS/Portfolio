@@ -154,16 +154,16 @@ module "GCP_Pub_sub" {
 #   ********************************************************************************************************    #
 #                                                 Dataflow                                                      #
 #   ********************************************************************************************************    #
-# module "GCP_Dataflow_hw_sensor" {
-#     source                          = "./modules/gcp/dataflow/dfl_wh_sensor"
-#     project                         = var.project[terraform.workspace]
-#     region                          = var.region
-#     environment                     = var.environment
-#     dfl_wh_sensor_template          = var.dfl_wh_sensor_template
-#     dfl_wh_sensor_job_name          = var.dfl_wh_sensor_job_name
-#     dfl_wh_sensor_script_path       = var.dfl_wh_sensor_script_path
-#     bkt_mts_dataflow                = module.GCP_Buckets.bkt_mts_dataflow
-#     sa_dataflow                     = module.GCP_Iam.sa_dataflow
-#     pub_sub_wh_sensor_subscription  = var.pub_sub_wh_sensor_subscription
-#     dataset_trusted                 = module.GCP_BigQuery.production_dataset
-# }
+module "GCP_Dataflow_hw_sensor" {
+    source                          = "./modules/gcp/dataflow/dfl_wh_sensor"
+    project                         = var.project[terraform.workspace]
+    region                          = var.region
+    environment                     = var.environment
+    dfl_wh_sensor_template          = var.dfl_wh_sensor_template
+    dfl_wh_sensor_job_name          = var.dfl_wh_sensor_job_name
+    dfl_wh_sensor_script_path       = var.dfl_wh_sensor_script_path
+    bkt_mts_dataflow                = module.GCP_Buckets.bkt_mts_dataflow
+    sa_dataflow                     = module.GCP_Iam.sa_dataflow
+    pub_sub_wh_sensor_subscription  = var.pub_sub_wh_sensor_subscription
+    dataset_trusted                 = module.GCP_BigQuery.production_dataset
+}

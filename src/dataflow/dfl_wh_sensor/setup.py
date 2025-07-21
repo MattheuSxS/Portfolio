@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='dfw_get_data_nrt',
+    name='dfl_hw_sensor_nrt',
     version='0.0.2',
     author='Matheus Dos S. Silva',
     author_email='mattheusxs@gmail.com',
     packages=find_packages(),
     install_requires=[
-        'apache_beam[gcp]==2.63.0',
+        'apache_beam[gcp]==2.66.0',
     ],
     include_package_data=True,
     classifiers=[
