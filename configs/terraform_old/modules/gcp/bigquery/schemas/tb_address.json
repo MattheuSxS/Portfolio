@@ -6,10 +6,10 @@
         "description": "Unique identifier for the address."
     },
     {
-        "name": "Street",
+        "name": "address",
         "type": "STRING",
         "mode": "REQUIRED",
-        "description": "Street address of the customer."
+        "description": "address address of the customer."
     },
     {
         "name": "neighborhood",
@@ -30,7 +30,7 @@
         "description": "State of the customer's address."
     },
     {
-        "name": "eircode",
+        "name": "postal_code",
         "type": "STRING",
         "mode": "REQUIRED",
         "description": "Postal code of the customer's address."

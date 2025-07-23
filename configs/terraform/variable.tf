@@ -128,22 +128,36 @@ variable "roles_sa_composer" {
     type        = list(string)
 }
 
+variable "roles_sa_cf_products_inventory" {
+    description = "The roles to assign to the service account for products inventory"
+    type        = list(string)
+}
 
 #   ********************************************************************************************************    #
 #                                              Google Cloud Function                                            #
 #   ********************************************************************************************************    #
-variable "cf_name_wh_sensor" {
+variable "cf_wh_sensor" {
     description = "name of the function"
     type        = string
 }
 
-variable "cf_name_feedback" {
+variable "cf_feedback" {
     description = "name of the function"
     type        = string
 }
 
-variable "cf_name_customers" {
+variable "cf_customers" {
     description = "name of cloud function"
+    type        = string
+}
+
+variable "cf_products_inventory" {
+    description = "name of cloud function for products inventory"
+    type        = string
+}
+
+variable "cf_delivery_sensor" {
+    description = "name of the function for delivery sensor"
     type        = string
 }
 
@@ -160,6 +174,10 @@ variable "number_customers" {
     type        = number
 }
 
+variable "number_products" {
+    description = "Number of products to be inserted"
+    type        = number
+}
 #   ********************************************************************************************************    #
 #                                               Cloud Composer                                                  #
 #   ********************************************************************************************************    #
@@ -217,6 +235,26 @@ variable "tb_cards" {
 }
 
 variable "tb_address" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_products" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_inventory" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_delivery_locations" {
+    description = "The name of the table"
+    type        = string
+}
+
+variable "tb_processing_times" {
     description = "The name of the table"
     type        = string
 }

@@ -1,9 +1,10 @@
+#TODO: I must get back to this code and refactor it
 import json
 import logging
 import google.api_core.exceptions
 from google.cloud import secretmanager
-from modules.bq_feedback import BigQueryFeedback
-from modules.fake_data_feedback import FakeFeedbackData
+from modules.bigquery import BigQuery
+from modules.fk_feedback import FkFeedback
 
 
 logging.basicConfig(
@@ -88,7 +89,7 @@ def main(request: dict) -> dict:
 if __name__ == "__main__":
     main({
             "project_id": "mts-default-portofolio",
-            "secret_id": "bq_fb_access_authorization"
+            "secret_id": "bq_feedback_access_authorization"
         })
 
 

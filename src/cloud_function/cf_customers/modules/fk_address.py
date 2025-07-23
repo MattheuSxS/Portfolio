@@ -16,7 +16,7 @@ class FakeDataAddress:
     Methods:
         get_random_address():
             Generates a random address dictionary with the following fields:
-                - 'Rua': Street name and building number.
+                - 'Rua': address name and building number.
                 - 'Bairro': Neighborhood name.
                 - 'city': Capital city name.
                 - 'Estado': State abbreviation.
@@ -74,11 +74,11 @@ class FakeDataAddress:
 
         endereco = {
             'address_id':       f"ADDR##{self.fake.unique.uuid4()}",
-            'street':           f'{self.fake.street_name()}, {self.fake.building_number()}',
+            'address':          f'{self.fake.address_name()}, {self.fake.building_number()}',
             'neighborhood':     self.fake.bairro(),
             'city':             city,
             'state':            select_uf,
-            'eircode':          self.fake.postcode(),
+            'postal_code':      self.fake.postcode(),
             'latitude':         f'{lat:.6f}',
             'longitude':        f'{lon:.6f}',
             'created_at':       None,

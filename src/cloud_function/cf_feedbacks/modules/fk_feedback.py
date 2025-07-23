@@ -12,7 +12,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-class FakeFeedbackData:
+class FkFeedback:
 
 
     def __init__(self, country: str = 'en_US') -> None:
@@ -79,7 +79,7 @@ class FakeFeedbackData:
             feedback = self.schema_feedback.copy()
             fake_name = self.fake.name()
             feedback.update({
-                "feedback_id"       : f"fb_{self.fake.uuid4()}",
+                "feedback_id"       : f"FB##{self.fake.uuid4()}",
                 "type"              : random.choice(self.feedback_types),
                 "category"          : self.fake.product_categories(),
                 "customer_name"     : fake_name,
@@ -130,7 +130,7 @@ class FakeFeedbackData:
 
 
 if __name__ == "__main__":
-    test = FakeFeedbackData()
+    test = FkFeedback()
     print("Generating fake feedback data...")
     feedbacks = test.generate_fake_feedbacks(5)
     test.pretty_print_feedbacks(feedbacks)

@@ -12,33 +12,33 @@
         "description": "Date and time when the message was published"
     },
     {
-      "name": "warehouse_id",
-      "type": "STRING",
-      "mode": "REQUIRED",
-      "description": "Id of the warehouse"
+        "name": "warehouse_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Id of the warehouse"
     },
     {
-      "name": "sensor_id",
-      "type": "STRING",
-      "mode": "REQUIRED",
-      "description": "Id of the sensor"
+        "name": "sensor_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Id of the sensor"
     },
     {
-      "name": "time_stamp",
-      "type": "TIMESTAMP",
-      "mode": "REQUIRED",
-      "description": "Date and time when the message was sent"
+        "name": "time_stamp",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Date and time when the message was sent"
     },
     {
-      "name": "temperature",
-      "type": "NUMERIC",
-      "mode": "REQUIRED",
-      "description": "Temperature of the sensor"
+        "name": "temperature",
+        "type": "NUMERIC",
+        "mode": "REQUIRED",
+        "description": "Temperature of the sensor"
     },
     {
-      "name": "humidity",
-      "type": "NUMERIC",
-      "mode": "REQUIRED",
-      "description": "Humidity of the sensor"
+        "name": "humidity",
+        "type": "NUMERIC",
+        "mode": "REQUIRED",
+        "description": "Humidity of the sensor"
     }
 ]

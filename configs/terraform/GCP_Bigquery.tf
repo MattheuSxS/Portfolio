@@ -112,3 +112,59 @@ resource "google_bigquery_table" "tb_address" {
 
     clustering = ["address_id", "neighborhood", "city", "state"]
 }
+
+resource "google_bigquery_table" "tb_products" {
+    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    table_id              = var.tb_products
+    schema                = file("${path.module}/schemas/tb_products.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["product_id", "name", "category", "condition"]
+}
+
+resource "google_bigquery_table" "tb_inventory" {
+    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    table_id              = var.tb_inventory
+    schema                = file("${path.module}/schemas/tb_inventory.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["inventory_id", "location", "aisle", "last_restock"]
+}
+
+resource "google_bigquery_table" "tb_delivery_locations" {
+    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    table_id              = var.tb_delivery_locations
+    schema                = file("${path.module}/schemas/tb_delivery_locations.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["location_id", "state", "city", "neighborhood"]
+}
+
+resource "google_bigquery_table" "tb_processing_times" {
+    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    table_id              = var.tb_processing_times
+    schema                = file("${path.module}/schemas/tb_processing_times.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["processing_id", "product_id", "location_id", "last_updated"]
+}

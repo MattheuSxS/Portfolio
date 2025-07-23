@@ -1,0 +1,87 @@
+[
+    {
+        "name": "location_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Unique identifier for the delivery location"
+    },
+    {
+        "name": "address",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Street address of the delivery location"
+    },
+    {
+        "name": "city",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "City of the delivery location"
+    },
+    {
+        "name": "neighborhood",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Neighborhood of the delivery location"
+    },
+    {
+        "name": "state",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "State of the delivery location"
+    },
+    {
+        "name": "postal_code",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Postal code of the delivery location"
+    },
+    {
+        "name": "country",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Country of the delivery location"
+    },
+    {
+        "name": "coordinates",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+            {
+                "name": "latitude",
+                "type": "FLOAT64",
+                "mode": "NULLABLE",
+                "description": "Latitude of the delivery location"
+            },
+            {
+                "name": "longitude",
+                "type": "FLOAT64",
+                "mode": "NULLABLE",
+                "description": "Longitude of the delivery location"
+            }
+        ]
+    },
+    {
+        "name": "delivery_zone",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Delivery zone of the delivery location"
+    },
+    {
+        "name": "delivery_difficulty",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Delivery difficulty of the delivery location"
+    },
+    {
+        "name": "fk_associate_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Foreign key referencing the associated user"
+    },
+    {
+        "name": "created_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the customer was created."
+    }
+]

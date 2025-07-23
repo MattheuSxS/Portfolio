@@ -1,0 +1,50 @@
+[
+    {
+        "name": "inventory_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Unique identifier for the inventory item"
+    },
+    {
+        "name": "product_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Unique identifier for the product"
+    },
+    {
+        "name": "location",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Location of the inventory item"
+    },
+    {
+        "name": "quantity",
+        "type": "INTEGER",
+        "mode": "NULLABLE",
+        "description": "Quantity of the inventory item"
+    },
+    {
+        "name": "last_restock",
+        "type": "DATE",
+        "mode": "NULLABLE",
+        "description": "Date when the inventory item was last restocked"
+    },
+    {
+        "name": "aisle",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Aisle where the inventory item is located"
+    },
+    {
+        "name": "shelf",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Shelf where the inventory item is located"
+    },
+    {
+        "name": "created_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the customer was created."
+    }
+]

@@ -52,3 +52,10 @@ resource "google_project_iam_member" "roles_sa_cf_feedback" {
   role    = var.roles_sa_cf_feedback[count.index]
   member  = "serviceAccount:${google_service_account.creating_sa[7].email}"
 }
+
+resource "google_project_iam_member" "roles_sa_cf_products_inventory" {
+  project = var.project[terraform.workspace]
+  count   = length(var.roles_sa_cf_products_inventory)
+  role    = var.roles_sa_cf_products_inventory[count.index]
+  member  = "serviceAccount:${google_service_account.creating_sa[8].email}"
+}

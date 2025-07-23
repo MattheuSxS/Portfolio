@@ -97,3 +97,16 @@ resource "google_storage_bucket_object" "cf_customers_files" {
         ]
     }
 }
+
+resource "google_storage_bucket_object" "cf_products_inventory_files" {
+    name            = "cf_products_inventory/index.zip"
+    bucket          = "${google_storage_bucket.bucket[0].name}"
+    source          = data.archive_file.cf_path_products_inventory_files.output_path
+    content_type    = "application/zip"
+
+    lifecycle {
+        ignore_changes = [
+        source_md5hash,
+        ]
+    }
+}

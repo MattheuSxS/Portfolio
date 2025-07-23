@@ -1,0 +1,50 @@
+[
+    {
+        "name": "processing_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Unique identifier for the processing time record"
+    },
+    {
+        "name": "product_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Unique identifier for the product"
+    },
+    {
+        "name": "location_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Unique identifier for the delivery location"
+    },
+    {
+        "name": "normal_processing_time",
+        "type": "INTEGER",
+        "mode": "NULLABLE",
+        "description": "Normal processing time for the product at the location"
+    },
+    {
+        "name": "expedited_processing_time",
+        "type": "INTEGER",
+        "mode": "NULLABLE",
+        "description": "Expedited processing time for the product at the location"
+    },
+    {
+        "name": "peak_season_multiplier",
+        "type": "FLOAT64",
+        "mode": "NULLABLE",
+        "description": "Peak season multiplier for the product at the location"
+    },
+    {
+        "name": "created_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the customer was created."
+    },
+    {
+        "name": "last_updated",
+        "type": "DATE",
+        "mode": "NULLABLE",
+        "description": "Date when the processing time record was last updated"
+    }
+]

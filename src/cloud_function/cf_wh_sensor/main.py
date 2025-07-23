@@ -46,7 +46,24 @@ def check_authorization(data_dict: dict) -> bool:
 
 
 def _validate_and_parse_request(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
-    """Validate and parse the incoming request."""
+    """
+        Validates and parses an incoming request for required fields and authorization.
+
+        This function accepts a request object, which can be either a dictionary or an object
+        with a `get_json()` method (such as a Flask request). It ensures the request contains
+        the required fields and passes authorization checks.
+
+        Args:
+            request (Union[Dict[str, Any], Any]): The incoming request data, either as a dictionary
+                or an object with a `get_json()` method.
+
+        Returns:
+            Dict[str, Any]: The validated and parsed request data as a dictionary.
+
+        Raises:
+            ValueError: If the request format is invalid, authorization fails, or any required
+                field is missing.
+    """
     if isinstance(request, dict):
         dt_request = request
     else:
