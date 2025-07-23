@@ -1,11 +1,10 @@
 import json
 import logging
 from flask import jsonify
-import google.api_core.exceptions
 from modules.bigquery import BigQuery
-from google.cloud import secretmanager
 from modules.fk_ids import FakeDataPerson
 from modules.fk_address import FakeDataAddress
+from modules.secret_manager import get_credentials
 from modules.transformation import hide_data, add_columns, split_data
 
 
@@ -14,35 +13,6 @@ logging.basicConfig(
             "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
     level=logging.INFO
 )
-
-
-def check_authorization(data_dict: dict) -> bool:
-    """
-    Retrieves the secret key from Google Cloud Secret Manager.
-
-    Args:
-        data_dict (dict): A dictionary containing the project ID and secret ID.
-
-    Returns:
-        bool: True if the secret key is successfully retrieved, False otherwise.
-
-    Raises:
-        Exception: If access to the secret key is denied.
-
-    """
-
-    client      = secretmanager.SecretManagerServiceClient()
-    secret_url  = {
-        "name": f"projects/{data_dict['project_id']}/secrets/{data_dict['secret_id']}/versions/latest"
-    }
-
-    try:
-        result = client.access_secret_version(secret_url)
-        return json.loads(result.payload.data.decode("UTF-8"))
-
-    except google.api_core.exceptions.GoogleAPICallError as e:
-        logging.error(f"Access to secret key denied")
-        raise f"Access denied! --> {e}"
 
 
 def generate_fake_data() -> dict:
@@ -99,7 +69,7 @@ def main(request: dict) -> dict:
 
     try:
         logging.info("Validating access, please wait...")
-        credentials = check_authorization(dt_request)
+        credentials = get_credentials(dt_request)
         logging.info("Access granted, proceeding with data generation...")
 
         logging.info("Generating fake data...")
@@ -127,23 +97,23 @@ def main(request: dict) -> dict:
                 table   = table
             )
             logging.info(f"Data inserted successfully into {credentials['dataset_id']}.{table}.")
-
         logging.info("All data inserted successfully into BigQuery tables.")
-
-        return \
-            jsonify(
-                {
-                    "body": f"Whole process completed successfully! {credentials['number_customers'] * 3} records processed.",
-                    "status": 200
-                })
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-        return jsonify(
-                {
-                    "body": f"Please check the logs for more details. Error: {e}",
-                    "status": 500
-                })
+        return {
+            "status": 500,
+            "body": {
+                "error": str(e)
+            }
+        }
+
+    return {
+            "status": 200,
+            "body": {
+                "message": f"Whole process completed successfully! {credentials['number_customers'] * 3} records processed."
+            }
+        }
 
 
 if __name__ == "__main__":

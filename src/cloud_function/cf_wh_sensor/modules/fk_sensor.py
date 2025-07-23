@@ -65,6 +65,35 @@ class FakeWhSensorData:
             time.sleep(1)
 
 
+    # def process_batch(self, pubsub, batch_size: int) -> int:
+    #     """
+    #         Processes a batch of fake warehouse sensor data and publishes each data point using the provided PubSub publisher.
+
+    #         Args:
+    #             pubsub (PubSub): An object with a 'publisher' method for publishing messages.
+    #             batch_size (int): The number of batches to process.
+
+    #         Returns:
+    #             int: The total number of messages successfully sent.
+
+    #         Raises:
+    #             Exception: Re-raises any exception encountered during message publishing to trigger a batch retry.
+    #     """
+    #     messages_sent = 0
+    #     data_dict = self.generate_sensor_data()
+    #     for _ in range(batch_size):
+    #         for data in data_dict:
+    #             try:
+    #                 message = json.dumps(data)
+    #                 pubsub.publisher(message)
+    #                 messages_sent += 1
+    #                 logging.debug(f"Message published: {message[:100]}...")  # Log truncated message
+    #             except Exception as e:
+    #                 logging.warning(f"Failed to publish message: {str(e)}")
+    #                 raise  # Re-raise to trigger batch retry
+
+    #     return messages_sent
+
 if __name__ == "__main__":
     test = FakeWhSensorData()
 

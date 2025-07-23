@@ -19,14 +19,14 @@ resource "google_secret_manager_secret" "create_secrets" {
 
 }
 
-# resource "google_secret_manager_secret_version" "bq_wh_sensor_access_authorization" {
-#     secret      = google_secret_manager_secret.create_secrets[0].id
-#     secret_data = jsonencode({
-#         "project_id"    = var.project[terraform.workspace]
-#         "topic_id"      = google_pubsub_topic.pub_sub_topics[0].name
-#         "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
-#     })
-# }
+resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorization" {
+    secret      = google_secret_manager_secret.create_secrets[0].id
+    secret_data = jsonencode({
+        "project_id"    = var.project[terraform.workspace]
+        "topic_id"      = google_pubsub_topic.pub_sub_topics[0].name
+        "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
+    })
+}
 
 resource "google_secret_manager_secret_version" "bq_feedback_access_authorization" {
     secret      = google_secret_manager_secret.create_secrets[1].id

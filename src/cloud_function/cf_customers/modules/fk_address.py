@@ -74,7 +74,7 @@ class FakeDataAddress:
 
         endereco = {
             'address_id':       f"ADDR##{self.fake.unique.uuid4()}",
-            'address':          f'{self.fake.address_name()}, {self.fake.building_number()}',
+            'address':          f'{self.fake.street_name()} {self.fake.building_number()}',
             'neighborhood':     self.fake.bairro(),
             'city':             city,
             'state':            select_uf,
