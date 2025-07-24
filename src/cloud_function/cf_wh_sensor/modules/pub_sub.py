@@ -48,6 +48,5 @@ class PubSub:
 
 
 if __name__ == "__main__":
-    # projects/default-project-mts/topics/tp-pj-streaming
-    t = PubSub("default-project-mts", "tp-pj-streaming", "tp-pj-streaming-subs", 1)
+    t = PubSub("mts-default-portofolio", "wh_sensor_topic")
     t.publisher('{"hello": "2131"}')

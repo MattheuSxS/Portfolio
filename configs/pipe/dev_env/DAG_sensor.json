@@ -1,0 +1,26 @@
+{
+    "DAG_sensor": {
+        "schedule_interval": "8 * * * *",
+        "retries": 3,
+        "retry_delay": 15,
+        "dagrun_timeout": 30,
+        "project_vars": "dmts-default-portofolio",
+        "project_number": "42887123198",
+        "cloud_functions": {
+            "cf-wh-sensor": {
+                "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
+                "cloud_function_dict": {
+                    "project_id": "mts-default-portofolio",
+                    "secret_id": "ps_wh_sensor_access_authorization"
+                }
+            },
+            "cf-delivery-sensor": {
+                "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
+                "cloud_function_dict": {
+                    "project_id": "mts-default-portofolio",
+                    "secret_id": "ps_wh_sensor_access_authorization"
+                }
+            }
+        }
+    }
+}

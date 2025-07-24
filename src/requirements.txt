@@ -5,3 +5,4 @@ google-cloud-functions==1.20.3
 google-cloud-storage==2.19.0
 google-cloud-pubsub==2.29.0
 apache-beam[gcp]==2.64.0
+apache-airflow==2.10.5

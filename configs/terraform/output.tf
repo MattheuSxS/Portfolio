@@ -78,3 +78,12 @@
 # #     description = "Ready sensor files"
 # #     value       = google_storage_bucket_object.cf_feedback_files.name
 # # }
+
+
+# locals {
+#     bkt_airflow     = google_storage_bucket.bucket[0].name
+#     bkt_cf          = google_storage_bucket.bucket[1].name
+#     bkt_dataflow    = google_storage_bucket.bucket[2].name
+#     sa_airflow      = google_service_account.sa_airflow.email
+#     sa_dataflow     = google_service_account.sa_dataflow.email
+# }

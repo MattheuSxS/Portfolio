@@ -1,54 +1,54 @@
-# resource "google_composer_environment" "portfolio-composer" {
-#     depends_on  = [google_project_iam_member.roles_sa_composer]
-#     provider    = google-beta
-#     project     = var.project[terraform.workspace]
-#     region      = var.region
-#     name        = var.composer_name
+resource "google_composer_environment" "portfolio-composer" {
+    depends_on  = [google_project_iam_member.roles_sa_composer]
+    provider    = google-beta
+    project     = var.project[terraform.workspace]
+    region      = var.region
+    name        = var.composer_name
 
-#     config {
+    config {
 
-#         environment_size = "ENVIRONMENT_SIZE_MEDIUM"
+        environment_size = "ENVIRONMENT_SIZE_MEDIUM"
 
-#         software_config {
-#             image_version = var.composer_image_version
-#         }
+        software_config {
+            image_version = var.composer_image_version
+        }
 
-#         workloads_config {
-#             scheduler {
-#                 cpu = 1
-#                 memory_gb = 2.5
-#                 storage_gb = 2
-#                 count = 1
-#             }
-#             triggerer {
-#                 count = 3
-#                 cpu = 1
-#                 memory_gb = 1
-#             }
-#             web_server {
-#                 cpu = 1
-#                 memory_gb = 2.5
-#                 storage_gb = 2
-#             }
-#             worker {
-#                 cpu = 1
-#                 memory_gb = 2
-#                 storage_gb = 2
-#                 min_count = 2
-#                 max_count = 4
-#             }
-#         }
+        workloads_config {
+            scheduler {
+                cpu = 1
+                memory_gb = 2.5
+                storage_gb = 2
+                count = 1
+            }
+            triggerer {
+                count = 3
+                cpu = 1
+                memory_gb = 1
+            }
+            web_server {
+                cpu = 1
+                memory_gb = 2.5
+                storage_gb = 2
+            }
+            worker {
+                cpu = 1
+                memory_gb = 2
+                storage_gb = 2
+                min_count = 2
+                max_count = 4
+            }
+        }
 
-#         node_config {
-#         service_account = google_service_account.creating_sa[0].email
-#         }
-#     }
+        node_config {
+        service_account = google_service_account.creating_sa[0].email
+        }
+    }
 
-#     labels = {
-#         "created_by": "terraform",
-#         "env": var.environment
-#     }
-# }
+    labels = {
+        "created_by": "terraform",
+        "env": var.environment
+    }
+}
 
 
 # resource "local_file" "create_airflow_variable_script" {
