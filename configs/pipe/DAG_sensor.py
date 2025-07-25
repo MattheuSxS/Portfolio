@@ -77,7 +77,7 @@ dag_kwargs = dict(
 # ====================================================================================================================================
 def dummy(name:str) -> None:
     return EmptyOperator(
-        task_id=name
+        task_id=name,
     )
 
 def _call_cloud_function(data_dict:dict, cf_name:str) -> str:
@@ -112,11 +112,11 @@ def _call_cloud_function(data_dict:dict, cf_name:str) -> str:
     response = stdout.decode('utf-8').strip()
 
     result = json.loads(response)
-    if result["status"] != "success":
+    if result["status"] != 200:
         logging.error(f"Cloud Function call failed, please check the logs.....")
-        raise Exception(result['message'])
+        raise Exception(result['body'])
 
-    return f"Status: {result['status']} {result['message']}"
+    return f"Status: {result['status']} {result['body']}"
 
 
 def call_cloud_function(cf_name:str) -> str:
@@ -147,4 +147,7 @@ def call_cloud_function(cf_name:str) -> str:
 # ====================================================================================================================================
 with DAG(dag_id=__artefact__, start_date=default_args['start_date'], **dag_kwargs):
 
-    dummy("Start") >> call_cloud_function("cf-wh-sensor") >> dummy("End")
+    dummy("Start") >> [
+        call_cloud_function("cf-wh-sensor"),
+        call_cloud_function("cf-delivery-sensor")
+    ] >> dummy("End")

@@ -42,7 +42,7 @@ def check_authorization(data_dict: dict) -> bool:
         logging.error(f"Access to secret key denied")
         raise f"Access denied! --> {e}"
 
-#TODO: I need to try this function yet..
+
 def main(request: dict) -> dict:
     """
     Entry point function for the Cloud Function.
@@ -65,15 +65,15 @@ def main(request: dict) -> dict:
     try:
         logging.info("Access granted!")
         logging.info("Generating fake feedback data...")
-        fake_data   = FakeFeedbackData()
+        fake_data   = FkFeedback()
         df_fake     = fake_data.generate_fake_feedbacks(num_feedbacks=1000)
         logging.info("Fake feedback data generated successfully!")
         logging.info("Inserting data into BigQuery...")
-        BigQueryFeedback(
-            project = credentials["project"],
+        BigQuery(project = credentials["project"]).batch_load_from_memory(
+            data    = df_fake,
             dataset = credentials["dataset"],
             table   = credentials["table"]
-        ).insert_data(df_fake)
+        )
         logging.info("Data inserted successfully!")
         return {
             "status": "success",
