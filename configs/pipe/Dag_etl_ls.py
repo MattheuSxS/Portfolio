@@ -292,7 +292,6 @@ def create_dataproc_cluster() -> DataprocCreateClusterOperator:
             KeyError: If required keys are missing from the cluster configuration dictionary.
     """
 
-    # data_dict = cluster_config()
     return \
         DataprocCreateClusterOperator(
             task_id             = f"create_dataproc_cluster",
@@ -304,7 +303,7 @@ def create_dataproc_cluster() -> DataprocCreateClusterOperator:
             delete_on_error     = True,
             use_if_exists       = True,
             retries             = 1,
-            trigger_rule        = TriggerRule.ONE_SUCCESS
+            trigger_rule        = TriggerRule.ALL_DONE,
         )
 
 

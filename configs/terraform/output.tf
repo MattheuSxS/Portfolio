@@ -74,16 +74,15 @@
 # #     value       = google_storage_bucket_object.cf_wh_sensor_files.name
 # # }
 
-# # output "bkt_mts_cf_feedback_file_name" {
-# #     description = "Ready sensor files"
-# #     value       = google_storage_bucket_object.cf_feedback_files.name
-# # }
-
-
-# locals {
-#     bkt_airflow     = google_storage_bucket.bucket[0].name
-#     bkt_cf          = google_storage_bucket.bucket[1].name
-#     bkt_dataflow    = google_storage_bucket.bucket[2].name
-#     sa_airflow      = google_service_account.sa_airflow.email
-#     sa_dataflow     = google_service_account.sa_dataflow.email
+# output "bkt_mts_cf_feedback_file_name" {
+#     description = "Ready sensor files"
+#     value       = replace(replace(google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix, "gs://", ""), "/dags", "")
 # }
+
+
+locals {
+    bkt_cf_portfolio    = google_storage_bucket.bucket[0].name
+    bkt_dataflow        = google_storage_bucket.bucket[1].name
+    bkt_dataproc        = google_storage_bucket.bucket[2].name
+    bkt_airflow         = replace(replace(google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix, "gs://", ""), "/dags", "")
+}
