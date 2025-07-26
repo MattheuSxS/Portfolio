@@ -133,6 +133,10 @@ variable "roles_sa_cf_products_inventory" {
     type        = list(string)
 }
 
+variable "roles_sa_default_compute" {
+    description = "The roles to assign to the default compute service account"
+    type        = list(string)
+}
 #   ********************************************************************************************************    #
 #                                              Google Cloud Function                                            #
 #   ********************************************************************************************************    #

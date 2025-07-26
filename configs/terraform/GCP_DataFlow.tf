@@ -31,7 +31,7 @@
 #     template_gcs_path       = "gs://${google_storage_bucket.bucket[1].name}/template/${var.dfl_wh_sensor_template}"
 #     temp_gcs_location       = "gs://${google_storage_bucket.bucket[1].name}/tmp_dir"
 #     enable_streaming_engine = true
-#     service_account_email   = google_service_account.creating_sa[1].email
+#     service_account_email   = local.sa_dataflow
 
 #     parameters = {
 #         project_dataflow = var.project[terraform.workspace]

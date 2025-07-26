@@ -40,7 +40,7 @@ resource "google_composer_environment" "portfolio-composer" {
         }
 
         node_config {
-        service_account = google_service_account.creating_sa[0].email
+            service_account = local.sa_composer
         }
     }
 

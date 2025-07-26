@@ -2,7 +2,7 @@
     "Dag_etl_ls": {
         "schedule_interval": "30 7 * * *",
         "retries": 2,
-        "retry_delay": 10,
+        "retry_delay": 15,
         "dagrun_timeout": 30,
         "project_vars": "dmts-default-portofolio",
         "project_number": "42887123198",
@@ -31,10 +31,10 @@
             "cluster_config": {
                 "gce_cluster_config": {
                     "tags": [
-                        "VD",
-                        "Projeto: Exploração Dadaos - VD",
-                        "Gerencia: gd13 - Analytics Engineering VD / Ecom / Int / People / ESG",
-                        "Coord: cd53 - AE Venda Direta"
+                        "coord-cd53-ae-vd",
+                        "gerencia-gd13-analytics-eng-vd",
+                        "projeto-exploracao-dados-vd",
+                        "vd"
                     ],
                     "service_account_scopes": [
                         "https://www.googleapis.com/auth/cloud-platform",
@@ -46,18 +46,18 @@
                 },
                 "master_config": {
                     "num_instances": 1,
-                    "machine_type_uri": "e2-standard-8",
+                    "machine_type_uri": "e2-standard-4",
                     "disk_config": {
                         "boot_disk_type": "pd-ssd",
-                        "boot_disk_size_gb": 200
+                        "boot_disk_size_gb": 50
                     }
                 },
                 "worker_config": {
                     "num_instances": 2,
-                    "machine_type_uri": "e2-standard-8",
+                    "machine_type_uri": "e2-standard-4",
                     "disk_config": {
                         "boot_disk_type": "pd-ssd",
-                        "boot_disk_size_gb": 200
+                        "boot_disk_size_gb": 100
                     }
                 },
                 "software_config": {
@@ -71,17 +71,17 @@
                         "spark:spark.dynamicAllocation.minExecutors": "1",
                         "spark:spark.dynamicAllocation.maxExecutors": "2",
                         "spark:spark.memory.fraction": "0.8",
-                        "spark:spark.executor.cores": "7",
-                        "spark:spark.executor.memory": "24g",
-                        "spark:spark.driver.memory": "16g",
-                        "spark:spark.driver.cores": "4",
-                        "spark:spark.default.parallelism": "14",
+                        "spark:spark.executor.cores": "3",
+                        "spark:spark.executor.memory": "12g",
+                        "spark:spark.driver.memory": "8g",
+                        "spark:spark.driver.cores": "2",
+                        "spark:spark.default.parallelism": "6",
                         "hive:hive.optimize.sort.dynamic.partition": "true",
                         "spark-env:SPARK_DAEMON_MEMORY": "1024m",
-                        "yarn-env:YARN_NODEMANAGER_HEAPSIZE": "2048",
-                        "yarn:yarn.nodemanager.resource.memory-mb": "30720",
-                        "yarn:yarn.scheduler.maximum-allocation-mb": "30720",
-                        "yarn:yarn.scheduler.minimum-allocation-mb": "4096",
+                        "yarn-env:YARN_NODEMANAGER_HEAPSIZE": "1024",
+                        "yarn:yarn.nodemanager.resource.memory-mb": "14336",
+                        "yarn:yarn.scheduler.maximum-allocation-mb": "14336",
+                        "yarn:yarn.scheduler.minimum-allocation-mb": "2048",
                         "yarn:yarn.timeline-service.enabled": "false"
                     }
                 },

@@ -70,19 +70,19 @@ resource "google_storage_bucket_object" "cf_wh_sensor_files" {
     }
 }
 
+#TODO: transfer to Dataproc Bucket
+# resource "google_storage_bucket_object" "cf_feedback_files" {
+#     name            = "cf_feedback/index.zip"
+#     bucket          = "${google_storage_bucket.bucket[0].name}"
+#     source          = data.archive_file.cf_path_feedback_files.output_path
+#     content_type    = "application/zip"
 
-resource "google_storage_bucket_object" "cf_feedback_files" {
-    name            = "cf_feedback/index.zip"
-    bucket          = "${google_storage_bucket.bucket[0].name}"
-    source          = data.archive_file.cf_path_feedback_files.output_path
-    content_type    = "application/zip"
-
-    lifecycle {
-        ignore_changes = [
-        source_md5hash,
-        ]
-    }
-}
+#     lifecycle {
+#         ignore_changes = [
+#         source_md5hash,
+#         ]
+#     }
+# }
 
 
 resource "google_storage_bucket_object" "cf_customers_files" {
