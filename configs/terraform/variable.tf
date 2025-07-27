@@ -11,6 +11,15 @@ variable "project_id" {
     type    = map(string)
 }
 
+variable "project_data_tools" {
+    description = "Project name for data tools"
+    type        = map(string)
+}
+
+variable "project_data_tools_id" {
+    description = "Project id number for data tools"
+    type    = map(string)
+}
 
 variable "region" {
     description = "where the resources will be created"
@@ -29,6 +38,11 @@ variable "environment" {
 #   ********************************************************************************************************    #
 variable "bkt_names" {
     description = "The name of the buckets"
+    type        = list(string)
+}
+
+variable "bkt_data_tools_names" {
+    description = "The names of the data tools buckets"
     type        = list(string)
 }
 
@@ -92,6 +106,11 @@ variable "members" {
 
 variable "creating_sa" {
     description = "The service account to create"
+    type        = list(string)
+}
+
+variable "data_tools_creating_sa" {
+    description = "The service account to create for data tools"
     type        = list(string)
 }
 

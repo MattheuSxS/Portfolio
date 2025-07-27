@@ -1,16 +1,16 @@
-#   ********************************************************************************************************    #
-#                                             Dataflow Delivery Sensor                                          #
-#   ********************************************************************************************************    #
+# #  ********************************************************************************************************    #
+# #                                            Dataflow Delivery Sensor                                          #
+# #  ********************************************************************************************************    #
 # resource "null_resource" "run_dataflow_job" {
 #     provisioner "local-exec" {
 #         command = <<EOT
 #         python "${var.dfl_wh_sensor_script_path}/${var.dfl_wh_sensor_template}.py" \
 #             --runner "DataflowRunner" \
-#             --project_dataflow "${var.project[terraform.workspace]}" \
+#             --project_dataflow "${var.project_data_tools[terraform.workspace]}" \
 #             --region "${var.region}" \
 #             --job_name "${var.dfl_wh_sensor_job_name}" \
 #             --bkt_dataflow "${google_storage_bucket.bucket[1].name}" \
-#             --project "${var.project[terraform.workspace]}" \
+#             --project "${var.project_data_tools[terraform.workspace]}" \
 #             --dataset "${google_bigquery_dataset.bq_dataset[2].dataset_id}" \
 #             --subscription "${var.pub_sub_wh_sensor_subs}" \
 #             --setup_file ${var.dfl_wh_sensor_script_path}/setup.py \
@@ -34,11 +34,11 @@
 #     service_account_email   = local.sa_dataflow
 
 #     parameters = {
-#         project_dataflow = var.project[terraform.workspace]
+#         project_dataflow = var.project_data_tools[terraform.workspace]
 #         region           = var.region
 #         job_name         = var.dfl_wh_sensor_job_name
 #         bkt_dataflow     = google_storage_bucket.bucket[1].name
-#         project          = var.project[terraform.workspace]
+#         project          = var.project_data_tools[terraform.workspace]
 #         dataset          = google_bigquery_dataset.bq_dataset[2].dataset_id
 #         subscription     = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
 #     }

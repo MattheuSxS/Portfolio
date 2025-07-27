@@ -25,7 +25,7 @@
         "dataproc_config": {
             "region": "us-east1",
             "bkt_gcp_dataproc": " bkt-mts-dataproc",
-            "project_id": "mts-default-portofolio",
+            "project_id": "mts-data-tools",
             "cluster_name": "dataproc-cluster-mts",
             "secret_id": "dataproc_access_authorization",
             "cluster_config": {
