@@ -2,7 +2,7 @@ locals {
     bkt_cf_portfolio    = google_storage_bucket.bucket[0].name
     bkt_dataflow        = google_storage_bucket.data_tools_bucket[0].name
     bkt_dataproc        = google_storage_bucket.data_tools_bucket[1].name
-    # bkt_airflow         = replace(replace(google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix, "gs://", ""), "/dags", "")
+    bkt_airflow         = replace(replace(google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix, "gs://", ""), "/dags", "")
 
     sa_composer                 = google_service_account.creating_sa[0].email
     sa_pubsub                   = google_service_account.creating_sa[1].email

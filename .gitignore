@@ -194,3 +194,6 @@ terraform.tfvars
 # GCP
 mts-default-portofolio.json
 Solve.md
+
+dp_v1.json
+dp_v2.json

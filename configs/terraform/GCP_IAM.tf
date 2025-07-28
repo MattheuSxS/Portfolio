@@ -17,7 +17,7 @@ resource "google_service_account" "creating_sa" {
 }
 
 resource "google_service_account" "data_tools_creating_sa" {
-  project     = var.project[terraform.workspace]
+  project     = var.project_data_tools[terraform.workspace]
   count       = length(var.data_tools_creating_sa)
   account_id  = var.data_tools_creating_sa[count.index]
   description = "Creating Service Account to project ${var.project_data_tools[terraform.workspace]}"
@@ -39,7 +39,7 @@ resource "google_project_iam_member" "data_tools_roles_sa_composer" {
   project = var.project_data_tools[terraform.workspace]
   count   = length(var.roles_sa_composer)
   role    = var.roles_sa_composer[count.index]
-  member  = "serviceAccount:${local.sa_dataflow}"
+  member  = "serviceAccount:${local.sa_composer}"
 }
 
 resource "google_project_iam_member" "roles_sa_dataflow" {
@@ -83,3 +83,7 @@ resource "google_project_iam_member" "roles_data_tools_sa_default_compute" {
   role    = var.roles_sa_default_compute[count.index]
   member  = "serviceAccount:${var.project_data_tools_id[terraform.workspace]}-compute@developer.gserviceaccount.com"
 }
+
+
+#
+#770380025065-compute@developer.gserviceaccount.com

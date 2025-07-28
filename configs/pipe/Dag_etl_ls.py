@@ -60,7 +60,7 @@ VAR_CLOUD_FUNCTION  = __env_var__['cloud_functions']
 
 VAR_DP_PROJECT_ID   = __env_var__['dataproc_config']['project_id']
 VAR_DP_PRJ_REGION   = __env_var__['dataproc_config']['region']
-VAR_DP_BUCKET       = __env_var__['dataproc_config']['bkt_gcp_dataproc']
+VAR_DP_BUCKET       = __env_var__['dataproc_config']['cluster_config']['config_bucket']
 VAR_DP_CLUSTER_NAME = __env_var__['dataproc_config']['cluster_name']
 VAR_DP_SECRET_ID    = __env_var__['dataproc_config']['secret_id']
 
@@ -252,10 +252,10 @@ def cluster_config(job_name: str = None) -> dict:
 
     CLUSTER_NAME = __env_var__['dataproc_config']['cluster_name']
     CLUSTER_CONFIG = __env_var__['dataproc_config']['cluster_config']
-    # CLUSTER_CONFIG["gce_cluster_config"]["zone_uri"] = f"https://www.googleapis.com/compute/v1/projects/{VAR_PRJ_NAME}/zones/us-east1-b" # In creating...
+    CLUSTER_CONFIG["gce_cluster_config"]["zone_uri"] = f"https://www.googleapis.com/compute/v1/projects/{VAR_DP_PROJECT_ID}/zones/us-east1-c" # In creating...
     # CLUSTER_CONFIG["gce_cluster_config"]["subnetwork_uri"] = "projects/shared-services-268518/regions/us-east1/subnetworks/shared" # In creating...
     # CLUSTER_CONFIG["gce_cluster_config"]["tags"] = CLUSTER_CONFIG["gce_cluster_config"]["tags"].extend('Test') # In creating...
-    CLUSTER_CONFIG["software_config"]["image_version"] = "2.3.6-debian12"
+    CLUSTER_CONFIG["software_config"]["image_version"] = "2.3-debian12"
     CLUSTER_CONFIG["lifecycle_config"]["idle_delete_ttl"] = durationIdle
     CLUSTER_CONFIG["lifecycle_config"]["auto_delete_ttl"] = durationAuto
 
@@ -371,7 +371,5 @@ with DAG(dag_id=__artefact__, start_date=default_args['start_date'], **dag_kwarg
     dummy("Start") >> [
         call_cloud_function("cf-customers"),
         call_cloud_function("cf-products-inventory")
-            ] >> create_dataproc_cluster() >> [
-                spark_submit_job("tb_order"),
-                spark_submit_job("tb_feedback")
-                    ] >> delete_dataproc_cluster() >> dummy("End")
+            ] >> create_dataproc_cluster() >> spark_submit_job("tb_order") \
+                >> spark_submit_job("tb_feedback") >> delete_dataproc_cluster() >> dummy("End")
