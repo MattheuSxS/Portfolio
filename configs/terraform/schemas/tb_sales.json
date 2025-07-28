@@ -1,0 +1,98 @@
+[
+    {
+        "name": "purchase_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the purchase."
+    },
+    {
+        "name": "associate_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the associate who processed the sale."
+    },
+    {
+        "name": "card_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the card used in the purchase."
+    },
+    {
+        "name": "address_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the address associated"
+    },
+    {
+        "name": "product_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the product purchased."
+    },
+    {
+        "name": "inventory_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the inventory item."
+    },
+    {
+        "name": "location",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Location store where the purchase was made."
+    },
+    {
+        "name": "price",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Price of the product purchased."
+    },
+    {
+        "name": "quantity",
+        "type": "INTEGER",
+        "mode": "REQUIRED",
+        "description": "Quantity of the product purchased."
+    },
+    {
+        "name": "purchase_date",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the purchase was made."
+    },
+    {
+        "name": "normal_processing_time",
+        "type": "INTEGER",
+        "mode": "REQUIRED",
+        "description": "Normal processing time for the purchase."
+    },
+    {
+        "name": "expedited_processing_time",
+        "type": "INTEGER",
+        "mode": "REQUIRED",
+        "description": "Expedited processing time for the purchase."
+    },
+    {
+        "name": "peak_season_multiplier",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Peak season multiplier for the purchase."
+    },
+    {
+        "name": "order_status",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Current status of the order."
+    },
+    {
+        "name": "discount_applied",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Discount applied to the purchase."
+    },
+    {
+        "name": "final_price",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Total amount for the purchase after applying discounts."
+    }
+]

@@ -206,16 +206,14 @@ def select_dataproc_job(job_name: str) -> dict:
     select_var = {
         "tb_order":\
             {
-                "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/job_tb_order/app_spark.py",
-                "args": ["--output_path", f"gs://{VAR_DP_BUCKET}/job_tb_order/output", "--mode", "overwrite", "--data_secret", \
-                        json.dumps({"project_id": VAR_DP_PROJECT_ID, "secret_id": VAR_DP_SECRET_ID})],
+                "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/job_tb_order/spark_order_job.py",
+                "args": [],
                 "jar_file_uris": None,
             },
 
         "tb_feedback": {
             "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/job_tb_feedback/app_spark.py",
-            "args": ["--output_path", f"gs://{VAR_DP_BUCKET}/job_tb_feedback/output", "--mode", "overwrite", "--data_secret", \
-                     json.dumps({"project_id": VAR_DP_PROJECT_ID, "secret_id": VAR_DP_SECRET_ID})],
+            "args": [""],
             "jar_file_uris": None,
         }
     }
@@ -265,7 +263,7 @@ def cluster_config(job_name: str = None) -> dict:
         _pyspark_job = {}
 
     PYSPARK_JOB = {
-        "reference": {"project_id": VAR_PRJ_NAME},
+        "reference": {"project_id": VAR_DP_PROJECT_ID},
         "placement": {"cluster_name": CLUSTER_NAME},
         "pyspark_job": _pyspark_job
     }
@@ -327,7 +325,7 @@ def spark_submit_job(job_name: str) -> DataprocSubmitJobOperator:
     return \
         DataprocSubmitJobOperator(
             task_id             = f"spark_submit_{job_name}_job",
-            job                 = get_pyspark_job_config(cluster_config(job_name)["pyspark_job"], "get_data_cloud_sql"),
+            job                 = get_pyspark_job_config(cluster_config(job_name)["pyspark_job"], f"spark_submit_{job_name}_job"),
             region              = VAR_DP_PRJ_REGION,
             project_id          = VAR_DP_PROJECT_ID,
             retries             = 1,

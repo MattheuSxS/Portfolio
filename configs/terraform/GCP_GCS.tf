@@ -127,7 +127,7 @@ resource "google_storage_bucket_object" "cf_wh_sensor_files" {
     }
 }
 
-# TODO: transfer to Dataproc Bucket
+#TODO: transfer to Dataproc Bucket
 # resource "google_storage_bucket_object" "cf_feedback_files" {
 #     name            = "cf_feedback/index.zip"
 #     bucket          = "${google_storage_bucket.bucket[0].name}"
@@ -185,6 +185,16 @@ resource "google_storage_bucket_object" "variables" {
     content_type    = "application/json"
     source          = "../pipe/${var.environment}_env/${each.value}"
 }
+
+
+resource "google_storage_bucket_object" "pyspark_files" {
+
+    name            = "job_tb_order/${var.spark_order_job}.py"
+    bucket          = local.bkt_dataproc
+    content_type    = "text/x-python"
+    source          = "${var.dp_order_script_path}/${var.spark_order_job}.py"
+}
+
 
 resource "null_resource" "bkt_compose_delete" {
 

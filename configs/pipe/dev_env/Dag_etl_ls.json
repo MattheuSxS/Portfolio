@@ -4,7 +4,7 @@
         "retries": 2,
         "retry_delay": 15,
         "dagrun_timeout": 30,
-        "project_vars": "dmts-default-portofolio",
+        "project_vars": "mts-default-portofolio",
         "project_number": "42887123198",
         "cloud_functions": {
             "cf-customers": {
@@ -25,7 +25,7 @@
         "dataproc_config": {
             "region": "us-east1",
             "project_id": "mts-data-tools",
-            "cluster_name": "dataproc-cluster-mts",
+            "cluster_name": "mts-cluster-dataproc",
             "secret_id": "dataproc_access_authorization",
             "cluster_config": {
                 "config_bucket": "bkt-mts-dataproc",

@@ -272,6 +272,11 @@ variable "tb_inventory" {
     type        = string
 }
 
+variable "tb_sales" {
+    description = "The name of the table"
+    type        = string
+}
+
 variable "tb_delivery_locations" {
     description = "The name of the table"
     type        = string
@@ -328,6 +333,18 @@ variable "dfl_wh_sensor_script_path" {
     type        = string
 }
 
+#   ********************************************************************************************************    #
+#                                               Google Cloud Dataproc                                           #
+#   ********************************************************************************************************    #
+variable "spark_order_job" {
+    description = "The name of the Spark job"
+    type        = string
+}
+
+variable "dp_order_script_path" {
+    description = "The path to the Spark job script"
+    type        = string
+}
 
 #   ********************************************************************************************************    #
 #                                                  Enable Api                                                   #

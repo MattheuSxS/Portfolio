@@ -141,30 +141,44 @@ resource "google_bigquery_table" "tb_inventory" {
     clustering = ["inventory_id", "location", "aisle", "last_restock"]
 }
 
-resource "google_bigquery_table" "tb_delivery_locations" {
+resource "google_bigquery_table" "tb_sales" {
     dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
-    table_id              = var.tb_delivery_locations
-    schema                = file("${path.module}/schemas/tb_delivery_locations.json")
+    table_id              = var.tb_sales
+    schema                = file("${path.module}/schemas/tb_sales.json")
     deletion_protection   = false
 
     time_partitioning {
         type          = "DAY"
-        field         = "created_at"
+        field         = "purchase_date"
     }
 
-    clustering = ["location_id", "state", "city", "neighborhood"]
+    clustering = ["purchase_id", "associate_id", "product_id", "inventory_id"]
 }
 
-resource "google_bigquery_table" "tb_processing_times" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
-    table_id              = var.tb_processing_times
-    schema                = file("${path.module}/schemas/tb_processing_times.json")
-    deletion_protection   = false
+# resource "google_bigquery_table" "tb_delivery_locations" {
+#     dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+#     table_id              = var.tb_delivery_locations
+#     schema                = file("${path.module}/schemas/tb_delivery_locations.json")
+#     deletion_protection   = false
 
-    time_partitioning {
-        type          = "DAY"
-        field         = "created_at"
-    }
+#     time_partitioning {
+#         type          = "DAY"
+#         field         = "created_at"
+#     }
 
-    clustering = ["processing_id", "product_id", "location_id", "last_updated"]
-}
+#     clustering = ["location_id", "state", "city", "neighborhood"]
+# }
+
+# resource "google_bigquery_table" "tb_processing_times" {
+#     dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+#     table_id              = var.tb_processing_times
+#     schema                = file("${path.module}/schemas/tb_processing_times.json")
+#     deletion_protection   = false
+
+#     time_partitioning {
+#         type          = "DAY"
+#         field         = "created_at"
+#     }
+
+#     clustering = ["processing_id", "product_id", "location_id", "last_updated"]
+# }

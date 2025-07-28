@@ -13,3 +13,32 @@ locals {
 
     sa_dataflow                 = google_service_account.data_tools_creating_sa[0].email
 }
+
+
+# resource "google_storage_bucket_object" "my_dags" {
+
+#     for_each        = fileset("../pipe/", "**.py")
+#     name            = "dags/${each.value}"
+#     bucket          = local.bkt_airflow
+#     content_type    = "text/x-python"
+#     source          = "../pipe/${each.value}"
+# }
+
+
+# resource "google_storage_bucket_object" "variables" {
+
+#     for_each        = fileset("../pipe/${var.environment}_env", "**.json")
+#     name            = "variables/${each.value}"
+#     bucket          = local.bkt_airflow
+#     content_type    = "application/json"
+#     source          = "../pipe/${each.value}"
+# }
+
+
+# resource "google_storage_bucket_object" "pyspark_files" {
+
+#     name            = "job_tb_order/${var.spark_order_job}.py"
+#     bucket          = local.bkt_dataproc
+#     content_type    = "text/x-python"
+#     source          = "${var.dp_order_script_path}/${var.spark_order_job}.py"
+# }
