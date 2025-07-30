@@ -188,7 +188,7 @@ def get_pyspark_job_config(cfg, task_id) -> dict:
 # ====================================================================================================================================
 #                                                    ~~~~> Variaveis DataProc <~~~~                                                  #
 # ====================================================================================================================================
-def select_dataproc_job(job_name: str) -> dict:
+def select_dataproc_job(job_name: str, data_dict:dict = {}) -> dict:
     """
         Selects and returns the necessary variables for configuring a Dataproc cluster and job.
 
@@ -206,15 +206,23 @@ def select_dataproc_job(job_name: str) -> dict:
     select_var = {
         "tb_order":\
             {
-                "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/job_tb_order/spark_order_job.py",
-                "args": [],
-                "jar_file_uris": None,
+                "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/spark_job_{job_name}.py",
+                "args": ["--project_id", f"{VAR_PRJ_NAME}",
+                          "--dataset_id", "ls_customers",
+                          "--num_purchases", "200000",
+                          "--job_id"
+                        ],
+                "jar_file_uris": [],
+                "python_file_uris": [f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/utils.zip"],
             },
 
         "tb_feedback": {
-            "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/job_tb_feedback/app_spark.py",
-            "args": [""],
-            "jar_file_uris": None,
+            "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/spark_job_{job_name}.py",
+            "args": ["--project_id", f"{VAR_PRJ_NAME}",
+                      "--dataset_id", "ls_customers",
+                      "--num_feedbacks", "50000"],
+            "jar_file_uris": [],
+            "python_file_uris": [f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/utils.zip"],
         }
     }
 

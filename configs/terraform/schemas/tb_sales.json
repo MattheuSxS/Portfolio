@@ -42,16 +42,34 @@
         "description": "Location store where the purchase was made."
     },
     {
+        "name": "quantity",
+        "type": "INTEGER",
+        "mode": "REQUIRED",
+        "description": "Quantity of the product purchased."
+    },
+    {
         "name": "price",
         "type": "FLOAT",
         "mode": "REQUIRED",
         "description": "Price of the product purchased."
     },
     {
-        "name": "quantity",
-        "type": "INTEGER",
+        "name": "discount_applied",
+        "type": "FLOAT",
         "mode": "REQUIRED",
-        "description": "Quantity of the product purchased."
+        "description": "Discount applied to the purchase."
+    },
+    {
+        "name": "final_price",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Total amount for the purchase after applying discounts."
+    },
+    {
+        "name": "order_status",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Current status of the order."
     },
     {
         "name": "purchase_date",
@@ -76,23 +94,5 @@
         "type": "FLOAT",
         "mode": "REQUIRED",
         "description": "Peak season multiplier for the purchase."
-    },
-    {
-        "name": "order_status",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Current status of the order."
-    },
-    {
-        "name": "discount_applied",
-        "type": "FLOAT",
-        "mode": "REQUIRED",
-        "description": "Discount applied to the purchase."
-    },
-    {
-        "name": "final_price",
-        "type": "FLOAT",
-        "mode": "REQUIRED",
-        "description": "Total amount for the purchase after applying discounts."
     }
 ]

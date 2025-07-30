@@ -21,7 +21,6 @@ from utils.helpers import (
     generate_fake_orders,
 )
 
-
 #   ********************************************************************************************************   #
 #                                                 Major Functions                                              #
 #   ********************************************************************************************************   #
@@ -46,8 +45,8 @@ def main(args) -> None:
         .option("viewsEnabled", "true") \
         .load()
 
-    df_purchases_fake = generate_fake_purchases(spark, df_customers, df_products, VAR_NUM_PURCHASES)
-    df_orders_fake = generate_fake_orders(df_purchases_fake)
+    df_orders_fake = generate_fake_orders(
+        generate_fake_purchases(spark, df_customers, df_products, VAR_NUM_PURCHASES))
 
     df_orders_fake.write.format("bigquery") \
         .option("table", f"{VAR_PROJECT_ID}.{VAR_DATASET_ID}.tb_sales") \
@@ -64,6 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--project_id", required=True, help="ID of the GCP project")
     parser.add_argument("--dataset_id", required=True, help="ID of the BigQuery dataset")
     parser.add_argument("--num_purchases", type=int, default=100000, help="NNumber of purchases to generate")
+    parser.add_argument("--job_id", required=False, help="ID of the Dataproc job (optional)")
 
     args = parser.parse_args()
 

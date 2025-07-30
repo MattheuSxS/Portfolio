@@ -34,7 +34,6 @@ resource "google_cloudfunctions2_function" "cf_customers" {
         max_instance_count              = 1
         min_instance_count              = 1
         available_memory                = "2Gi"
-        available_cpu                   = 4
         timeout_seconds                 = 3000
         service_account_email           = local.sa_cf_customers
         ingress_settings                = "ALLOW_ALL"

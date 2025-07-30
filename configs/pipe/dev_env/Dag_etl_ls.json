@@ -22,6 +22,18 @@
                 }
             }
         },
+        "dataproc_tables": {
+            "tb_order": {
+                "spark_job_name": "spark_job_tb_order",
+                "args": ["--"],
+                "jar_file_uris": null
+            },
+            "tb_feedback": {
+                "spark_job_name": "spark_job_tb_feedback",
+                "args": [],
+                "jar_file_uris": null
+            }
+        },
         "dataproc_config": {
             "region": "us-east1",
             "project_id": "mts-data-tools",

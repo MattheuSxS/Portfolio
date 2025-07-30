@@ -308,23 +308,6 @@ class FkCommerce:
     #         })
     #     return locations
 
-    #TODO: Transfer this to a separate module [ Order]
-    # def generate_processing_times(self, products, locations):
-    #     processing_data = []
-    #     for product in random.sample(products, min(20, len(products))):
-    #         for location in random.sample(locations, min(10, len(locations))):
-    #             base_time = random.randint(1, 5)  # days
-    #             processing_data.append({
-    #                 "processing_id": f"PT##{self.fake.uuid4()}",
-    #                 "product_id": product["product_id"],
-    #                 "location_id": location["location_id"],
-    #                 "normal_processing_time": base_time,
-    #                 "expedited_processing_time": max(1, base_time - 1),
-    #                 "peak_season_multiplier": round(random.uniform(1.2, 2.5), 1),
-    #                 "created_at": self.generate_date(start_date='-2y', end_date='now'),
-    #                 "last_updated": self.generate_date(start_date='-60d', end_date='now')
-    #             })
-    #     return processing_data
 
 # Generate complete dataset
     def generate_complete_dataset(self, quantity: int) -> Dict[str, List[Dict]]:

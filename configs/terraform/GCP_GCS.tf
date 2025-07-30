@@ -168,7 +168,7 @@ resource "google_storage_bucket_object" "cf_products_inventory_files" {
     }
 }
 
-resource "google_storage_bucket_object" "my_dags" {
+resource "google_storage_bucket_object" "airflow_dags" {
 
     for_each        = fileset("../pipe/", "**.py")
     name            = "dags/${each.value}"
@@ -177,7 +177,7 @@ resource "google_storage_bucket_object" "my_dags" {
     source          = "../pipe/${each.value}"
 }
 
-resource "google_storage_bucket_object" "variables" {
+resource "google_storage_bucket_object" "airflow_variables" {
 
     for_each        = fileset("../pipe/${var.environment}_env", "**.json")
     name            = "variables/${each.value}"
@@ -187,21 +187,26 @@ resource "google_storage_bucket_object" "variables" {
 }
 
 
-resource "google_storage_bucket_object" "pyspark_files" {
+resource "google_storage_bucket_object" "spark_job_tb_order" {
 
-    name            = "job_tb_order/${var.spark_order_job}.py"
+    name            = "${var.spark_job_tb_order}/${var.spark_job_tb_order}.py"
     bucket          = local.bkt_dataproc
     content_type    = "text/x-python"
-    source          = "${var.dp_order_script_path}/${var.spark_order_job}.py"
+    source          = "${var.dp_order_script_path}/${var.spark_job_tb_order}.py"
 }
 
 
-resource "null_resource" "bkt_compose_delete" {
+resource "google_storage_bucket_object" "spark_path_tb_order" {
 
-  depends_on = [
-    google_composer_environment.portfolio-composer,
-    google_storage_bucket_object.my_dags
-    ]
+    name            = "${var.spark_job_tb_order}/utils.zip"
+    bucket          = local.bkt_dataproc
+    content_type    = "application/zip"
+    source          = "${var.dp_order_script_path}/utils.zip"
+}
+
+
+
+resource "null_resource" "bkt_compose_delete" {
 
   triggers = {
     bucket_name = local.bkt_airflow

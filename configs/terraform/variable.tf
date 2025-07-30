@@ -336,13 +336,23 @@ variable "dfl_wh_sensor_script_path" {
 #   ********************************************************************************************************    #
 #                                               Google Cloud Dataproc                                           #
 #   ********************************************************************************************************    #
-variable "spark_order_job" {
+variable "spark_job_tb_order" {
+    description = "The name of the Spark job"
+    type        = string
+}
+
+variable "spark_job_tb_feedback" {
     description = "The name of the Spark job"
     type        = string
 }
 
 variable "dp_order_script_path" {
     description = "The path to the Spark job script"
+    type        = string
+}
+
+variable "dp_feedback_script_path" {
+    description = "The path to the Spark job script for feedback"
     type        = string
 }
 
