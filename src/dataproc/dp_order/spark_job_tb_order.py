@@ -26,7 +26,7 @@ from utils.helpers import (
 #   ********************************************************************************************************   #
 def main(args) -> None:
     spark = SparkSession.builder \
-        .appName("BigQuery-ETL-Job") \
+        .appName("BigQuery-ETL-Table-Sales") \
         .config("spark.jars.packages", "com.google.cloud.spark:spark-3.5-bigquery:0.42.2") \
         .getOrCreate()
 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--project_id", required=True, help="ID of the GCP project")
     parser.add_argument("--dataset_id", required=True, help="ID of the BigQuery dataset")
-    parser.add_argument("--num_purchases", type=int, default=100000, help="NNumber of purchases to generate")
+    parser.add_argument("--num_purchases", type=int, default=100_000, help="NNumber of purchases to generate")
     parser.add_argument("--job_id", required=False, help="ID of the Dataproc job (optional)")
 
     args = parser.parse_args()

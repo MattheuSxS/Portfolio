@@ -220,7 +220,10 @@ def select_dataproc_job(job_name: str, data_dict:dict = {}) -> dict:
             "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/spark_job_{job_name}.py",
             "args": ["--project_id", f"{VAR_PRJ_NAME}",
                       "--dataset_id", "ls_customers",
-                      "--num_feedbacks", "50000"],
+                      "--dataset_write_id", "production",
+                      "--num_feedbacks", "75000",
+                      "--job_id"
+                    ],
             "jar_file_uris": [],
             "python_file_uris": [f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/utils.zip"],
         }

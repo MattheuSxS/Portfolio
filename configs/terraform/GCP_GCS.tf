@@ -197,11 +197,28 @@ resource "google_storage_bucket_object" "spark_job_tb_order" {
 
 
 resource "google_storage_bucket_object" "spark_path_tb_order" {
-
+    depends_on = [null_resource.spark_path_tb_order1]
     name            = "${var.spark_job_tb_order}/utils.zip"
     bucket          = local.bkt_dataproc
     content_type    = "application/zip"
     source          = "${var.dp_order_script_path}/utils.zip"
+}
+
+
+resource "google_storage_bucket_object" "spark_job_tb_feedback" {
+    name            = "${var.spark_job_tb_feedback}/${var.spark_job_tb_feedback}.py"
+    bucket          = local.bkt_dataproc
+    content_type    = "text/x-python"
+    source          = "${var.dp_feedback_script_path}/${var.spark_job_tb_feedback}.py"
+}
+
+
+resource "google_storage_bucket_object" "spark_path_tb_feedback" {
+    depends_on = [null_resource.spark_path_tb_feedback]
+    name            = "${var.spark_job_tb_feedback}/utils.zip"
+    bucket          = local.bkt_dataproc
+    content_type    = "application/zip"
+    source          = "${var.dp_feedback_script_path}/utils.zip"
 }
 
 

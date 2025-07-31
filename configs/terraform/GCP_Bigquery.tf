@@ -61,10 +61,9 @@ resource "google_bigquery_table" "tb_feedback" {
     time_partitioning {
         type          = "DAY"
         field         = "fb_date"
-        expiration_ms = 7776000000
     }
 
-    clustering = ["type", "category", "rating", "verified_purchase"]
+    clustering = ["feedback_id", "category", "brand", "rating"]
 }
 
 

@@ -6,87 +6,33 @@
         "description": "Unique identifier for the feedback entry."
     },
     {
-        "name": "type",
+        "name": "purchase_id",
         "type": "STRING",
         "mode": "REQUIRED",
         "description": "Type of product or service the feedback is related to."
     },
     {
-        "name": "category",
+        "name": "product_id",
         "type": "STRING",
         "mode": "REQUIRED",
         "description": "Category of the feedback."
     },
     {
-        "name": "customer_name",
+        "name": "category",
         "type": "STRING",
         "mode": "REQUIRED",
         "description": "Name of the customer providing the feedback."
     },
     {
-        "name": "customer_email",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Email address of the customer providing the feedback."
-    },
-    {
-        "name": "rating",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Rating given by the customer."
-    },
-    {
-        "name": "title",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Title of the feedback."
-    },
-    {
-        "name": "comment",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Date and time when the feedback was submitted."
-    },
-    {
-        "name": "fb_date",
-        "type": "TIMESTAMP",
-        "mode": "REQUIRED",
-        "description": "Date and time when the feedback was submitted."
-    },
-    {
-        "name": "verified_purchase",
-        "type": "BOOLEAN",
-        "mode": "REQUIRED",
-        "description": "Indicates if the feedback is from a verified purchase."
-    },
-    {
-        "name": "would_recommend",
-        "type": "BOOLEAN",
-        "mode": "REQUIRED",
-        "description": "Indicates if the customer would recommend the product or service."
-    },
-    {
-        "name": "company_response",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": "Response from the company to the feedback."
-    },
-    {
-        "name": "response_date",
-        "type": "TIMESTAMP",
-        "mode": "NULLABLE",
-        "description": "Date and time when the company responded to the feedback."
-    },
-    {
         "name": "product_name",
         "type": "STRING",
-        "mode": "NULLABLE",
+        "mode": "REQUIRED",
         "description": "Name of the product or service related to the feedback."
     },
     {
-        "name": "brand_name",
+        "name": "brand",
         "type": "STRING",
-        "mode": "NULLABLE",
+        "mode": "REQUIRED",
         "description": "Brand name of the product or service."
     },
     {
@@ -100,5 +46,77 @@
         "type": "STRING",
         "mode": "NULLABLE",
         "description": "Color of the product, if applicable."
+    },
+    {
+        "name": "type",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Type of feedback (e.g., review, complaint, suggestion)."
+    },
+    {
+        "name": "customers_name",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Name of the customer providing the feedback."
+    },
+    {
+        "name": "customers_email",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Email address of the customer providing the feedback."
+    },
+    {
+        "name": "rating",
+        "type": "INTEGER",
+        "mode": "NULLABLE",
+        "description": "Rating given by the customer (e.g., 1-5 stars)."
+    },
+    {
+        "name": "title",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Title of the feedback."
+    },
+    {
+        "name": "comment",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Comment provided by the customer."
+    },
+    {
+        "name": "purchase_date",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE",
+        "description": "Date when the product or service was purchased."
+    },
+    {
+        "name": "verified_purchase",
+        "type": "BOOLEAN",
+        "mode": "NULLABLE",
+        "description": "Indicates if the purchase was verified."
+    },
+    {
+        "name": "would_recommend",
+        "type": "BOOLEAN",
+        "mode": "NULLABLE",
+        "description": "Indicates if the customer would recommend the product."
+    },
+    {
+        "name": "company_response",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Timestamp when the company responded to the feedback."
+    },
+    {
+        "name": "response_date",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE",
+        "description": "Date when the customer received a response from the company."
+    },
+    {
+        "name": "fb_date",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE",
+        "description": "Date when the feedback was submitted."
     }
 ]

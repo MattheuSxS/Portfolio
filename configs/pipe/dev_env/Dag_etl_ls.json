@@ -54,7 +54,7 @@
                         "https://www.googleapis.com/auth/devstorage.read_write",
                         "https://www.googleapis.com/auth/logging.write"
                     ],
-                    "internal_ip_only": true
+                    "internal_ip_only": false
                 },
                 "master_config": {
                     "num_instances": 1,
@@ -78,6 +78,7 @@
                     "image_version": "{{dataproc_version}}",
                     "properties": {
                         "dataproc:dataproc.conscrypt.provider.enable": "false",
+                        "dataproc:pip.packages": "pytz==2025.2, Faker==37.1.0",
                         "spark:spark.sql.debug.maxToStringFields": "300",
                         "spark:spark.sql.legacy.parquet.datetimeRebaseModeInWrite": "CORRECTED",
                         "spark:spark.dynamicAllocation.enabled": "true",
