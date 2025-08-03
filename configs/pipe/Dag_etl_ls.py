@@ -43,7 +43,7 @@ logging.basicConfig(
 # ====================================================================================================================================
 #                                              ~~~~> Variaveis Globais <~~~~                                                         #
 # ====================================================================================================================================
-__artefact__    = "Dag_etl_ls"
+__artefact__    = "DAG_etl_ls"
 __start_job__   = datetime.now() - timedelta(days=1)
 __description__ = "This DAG is responsible for extracting data from a source, processing \
                     it with PySpark, and loading it into a destination."
@@ -207,23 +207,14 @@ def select_dataproc_job(job_name: str, data_dict:dict = {}) -> dict:
         "tb_order":\
             {
                 "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/spark_job_{job_name}.py",
-                "args": ["--project_id", f"{VAR_PRJ_NAME}",
-                          "--dataset_id", "ls_customers",
-                          "--num_purchases", "200000",
-                          "--job_id"
-                        ],
+                "args": __env_var__['dataproc_tables'][job_name]['args'],
                 "jar_file_uris": [],
                 "python_file_uris": [f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/utils.zip"],
             },
 
         "tb_feedback": {
             "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/spark_job_{job_name}.py",
-            "args": ["--project_id", f"{VAR_PRJ_NAME}",
-                      "--dataset_id", "ls_customers",
-                      "--dataset_write_id", "production",
-                      "--num_feedbacks", "75000",
-                      "--job_id"
-                    ],
+            "args": __env_var__['dataproc_tables'][job_name]['args'],
             "jar_file_uris": [],
             "python_file_uris": [f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/utils.zip"],
         }

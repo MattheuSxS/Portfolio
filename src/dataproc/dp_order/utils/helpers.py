@@ -7,18 +7,20 @@ from pyspark.sql.functions import expr, rand, udf, row_number, floor, when
 
 
 
-def sql_query(project_id, dataset_id) -> dict:
+def sql_query(project_id:str, dataset_id:str, row_limit:int) -> dict:
     """
-        Generates SQL query strings for retrieving customer and product data from specified BigQuery datasets.
+        Generates SQL query strings for retrieving customer and product data from specified BigQuery tables.
 
         Args:
             project_id (str): The Google Cloud project ID.
             dataset_id (str): The BigQuery dataset ID.
+            row_limit (int): The maximum number of rows to retrieve for the customers query.
 
         Returns:
             dict: A dictionary containing two SQL query strings:
-                - "tb_customers": SQL query to select associate, card, and address IDs from customers, cards, and address tables, limited to 50,000 random records.
-                - "tb_products": SQL query to select inventory and product details by joining products and inventory tables.
+                - "tb_customers": SQL query to select associate, card, and address IDs from customers, cards, and address tables,
+                limited to 70% of the specified row_limit, with randomized ordering.
+                - "tb_products": SQL query to select inventory and product details from products and inventory tables.
     """
     return {
         "tb_customers": f"""
@@ -38,7 +40,7 @@ def sql_query(project_id, dataset_id) -> dict:
                 TBCU.associate_id = TBAD.fk_associate_id
             ORDER BY
                 RAND()
-            LIMIT 50000;
+            LIMIT {int(row_limit * (70 / 100))};
         """,
         "tb_products": f"""
             SELECT

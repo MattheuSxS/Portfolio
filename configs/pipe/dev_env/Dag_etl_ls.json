@@ -1,5 +1,5 @@
 {
-    "Dag_etl_ls": {
+    "DAG_etl_ls": {
         "schedule_interval": "30 7 * * *",
         "retries": 2,
         "retry_delay": 15,
@@ -25,12 +25,21 @@
         "dataproc_tables": {
             "tb_order": {
                 "spark_job_name": "spark_job_tb_order",
-                "args": ["--"],
+                "args": ["--project_id", "mts-default-portofolio",
+                          "--dataset_id", "ls_customers",
+                          "--num_purchases", "200000",
+                          "--job_id"
+                        ],
                 "jar_file_uris": null
             },
             "tb_feedback": {
                 "spark_job_name": "spark_job_tb_feedback",
-                "args": [],
+                "args": ["--project_id", "mts-default-portofolio",
+                      "--dataset_id", "ls_customers",
+                      "--dataset_write_id", "production",
+                      "--num_feedbacks", "75000",
+                      "--job_id"
+                    ],
                 "jar_file_uris": null
             }
         },

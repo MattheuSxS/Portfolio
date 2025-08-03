@@ -33,7 +33,7 @@ def main(args) -> None:
     VAR_PROJECT_ID      = args.project_id
     VAR_DATASET_ID      = args.dataset_id
     VAR_NUM_PURCHASES   = args.num_purchases
-    VAR_SQL_QUERY       = sql_query(VAR_PROJECT_ID, VAR_DATASET_ID)
+    VAR_SQL_QUERY       = sql_query(VAR_PROJECT_ID, VAR_DATASET_ID, VAR_NUM_PURCHASES)
 
     df_customers = spark.read.format("bigquery") \
         .option("query", VAR_SQL_QUERY["tb_customers"]) \
