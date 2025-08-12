@@ -18,7 +18,7 @@ resource "google_cloudfunctions2_function" "cf_customers" {
         entry_point = "main"
         source {
             storage_source {
-            bucket = google_storage_bucket.bucket[0].name
+            bucket = local.bkt_cf_portfolio
             object = google_storage_bucket_object.cf_customers_files.name
             }
         }
@@ -37,7 +37,6 @@ resource "google_cloudfunctions2_function" "cf_customers" {
         timeout_seconds                 = 3000
         service_account_email           = local.sa_cf_customers
         ingress_settings                = "ALLOW_ALL"
-        all_traffic_on_latest_revision  = true
     }
 
     lifecycle {
@@ -70,7 +69,7 @@ resource "google_cloudfunctions2_function" "cf_wh_sensor" {
     entry_point = "main"
     source {
       storage_source {
-        bucket = google_storage_bucket.bucket[0].name
+        bucket = local.bkt_cf_portfolio
         object = google_storage_bucket_object.cf_wh_sensor_files.name
       }
     }
@@ -107,59 +106,6 @@ resource "google_cloudfunctions2_function" "cf_wh_sensor" {
 #     output_path = "../../src/cloud_function/cf_delivery/index.zip"
 # }
 
-#TODO: transfer to Dataproc Bucket
-# #   ********************************************************************************************************    #
-# #                                           Cloud Function Feedback Sensor                                      #
-# #   ********************************************************************************************************    #
-# data "archive_file" "cf_path_feedback_files" {
-#     type        = "zip"
-#     source_dir  = "../../src/cloud_function/cf_feedbacks/"
-#     output_path = "../../src/cloud_function/cf_feedbacks/index.zip"
-# }
-
-
-# resource "google_cloudfunctions2_function" "cf_feedback" {
-#     project       = var.project[terraform.workspace]
-#     location      = var.region
-#     name          = var.cf_feedback
-#     description   = "It will be triggered via airflow and will send data to the BigQuery table"
-
-#     build_config {
-#         runtime     = "python311"
-#         entry_point = "main"
-#         source {
-#             storage_source {
-#                 bucket = google_storage_bucket.bucket[0].name
-#                 object = google_storage_bucket_object.cf_feedback_files.name
-#             }
-#         }
-#     }
-
-#     labels = {
-#         "created_by": "terraform",
-#         "env": var.environment
-#     }
-
-#     service_config {
-#         max_instance_count    = 1
-#         min_instance_count    = 1
-#         available_memory      = "512M"
-#         timeout_seconds       = 3000
-#         service_account_email = google_service_account.creating_sa[7].email
-#         ingress_settings      = "ALLOW_ALL"
-#     }
-
-#     lifecycle {
-#         ignore_changes = [
-#         build_config,
-#         service_config,
-#         ]
-#     }
-# }
-
-
-
-
 
 #   ********************************************************************************************************    #
 #                                          Cloud Function Products/Inventory                                    #
@@ -182,7 +128,7 @@ resource "google_cloudfunctions2_function" "cf_products_inventory" {
     entry_point = "main"
     source {
       storage_source {
-        bucket = google_storage_bucket.bucket[0].name
+        bucket = local.bkt_cf_portfolio
         object = google_storage_bucket_object.cf_products_inventory_files.name
       }
     }

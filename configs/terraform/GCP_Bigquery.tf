@@ -20,7 +20,7 @@ resource "google_bigquery_dataset" "bq_dataset" {
 #                                                    Table Raw                                                 #
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_raw_dw_messages" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[0].dataset_id
+    dataset_id            = local.bq_dataset_raw
     table_id              = var.tb_raw_hw_sensor
     schema                = file("${path.module}/schemas/tb_raw_dw_messages.json")
     deletion_protection   = false
@@ -38,7 +38,7 @@ resource "google_bigquery_table" "tb_raw_dw_messages" {
 #                                             DataSet production |  Table production                           #
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_dw_messages" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[2].dataset_id
+    dataset_id            = local.bq_dataset_production
     table_id              = var.tb_dw_messages
     schema                = file("${path.module}/schemas/tb_trusted_dw_messages.json")
     deletion_protection   = false
@@ -53,7 +53,7 @@ resource "google_bigquery_table" "tb_dw_messages" {
 }
 
 resource "google_bigquery_table" "tb_feedback" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[2].dataset_id
+    dataset_id            = local.bq_dataset_production
     table_id              = var.tb_feedback
     schema                = file("${path.module}/schemas/tb_feedback.json")
     deletion_protection   = false
@@ -71,7 +71,7 @@ resource "google_bigquery_table" "tb_feedback" {
 #                                                   DataSet ls_customers                                       #
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_customers" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_customers
     schema                = file("${path.module}/schemas/tb_customers.json")
     deletion_protection   = false
@@ -85,7 +85,7 @@ resource "google_bigquery_table" "tb_customers" {
 }
 
 resource "google_bigquery_table" "tb_cards" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_cards
     schema                = file("${path.module}/schemas/tb_cards.json")
     deletion_protection   = false
@@ -99,7 +99,7 @@ resource "google_bigquery_table" "tb_cards" {
 }
 
 resource "google_bigquery_table" "tb_address" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_address
     schema                = file("${path.module}/schemas/tb_address.json")
     deletion_protection   = false
@@ -113,7 +113,7 @@ resource "google_bigquery_table" "tb_address" {
 }
 
 resource "google_bigquery_table" "tb_products" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_products
     schema                = file("${path.module}/schemas/tb_products.json")
     deletion_protection   = false
@@ -127,7 +127,7 @@ resource "google_bigquery_table" "tb_products" {
 }
 
 resource "google_bigquery_table" "tb_inventory" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_inventory
     schema                = file("${path.module}/schemas/tb_inventory.json")
     deletion_protection   = false
@@ -141,7 +141,7 @@ resource "google_bigquery_table" "tb_inventory" {
 }
 
 resource "google_bigquery_table" "tb_sales" {
-    dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+    dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_sales
     schema                = file("${path.module}/schemas/tb_sales.json")
     deletion_protection   = false
@@ -155,7 +155,7 @@ resource "google_bigquery_table" "tb_sales" {
 }
 
 # resource "google_bigquery_table" "tb_delivery_locations" {
-#     dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+#     dataset_id            = local.bq_dataset_ls_customers
 #     table_id              = var.tb_delivery_locations
 #     schema                = file("${path.module}/schemas/tb_delivery_locations.json")
 #     deletion_protection   = false
@@ -169,7 +169,7 @@ resource "google_bigquery_table" "tb_sales" {
 # }
 
 # resource "google_bigquery_table" "tb_processing_times" {
-#     dataset_id            = google_bigquery_dataset.bq_dataset[3].dataset_id
+#     dataset_id            = local.bq_dataset_ls_customers
 #     table_id              = var.tb_processing_times
 #     schema                = file("${path.module}/schemas/tb_processing_times.json")
 #     deletion_protection   = false

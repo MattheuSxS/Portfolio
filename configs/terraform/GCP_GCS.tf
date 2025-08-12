@@ -116,7 +116,7 @@ resource "google_storage_bucket" "data_tools_bucket" {
 
 resource "google_storage_bucket_object" "cf_wh_sensor_files" {
     name            = "${var.cf_wh_sensor}/index.zip"
-    bucket          = "${google_storage_bucket.bucket[0].name}"
+    bucket          = "${local.bkt_cf_portfolio}"
     source          = data.archive_file.cf_path_wh_sensor_files.output_path
     content_type    = "application/zip"
 
@@ -130,7 +130,7 @@ resource "google_storage_bucket_object" "cf_wh_sensor_files" {
 #TODO: transfer to Dataproc Bucket
 # resource "google_storage_bucket_object" "cf_feedback_files" {
 #     name            = "cf_feedback/index.zip"
-#     bucket          = "${google_storage_bucket.bucket[0].name}"
+#     bucket          = "${local.bkt_cf_portfolio}"
 #     source          = data.archive_file.cf_path_feedback_files.output_path
 #     content_type    = "application/zip"
 
@@ -144,7 +144,7 @@ resource "google_storage_bucket_object" "cf_wh_sensor_files" {
 
 resource "google_storage_bucket_object" "cf_customers_files" {
     name            = "${var.cf_customers}/index.zip"
-    bucket          = "${google_storage_bucket.bucket[0].name}"
+    bucket          = "${local.bkt_cf_portfolio}"
     source          = data.archive_file.cf_path_customers_files.output_path
     content_type    = "application/zip"
 
@@ -157,7 +157,7 @@ resource "google_storage_bucket_object" "cf_customers_files" {
 
 resource "google_storage_bucket_object" "cf_products_inventory_files" {
     name            = "${var.cf_products_inventory}/index.zip"
-    bucket          = "${google_storage_bucket.bucket[0].name}"
+    bucket          = "${local.bkt_cf_portfolio}"
     source          = data.archive_file.cf_path_products_inventory_files.output_path
     content_type    = "application/zip"
 

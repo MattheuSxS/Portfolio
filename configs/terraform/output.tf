@@ -10,35 +10,19 @@ locals {
     sa_cf_wh_sensor             = google_service_account.creating_sa[3].email
     sa_cf_delivery_sensor       = google_service_account.creating_sa[4].email
     sa_cf_products_inventory    = google_service_account.creating_sa[5].email
-
     sa_dataflow                 = google_service_account.data_tools_creating_sa[0].email
+
+    bq_dataset_raw              = google_bigquery_dataset.bq_dataset[0].dataset_id
+    bq_dataset_staging          = google_bigquery_dataset.bq_dataset[1].dataset_id
+    bq_dataset_production       = google_bigquery_dataset.bq_dataset[2].dataset_id
+    bq_dataset_ls_customers     = google_bigquery_dataset.bq_dataset[3].dataset_id
+
+    pb_wh_sensor_topic          = google_pubsub_topic.pub_sub_topics[0].name
+    pb_delivery_sensor_topic    = google_pubsub_topic.pub_sub_topics[1].name
+
+
+    secret_wh_sensor_access_authorization       = google_secret_manager_secret.create_secrets[0].id
+    secret_bq_feedback_access_authorization     = google_secret_manager_secret.create_secrets[1].id
+    secret_bq_customers_access_authorization    = google_secret_manager_secret.create_secrets[2].id
+    secret_bq_products_access_authorization     = google_secret_manager_secret.create_secrets[3].id
 }
-
-
-# resource "google_storage_bucket_object" "my_dags" {
-
-#     for_each        = fileset("../pipe/", "**.py")
-#     name            = "dags/${each.value}"
-#     bucket          = local.bkt_airflow
-#     content_type    = "text/x-python"
-#     source          = "../pipe/${each.value}"
-# }
-
-
-# resource "google_storage_bucket_object" "variables" {
-
-#     for_each        = fileset("../pipe/${var.environment}_env", "**.json")
-#     name            = "variables/${each.value}"
-#     bucket          = local.bkt_airflow
-#     content_type    = "application/json"
-#     source          = "../pipe/${each.value}"
-# }
-
-
-# resource "google_storage_bucket_object" "pyspark_files" {
-
-#     name            = "job_tb_order/${var.spark_order_job}.py"
-#     bucket          = local.bkt_dataproc
-#     content_type    = "text/x-python"
-#     source          = "${var.dp_order_script_path}/${var.spark_order_job}.py"
-# }

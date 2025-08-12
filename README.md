@@ -37,9 +37,13 @@
     - [Document Cloud Storage](https://cloud.google.com/storage/docs)
     - [Document Cloud Sql](https://cloud.google.com/sql/docs)
     - [Document DataProc](https://cloud.google.com/dataproc/docs)
+    - [Document Dataflow](https://cloud.google.com/dataflow/docs/)
+    - [Document APIs](https://cloud.google.com/apis/docs)
     - [Document Secret Manager](https://cloud.google.com/secret-manager/docs)
+    - [Document BigQuery](https://cloud.google.com/bigquery/docs)
     - [Document IAM](https://cloud.google.com/iam/docs)
     - [Document Cloud Run Functions](https://cloud.google.com/functions/docs)
+    - [Document Pub/Sub](https://cloud.google.com/pubsub/docs)
 
 - Docker:
     - [Document Docker](https://docs.docker.com)
