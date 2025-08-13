@@ -90,9 +90,7 @@ jobs:
 
         - name: Terraform Deploy
           run: |
-                ls -la
-                pwd
-                ./configs/terraform/
+                cd ./configs/terraform
                 echo '🚧 Creating credentials file... 🚧'
                 echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
 
@@ -122,8 +120,7 @@ jobs:
 
         - name: Terraform Destroy
           run: |
-                echo "🚨 WARNING: This action will destroy all resources in the 'dev' workspace! 🚨"
-                ./configs/terraform/
+                cd ./configs/terraform
                 echo '🚧 Creating credentials file... 🚧'
                 echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
 
