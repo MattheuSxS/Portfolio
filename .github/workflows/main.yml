@@ -16,10 +16,10 @@ jobs:
     if: github.ref != 'refs/heads/main'
     container: python:3.11-bullseye
     steps:
-      - name: Checkout code
+      - name: 🕵🏾 Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: 👨🏾‍🔧 Install dependencies
         run: |
           apt-get update
           apt-get install -y build-essential
@@ -37,18 +37,18 @@ jobs:
     needs: code-test # 🔥 Critical dependency!
     if: github.ref != 'refs/heads/main'
     container:
-      image: mattheusxs/tf_1.12.2-gcp_535.0.0:1.0
+      image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
     steps:
-        - name: Checkout code
+        - name: 🕵🏾 Checkout code
           uses: actions/checkout@v4
 
-        - name: Authenticate to GCP
+        - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
           with:
                 credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
                 project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-        - name: validate Terraform configuration
+        - name: 🕵🏾 validate Terraform configuration
           run: |
                 cd ./configs/terraform
                 echo '🚧 Creating credentials file... 🚧'
@@ -72,11 +72,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: tf-test # 🔥 Critical dependency!
     container:
-      image: mattheusxs/tf_1.12.2-gcp_535.0.0:1.0
+      image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
       options: --entrypoint=""
     if: github.event_name == 'workflow_dispatch'
     steps:
-        - name: Authenticate to GCP
+        - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
           with:
             credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
@@ -103,11 +103,11 @@ jobs:
     name: 🔨Terraform Destroy (PRD)
     runs-on: ubuntu-latest
     container:
-      image: mattheusxs/tf_1.12.2-gcp_535.0.0:1.0
+      image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
       options: --entrypoint=""
     if: github.event_name == 'workflow_dispatch'
     steps:
-        - name: Authenticate to GCP
+        - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
           with:
             credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
