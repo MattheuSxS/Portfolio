@@ -2,10 +2,6 @@ name: Portfolio
 description: Final project for the Postgraduate in Data Engineer at the Data Science Academy
 
 on:
-  push:
-    branches: [main, dev_matheus]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
       action:
