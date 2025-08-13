@@ -39,19 +39,31 @@ jobs:
     container:
       image: mattheusxs/tf-1.11-cloud-sdk-515
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        - name: Checkout code
+          uses: actions/checkout@v4
 
-      - name: Prepare and validate Terraform
-        run: |
-            cd ./configs/terraform
-            echo 'Creating terraform.tfvars file'
-            echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
-            terraform init
-            echo "Running tests 👀"
-            terraform validate
-            terraform plan -out=tfplan
-            echo "Tests successfully completed 🫦"
+        - name: Authenticate to GCP
+          uses: google-github-actions/auth@v2
+          with:
+                credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+                project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+        - name: Set up Terraform and Deploy
+          run: |
+                cd ./configs/terraform
+
+                # Cria o arquivo terraform.tfvars
+                echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
+
+                # Inicializa e aplica o Terraform
+                terraform init
+                terraform workspace select dev || terraform workspace new dev
+                terraform plan -out=tfplan
+                terraform apply -auto-approve tfplan
+
+        - name: Clean up (opcional)
+          run: |
+                rm -f ./configs/terraform/credentials.json  #remove sensitive data
 
 
   tf-deploy-prd:
