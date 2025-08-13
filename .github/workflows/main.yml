@@ -69,9 +69,9 @@ jobs:
 
                 echo "Whole Terraform configuration is valid ✅"
 
-        - name: 💁🏾‍♂️ Clean up
+        - name: 💁🏾‍♂️ Clean up ( 🔥 Critical dependency!)
           run: |
-                rm -f ./configs/terraform/credentials.json  #remove sensitive data
+                rm -f ./configs/terraform/*.json
 
 
   tf-deploy-prd:
@@ -82,6 +82,9 @@ jobs:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
       options: --platform=linux/amd64
     steps:
+        - name: 🕵🏾 Checkout code  # 👈 ADICIONE ESTE STEP
+          uses: actions/checkout@v4
+
         - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
           with:
@@ -100,9 +103,9 @@ jobs:
                 terraform apply -auto-approve
                 echo "Whole Terraform configuration is applied successfully ✅"
 
-        - name: 💁🏾‍♂️ Clean up
+        - name: 💁🏾‍♂️ Clean up ( 🔥 Critical dependency!)
           run: |
-                rm -f ./configs/terraform/credentials.json  #remove sensitive data
+                rm -f ./configs/terraform/*.json
 
 
   tf-destroy-prd:
@@ -112,6 +115,9 @@ jobs:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
       options: --platform=linux/amd64
     steps:
+        - name: 🕵🏾‍♂️ Checkout code
+          uses: actions/checkout@v4
+
         - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
           with:
@@ -130,6 +136,6 @@ jobs:
                 terraform destroy -auto-approve
                 echo "Whole Terraform configuration is destroyed successfully ✅"
 
-        - name: 💁🏾‍♂️ Clean up
+        - name: 💁🏾‍♂️ Clean up ( 🔥 Critical dependency!)
           run: |
-                rm -f ./configs/terraform/credentials.json  #remove sensitive data
+                rm -f ./configs/terraform/*.json
