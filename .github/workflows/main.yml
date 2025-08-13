@@ -3,11 +3,17 @@ description: Final project for the Postgraduate in Data Engineer at the Data Sci
 
 on:
     push:
-        branches:
-            [main, dev_matheus]
+        branches: [main, dev_matheus]
     pull_request:
-        branches:
-            [main, dev_matheus]
+        branches: [main, dev_matheus]
+    workflow_dispatch:
+        inputs:
+            action:
+                description: '⚙️ Terraform action'
+                required: true
+                type: choice
+                options: [deploy, destroy]
+                default: 'deploy'
 
 jobs:
   code-test:
@@ -38,6 +44,7 @@ jobs:
     if: github.ref != 'refs/heads/main'
     container:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
+      options: --platform=linux/amd64
     steps:
         - name: 🕵🏾 Checkout code
           uses: actions/checkout@v4
@@ -73,8 +80,8 @@ jobs:
     needs: tf-test # 🔥 Critical dependency!
     container:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
-      options: --entrypoint=""
-    if: github.event_name == 'workflow_dispatch'
+      options: --platform=linux/amd64
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy'
     steps:
         - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
@@ -104,8 +111,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
-      options: --entrypoint=""
-    if: github.event_name == 'workflow_dispatch'
+      options: --platform=linux/amd64
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
     steps:
         - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
