@@ -81,6 +81,7 @@ jobs:
     container:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
       options: --platform=linux/amd64
+    if: github.event.inputs.action == 'deploy'
     steps:
         - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
@@ -90,6 +91,8 @@ jobs:
 
         - name: Terraform Deploy
           run: |
+                ls -la
+                pwd
                 cd ./configs/terraform
                 echo '🚧 Creating credentials file... 🚧'
                 echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
@@ -111,6 +114,7 @@ jobs:
     container:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
       options: --platform=linux/amd64
+    if: github.event.inputs.action == 'destroy'
     steps:
         - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
@@ -120,6 +124,7 @@ jobs:
 
         - name: Terraform Destroy
           run: |
+                echo "🚨 WARNING: This action will destroy all resources in the 'dev' workspace! 🚨"
                 cd ./configs/terraform
                 echo '🚧 Creating credentials file... 🚧'
                 echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
