@@ -10,7 +10,6 @@ on:
     inputs:
       action:
         description: '⚙️ Terraform action'
-        required: true
         type: choice
         options:
           - deploy
@@ -83,6 +82,7 @@ jobs:
         container:
             image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
             options: --platform=linux/amd64
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy'
         steps:
             - name: 🕵🏾 Checkout code  # 👈 ADICIONE ESTE STEP
               uses: actions/checkout@v4
