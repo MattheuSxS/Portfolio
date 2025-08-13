@@ -7,6 +7,7 @@ LABEL description="This is a Docker image for Infrastructure as Code (IaC) tools
 LABEL version="1.0"
 LABEL license="MIT"
 LABEL name="mattheusxs/tf_1.12.2-gcp_535.0.0"
+LABEL imagetag="1.0 ~~> linux/arm64 | 2.0 ~~> linux/amd64"
 
 
 # Install dependencies
