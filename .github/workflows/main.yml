@@ -81,7 +81,6 @@ jobs:
     container:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
       options: --platform=linux/amd64
-    if: github.event.inputs.action == 'deploy'
     steps:
         - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
@@ -114,7 +113,6 @@ jobs:
     container:
       image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
       options: --platform=linux/amd64
-    if: github.event.inputs.action == 'destroy'
     steps:
         - name: 🧑🏾‍✈️ Authenticate to GCP
           uses: google-github-actions/auth@v2
