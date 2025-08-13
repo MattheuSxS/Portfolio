@@ -37,7 +37,7 @@ jobs:
     needs: code-test # 🔥 Critical dependency!
     if: github.ref != 'refs/heads/main'
     container:
-      image: mattheusxs/tf-1.12.2-gcp_535.0.0
+      image: mattheusxs/tf_1.12.2-gcp_535.0.0:1.0
     steps:
         - name: Checkout code
           uses: actions/checkout@v4
