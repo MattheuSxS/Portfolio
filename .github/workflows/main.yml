@@ -37,7 +37,7 @@ jobs:
     needs: code-test # 🔥 Critical dependency!
     if: github.ref != 'refs/heads/main'
     container:
-      image: mattheusxs/tf-1.11-cloud-sdk-515
+      image: mattheusxs/tf-1.12.2-gcp_535.0.0
     steps:
         - name: Checkout code
           uses: actions/checkout@v4
@@ -62,7 +62,7 @@ jobs:
 
                 echo "Whole Terraform configuration is valid ✅"
 
-        - name: Clean up (opcional)
+        - name: 💁🏾‍♂️ Clean up
           run: |
                 rm -f ./configs/terraform/credentials.json  #remove sensitive data
 
@@ -70,8 +70,9 @@ jobs:
   tf-deploy-prd:
     name: ⚙️ Terraform Deploy (PRD)
     runs-on: ubuntu-latest
+    needs: tf-test # 🔥 Critical dependency!
     container:
-      image: mattheusxs/tf-1.11-cloud-sdk-515
+      image: mattheusxs/tf_1.12.2-gcp_535.0.0
       options: --entrypoint=""
     if: github.event_name == 'workflow_dispatch'
     steps:
@@ -91,13 +92,18 @@ jobs:
                 terraform init
                 terraform workspace select dev || terraform workspace new dev
                 terraform apply -auto-approve
+                echo "Whole Terraform configuration is applied successfully ✅"
+
+        - name: 💁🏾‍♂️ Clean up
+          run: |
+                rm -f ./configs/terraform/credentials.json  #remove sensitive data
 
 
   tf-destroy-prd:
     name: 🔨Terraform Destroy (PRD)
     runs-on: ubuntu-latest
     container:
-      image: mattheusxs/tf-1.11-cloud-sdk-515
+      image: mattheusxs/tf_1.12.2-gcp_535.0.0
       options: --entrypoint=""
     if: github.event_name == 'workflow_dispatch'
     steps:
@@ -116,4 +122,9 @@ jobs:
                 echo '🚧 Initializing and applying Terraform... 🚧'
                 terraform init
                 terraform workspace select dev || terraform workspace new dev
-                terraform apply -auto-approve
+                terraform destroy -auto-approve
+                echo "Whole Terraform configuration is destroyed successfully ✅"
+
+        - name: 💁🏾‍♂️ Clean up
+          run: |
+                rm -f ./configs/terraform/credentials.json  #remove sensitive data
