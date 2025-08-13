@@ -1,0 +1,47 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "dev_matheus" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      name:
+        type: string
+        description: Name of the candidate
+        default: Melvin
+        
+      height:
+        type: number
+        description: Height of the candidate
+        default: 123
+        
+      qualification:
+          type: choice
+          description: Qualification of the candidate
+          default: btech
+          options:
+          - btech|
+          - bcal
+          - mca
+          - osc
+          - mtech
+      eligible:
+          type: boolean
+          description: Candidate is eligible or not
+
+jobs:
+  Development:
+    name: This job is for development landscape
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step non 1
+        run: |
+          echo '${{ toJSON(github) }}'
