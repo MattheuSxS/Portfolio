@@ -8,12 +8,9 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      action:
+      name:
         description: '⚙️ Terraform action'
-        type: choice
-        options:
-          - deploy
-          - destroy
+        type: string
         default: 'deploy'
 
 jobs:
