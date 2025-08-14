@@ -19,10 +19,10 @@ resource "google_bigquery_dataset" "bq_dataset" {
 #   ********************************************************************************************************   #
 #                                                    Table Raw                                                 #
 #   ********************************************************************************************************   #
-resource "google_bigquery_table" "tb_raw_dw_messages" {
+resource "google_bigquery_table" "tb_raw_wh_sensor" {
     dataset_id            = local.bq_dataset_raw
-    table_id              = var.tb_raw_hw_sensor
-    schema                = file("${path.module}/schemas/tb_raw_dw_messages.json")
+    table_id              = var.tb_raw_wh_sensor
+    schema                = file("${path.module}/schemas/tb_raw_wh_sensor.json")
     deletion_protection   = false
 
     time_partitioning {

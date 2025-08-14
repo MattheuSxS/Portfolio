@@ -1,4 +1,3 @@
-# Use a imagem oficial do Ubuntu como base
 FROM ubuntu:latest
 
 LABEL maintainer="Matheus Dos S. Silva"
