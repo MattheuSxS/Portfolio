@@ -22,7 +22,7 @@ on:
 
 jobs:
   Development:
-    name: This job is for development landscape
+    name: Step 1
     runs-on: ubuntu-latest
     steps:
       - name: Step non 1
@@ -30,9 +30,18 @@ jobs:
           echo '${{ toJSON(github) }}'
 
   Development_1:
-    name: This job is for development landscape
+    name: Step 2
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy'
+    needs: Development
+    steps:
+      - name: Step non 1
+        run: |
+          echo '${{ toJSON(github) }}'
+
+  Development_2:
+    name: Step 3
+    runs-on: ubuntu-latest
+    if: github.event.inputs.action == 'deploy'
     steps:
       - name: Step non 1
         run: |
