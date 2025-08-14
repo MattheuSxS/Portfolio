@@ -1,0 +1,39 @@
+name: Pipe LogiStream Solutions
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "dev_matheus" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        description: '⚙️ Choose Terraform action'
+        options:
+          - deploy
+          - destroy
+        default: deploy
+
+
+jobs:
+  Development:
+    name: This job is for development landscape
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step non 1
+        run: |
+          echo '${{ toJSON(github) }}'
+
+  Development_1:
+    name: This job is for development landscape
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy'
+    steps:
+      - name: Step non 1
+        run: |
+          echo '${{ toJSON(github) }}'
