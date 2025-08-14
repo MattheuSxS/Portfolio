@@ -194,5 +194,4 @@ terraform.tfvars
 # GCP
 mts-default-portofolio.json
 Solve.md
-tes.py
-manual.yml
+backup/*
