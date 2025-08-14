@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: LogiStream Solutions
 
 on:
@@ -7,7 +5,7 @@ on:
     branches: [ "dev_matheus" ]
   pull_request:
     branches: [ "main" ]
-
+    types: [closed]  # Detecta quando um PR é fechado (mergeado ou não)
   workflow_dispatch:
     inputs:
       action:
@@ -22,7 +20,7 @@ jobs:
   code-test:
     name: 🐍 Code Python Test
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/main'
+    if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
     container: python:3.11-bullseye
     steps:
       - name: 🕵🏾 Checkout code
@@ -39,12 +37,11 @@ jobs:
           sleep 5
           echo "Tests successfully completed 🫦"
 
-
   tf-test:
     name: ⚙️ Terraform Test
     runs-on: ubuntu-latest
     needs: code-test
-    if: github.ref != 'refs/heads/main'
+    if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
     container:
       image: ${{ vars.TF_DEPLOY_IMAGE }}
       options: --platform=linux/amd64
@@ -56,7 +53,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: $${{ vars.GCP_PROJECT_ID}}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: 🕵🏾 validate Terraform configuration
         run: |
@@ -76,8 +73,15 @@ jobs:
   tf-deploy:
     name: ⚙️ Terraform Deploy
     runs-on: ubuntu-latest
-    needs: tf-test
-    if: github.event.inputs.action == 'deploy'
+    needs:
+      - tf-test
+      - code-test
+    if: |
+      (github.event_name == 'pull_request' &&
+       github.event.action == 'closed' &&
+       github.event.pull_request.merged == true) ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.event.inputs.action == 'deploy')
     container:
       image: ${{ vars.TF_DEPLOY_IMAGE }}
       options: --platform=linux/amd64
@@ -89,7 +93,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: $${{ vars.GCP_PROJECT_ID}}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Terraform Deploy
         run: |
@@ -120,7 +124,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: $${{ vars.GCP_PROJECT_ID}}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Terraform Destroy
         run: |
