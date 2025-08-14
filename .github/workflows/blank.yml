@@ -29,3 +29,23 @@ jobs:
       - name: Step non 1
         run: |
           echo '${{ toJSON(github) }}'
+
+  code-test:
+    name: 🐍 Code Python Test
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    container: python:3.11-bullseye
+    steps:
+      - name: 🕵🏾 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 👨🏾‍🔧 Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y build-essential
+
+      - name: Run tests
+        run: |
+          echo "Running tests 👀"
+          sleep 5
+          echo "Tests successfully completed 🫦"
