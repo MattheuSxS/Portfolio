@@ -1,4 +1,4 @@
-name: Pipe Test 1.0
+name: Test [1...]
 
 # Controls when the workflow will run
 on:
@@ -38,11 +38,11 @@ jobs:
         run: |
           echo '${{ toJSON(github) }}'
 
-  Development_2:
-    name: Step 3
-    runs-on: ubuntu-latest
-    if: github.event.inputs.action == 'deploy'
-    steps:
-      - name: Step non 1
-        run: |
-          echo '${{ toJSON(github) }}'
+#   Development_2:
+#     name: Step 3
+#     runs-on: ubuntu-latest
+#     if: github.event.inputs.action == 'deploy'
+#     steps:
+#       - name: Step non 1
+#         run: |
+#           echo '${{ toJSON(github) }}'
