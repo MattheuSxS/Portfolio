@@ -22,14 +22,6 @@ on:
         default: deploy
 
 jobs:
-  Development:
-    name: This job is for development landscape
-    runs-on: ubuntu-latest
-    steps:
-      - name: Step non 1
-        run: |
-          echo '${{ toJSON(github) }}'
-
   code-test:
     name: 🐍 Code Python Test
     runs-on: ubuntu-latest
@@ -56,7 +48,7 @@ jobs:
     needs: code-test
     if: github.ref != 'refs/heads/main'
     container:
-      image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
+      image: ${{ vars.TF_DEPLOY_IMAGE }}
       options: --platform=linux/amd64
     steps:
       - name: 🕵🏾 Checkout code
@@ -66,7 +58,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: $${{ vars.GCP_PROJECT_ID}}
 
       - name: 🕵🏾 validate Terraform configuration
         run: |
@@ -89,7 +81,7 @@ jobs:
     needs: tf-test
     if: github.event.inputs.action == 'deploy'
     container:
-      image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
+      image: ${{ vars.TF_DEPLOY_IMAGE }}
       options: --platform=linux/amd64
     steps:
       - name: 🕵🏾 Checkout code
@@ -99,7 +91,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: $${{ vars.GCP_PROJECT_ID}}
 
       - name: Terraform Deploy
         run: |
@@ -120,7 +112,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.inputs.action == 'destroy'
     container:
-      image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
+      image: ${{ vars.TF_DEPLOY_IMAGE }}
       options: --platform=linux/amd64
     steps:
       - name: 🕵🏾 Checkout code
@@ -130,7 +122,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: $${{ vars.GCP_PROJECT_ID}}
 
       - name: Terraform Destroy
         run: |
