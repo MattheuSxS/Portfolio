@@ -49,3 +49,35 @@ jobs:
           echo "Running tests 👀"
           sleep 5
           echo "Tests successfully completed 🫦"
+
+  tf-test:
+    name: ⚙️ Terraform Test
+    runs-on: ubuntu-latest
+    needs: code-test
+    if: github.ref != 'refs/heads/main'
+    container:
+      image: mattheusxs/tf_1.12.2-gcp_535.0.0:2.0
+      options: --platform=linux/amd64
+    steps:
+      - name: 🕵🏾 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🧑🏾‍✈️ Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: 🕵🏾 validate Terraform configuration
+        run: |
+          cd ./configs/terraform
+          echo '🚧 Creating credentials file... 🚧'
+          echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
+          terraform init
+          terraform workspace select dev || terraform workspace new dev
+          terraform validate
+          terraform test
+          echo "Whole Terraform configuration is valid ✅"
+
+      - name: 💁🏾‍♂️ Clean up
+        run: rm -f ./configs/terraform/*.json
