@@ -1,4 +1,6 @@
-name: Test [1...]
+# This is a basic workflow to help you get started with Actions
+
+name: CIIIIIIII
 
 # Controls when the workflow will run
 on:
@@ -11,38 +13,35 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      action:
-        type: choice
-        description: '⚙️ Choose Terraform action'
-        options:
-          - deploy
-          - destroy
-        default: deploy
-
+      name:
+        type: string
+        description: Name of the candidate
+        default: Melvin
+        
+      height:
+        type: number
+        description: Height of the candidate
+        default: 123
+        
+      qualification:
+          type: choice
+          description: Qualification of the candidate
+          default: btech
+          options:
+          - btech|
+          - bcal
+          - mca
+          - osc
+          - mtech
+      eligible:
+          type: boolean
+          description: Candidate is eligible or not
 
 jobs:
   Development:
-    name: Step 1
+    name: This job is for development landscape
     runs-on: ubuntu-latest
     steps:
       - name: Step non 1
         run: |
           echo '${{ toJSON(github) }}'
-
-  Development_1:
-    name: Step 2
-    runs-on: ubuntu-latest
-    needs: Development
-    steps:
-      - name: Step non 1
-        run: |
-          echo '${{ toJSON(github) }}'
-
-#   Development_2:
-#     name: Step 3
-#     runs-on: ubuntu-latest
-#     if: github.event.inputs.action == 'deploy'
-#     steps:
-#       - name: Step non 1
-#         run: |
-#           echo '${{ toJSON(github) }}'
