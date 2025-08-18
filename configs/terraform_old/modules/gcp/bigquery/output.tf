@@ -16,8 +16,8 @@ output "tb_raw_dw_messages" {
   value = "${google_bigquery_table.tb_raw_dw_messages.table_id}"
 }
 
-output "tb_dw_messages" {
-  value = "${google_bigquery_table.tb_dw_messages.table_id}"
+output "tb_wh_sensor" {
+  value = "${google_bigquery_table.tb_wh_sensor.table_id}"
 }
 output "tb_feedback" {
   value = "${google_bigquery_table.tb_feedback.table_id}"

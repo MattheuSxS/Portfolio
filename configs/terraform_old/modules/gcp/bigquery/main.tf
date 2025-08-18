@@ -38,9 +38,9 @@ resource "google_bigquery_table" "tb_raw_dw_messages" {
 #   ********************************************************************************************************   #
 #                                             DataSet production |  Table production                           #
 #   ********************************************************************************************************   #
-resource "google_bigquery_table" "tb_dw_messages" {
+resource "google_bigquery_table" "tb_wh_sensor" {
     dataset_id            = google_bigquery_dataset.bq_dataset[2].dataset_id
-    table_id              = var.tb_dw_messages
+    table_id              = var.tb_wh_sensor
     schema                = file("${path.module}/schemas/tb_trusted_dw_messages.json")
     deletion_protection   = false
 

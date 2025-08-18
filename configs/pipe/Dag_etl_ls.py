@@ -1,4 +1,3 @@
-#TODO: I must get back to this file and make the necessary changes to adapt it to the new project structure.
 # ================================================================================================================================= --
 # Object................: Dags of datase Ls                                                                            .
 # Creation Date.........: 2025/04/25                                                                                   |

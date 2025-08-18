@@ -33,9 +33,9 @@ class FakeDataPerson:
             {
                 "associate_id": f"ID##{self.fake.unique.uuid4()}",
                 "name":         full_name.split()[0],
-                "last_name":    full_name.split()[1],
+                "last_name":    " ".join(full_name.split()[1:4]),
                 "cpf":          self.fake.unique.cpf(),
-                "email":        f"{full_name.replace(' ', '.')}@{self.fake.domain_name()}",
+                "email":        f"{full_name.replace(' ', '.')}@{self.fake.domain_name()}".lower(),
                 "phone":        self.fake.unique.phone_number(),
                 "birth_date":   str(self.fake.date_between_dates(date_start=date(1925, 1, 1), date_end=fk_birthday)),
                 "created_at":   None,
@@ -66,13 +66,13 @@ class FakeDataPerson:
 
 if __name__ == "__main__":
     print("Generate 5 fake data for customers")
-    for _ in range(5):
+    for _ in range(10):
         fake_data = FakeDataPerson()
         print("------------ Data Customer ------------")
         for key, value in fake_data.dict_customers().items():
             print(f"{key}: {value}")
         print("------------ Data Card ------------")
-        for key, value in fake_data.dict_card().items():
-            print(f"{key}: {value}")
+        # for key, value in fake_data.dict_card().items():
+        #     print(f"{key}: {value}")
         print("-" * 40)
         print()

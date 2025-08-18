@@ -28,15 +28,6 @@ resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorizati
     })
 }
 
-# resource "google_secret_manager_secret_version" "bq_feedback_access_authorization" {
-#     secret      = google_secret_manager_secret.create_secrets[1].id
-#     secret_data = jsonencode({
-#         "project_id"   = var.project[terraform.workspace]
-#         "dataset_id"   = local.bq_dataset_production
-#         "table_id"     = var.tb_feedback
-#     })
-# }
-
 resource "google_secret_manager_secret_version" "bq_customers_access_authorization" {
     secret      = local.secret_bq_customers_access_authorization
     secret_data = jsonencode({

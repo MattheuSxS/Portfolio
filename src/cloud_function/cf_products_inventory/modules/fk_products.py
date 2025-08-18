@@ -266,8 +266,15 @@ class FkCommerce:
 
         return products
 
-    def generate_inventory(self, products, num_locations=5):
-        locations = [self.fake.city() for _ in range(num_locations)]
+    def generate_inventory(self, products: List[Dict]) -> List[Dict]:
+        locations = [
+            ["WH_Lambertstad_SP",   'Sudeste',      {'latitude': -23.5505,  'longitude': -46.6333}],
+            ["WH_Lambertstad_SC",   'Sul',          {'latitude': -27.5954,  'longitude': -48.5480}],
+            ["WH_Lake_Michelle_DF", 'Centro-Oeste', {'latitude': -15.7942,  'longitude': -47.8825}],
+            ["WH_New_Kristen_BA",   'Nordeste',     {'latitude': -12.9777,  'longitude': -38.5016}],
+            ["WH_North_Allison_AM", 'Norte',        {'latitude': -3.1189,   'longitude': -60.0217}]
+        ]
+
         inventory = []
 
         for product in products:
@@ -275,7 +282,9 @@ class FkCommerce:
                 inventory.append({
                     "inventory_id": f"IN##{self.fake.uuid4()}",
                     "product_id": product["product_id"],
-                    "location": location,
+                    "location": location[0],
+                    "region": location[1],
+                    "coordinates": location[2],
                     "quantity": random.randint(0, 500),
                     "last_restock": self.generate_date(start_date='-6m', end_date='now'),
                     "aisle": self.fake.bothify(text='?##'),
@@ -329,16 +338,17 @@ if __name__ == "__main__":
     data = test.generate_complete_dataset(1)
     print("Fake commerce data generated successfully!")
     print(type(data))
+    print(data['tb_inventory'][0])
 
     # Print sample data
-    print("\nSample Product:")
-    print(json.dumps(data["tb_products"][0], indent=2))
+    # print("\nSample Product:")
+    # print(json.dumps(data["tb_products"][0], indent=2))
 
-    print("\nSample Inventory Record:")
-    print(json.dumps(data["tb_inventory"][0], indent=2))
+    # print("\nSample Inventory Record:")
+    # print(json.dumps(data["tb_inventory"][0], indent=2))
 
-    print("\nGenerated at:")
-    print(data["generated_at"])
+    # print("\nCreated at:")
+    # print(data["tb_inventory"][0]["created_at"])
 
     # print("\nSample Delivery Location:")
     # print(json.dumps(data["delivery_locations"][0], indent=2))

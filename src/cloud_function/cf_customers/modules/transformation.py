@@ -61,21 +61,20 @@ def _hide_card(card_number: str) -> str:
 
 def hide_data(data_list: list) -> list[dict[str, dict]]:
     """
-        Obfuscates sensitive customer data in a list of dictionaries.
-
-        This function iterates over a list of dictionaries containing customer and card information,
-        hiding the 'cpf' field in the 'customers' dictionary and the 'card_number' field in the 'cards' dictionary
-        using the respective helper functions.
+        Hides sensitive customer data such as CPF and card number in a list of data dictionaries.
 
         Args:
-            data_list (list): A list of dictionaries, each containing 'customers' and 'cards' sub-dictionaries.
+            data_list (list): A list of dictionaries, each containing 'customers' and 'cards' keys with sensitive information.
 
         Returns:
-            list[dict[str, dict]]: The input list with sensitive fields obfuscated.
+            list[dict[str, dict]]: The modified list with sensitive data (CPF and card number) masked or hidden.
+
+        Note:
+            This function modifies the input list in place by masking the 'cpf' field in 'customers' and the 'card_number' field in 'cards'.
     """
-    for _ in range(len(data_list)):
-        data_list[_]['customers']['cpf'] = _hide_cpf(data_list[_]['customers']['cpf'])
-        data_list[_]['cards']['card_number'] = _hide_card(data_list[_]['cards']['card_number'])
+    for data in data_list:
+        data['customers']['cpf'] = _hide_cpf(data['customers']['cpf'])
+        data['cards']['card_number'] = _hide_card(data['cards']['card_number'])
 
     logging.info("Sensitive data hidden successfully.")
     return data_list
@@ -83,36 +82,49 @@ def hide_data(data_list: list) -> list[dict[str, dict]]:
 
 def add_columns(data_list: list) -> list[dict[str, dict]]:
     """
-        Adds additional columns to each dictionary in the provided data list.
+        Adds and updates specific columns in each dictionary of the input data list for customers, cards, and addresses.
 
-        For each entry in the data_list, this function:
-        - Sets 'created_at' to the current timestamp and 'updated_at' to None for 'customers', 'cards', and 'address' sub-dictionaries.
-        - Sets 'fk_associate_id' in 'cards' and 'address' sub-dictionaries to the value of 'associate_id' from the 'customers' sub-dictionary.
+        For each item in the input list, this function:
+        - Adds 'created_at' (current timestamp) and 'updated_at' (None) to 'customers', 'cards', and 'address' sub-dictionaries.
+        - Adds 'fk_associate_id' (from 'customers.associate_id') to 'cards' and 'address'.
+        - Adds 'card_holder_name' (concatenation of 'customers.name' and 'customers.last_name') to 'cards'.
 
         Args:
             data_list (list): A list of dictionaries, each containing 'customers', 'cards', and 'address' sub-dictionaries.
 
         Returns:
-            list[dict[str, dict]]: The updated list with additional columns added to each sub-dictionary.
+            list[dict[str, dict]]: The modified list with updated and additional columns for each item.
     """
 
-    for _ in range(len(data_list)):
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        data_list[_]['customers']['created_at'] = current_time
-        data_list[_]['customers']['updated_at'] = None
+    def process_item(item):
+        customer = item['customers']
+        associate_id = customer['associate_id']
+        full_name = f"{customer['name']} {customer['last_name']}"
 
-        data_list[_]['cards']['card_holder_name']   = f"{data_list[_]['customers']['name']} {data_list[_]['customers']['last_name']}"
-        data_list[_]['cards']['created_at']         = current_time
-        data_list[_]['cards']['updated_at']         = None
-        data_list[_]['cards']['fk_associate_id']    = data_list[_]['customers']['associate_id']
+        item['customers'].update({
+            'created_at': current_time,
+            'updated_at': None
+        })
 
-        data_list[_]['address']['created_at']       = current_time
-        data_list[_]['address']['updated_at']       = None
-        data_list[_]['address']['fk_associate_id']  = data_list[_]['customers']['associate_id']
+        item['cards'].update({
+            'card_holder_name': full_name,
+            'created_at': current_time,
+            'updated_at': None,
+            'fk_associate_id': associate_id
+        })
+
+        item['address'].update({
+            'created_at': current_time,
+            'updated_at': None,
+            'fk_associate_id': associate_id
+        })
+
+        return item
 
     logging.info("Columns added successfully.")
-    return data_list
+    return [process_item(item) for item in data_list]
 
 
 def split_data(data_list: list) -> dict[str, list]:

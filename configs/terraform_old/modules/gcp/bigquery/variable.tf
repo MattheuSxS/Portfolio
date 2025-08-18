@@ -32,7 +32,7 @@ variable "tb_raw_hw_sensor" {
 }
 
 #   ~~~~~~~~~~~~~~~~~~~~~~>>>> Trusted <<<<~~~~~~~~~~~~~~~~~~~~~~~
-variable "tb_dw_messages" {
+variable "tb_wh_sensor" {
     description = "The name of the table"
     type        = string
 }

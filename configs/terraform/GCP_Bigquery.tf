@@ -37,9 +37,9 @@ resource "google_bigquery_table" "tb_raw_wh_sensor" {
 #   ********************************************************************************************************   #
 #                                             DataSet production |  Table production                           #
 #   ********************************************************************************************************   #
-resource "google_bigquery_table" "tb_dw_messages" {
+resource "google_bigquery_table" "tb_wh_sensor" {
     dataset_id            = local.bq_dataset_production
-    table_id              = var.tb_dw_messages
+    table_id              = var.tb_wh_sensor
     schema                = file("${path.module}/schemas/tb_trusted_dw_messages.json")
     deletion_protection   = false
 
@@ -137,7 +137,7 @@ resource "google_bigquery_table" "tb_inventory" {
         field         = "created_at"
     }
 
-    clustering = ["inventory_id", "location", "aisle", "last_restock"]
+    clustering = ["location", "inventory_id", "product_id", "last_restock"]
 }
 
 resource "google_bigquery_table" "tb_sales" {

@@ -5,7 +5,7 @@ from time import sleep
 from datetime import datetime
 from modules.pub_sub import PubSub
 from typing import Dict, Any, Union
-from modules.sensor import FakeWhSensorData
+from cloud_function.cf_delivery_sensor.modules.delivery_sensor import FakeWhSensorData
 
 
 logging.basicConfig(

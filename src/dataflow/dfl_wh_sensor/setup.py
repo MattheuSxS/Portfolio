@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='dfl_hw_sensor_nrt',
+    name='dfl_wh_sensor_nrt',
     version='0.0.2',
     author='Matheus Dos S. Silva',
     author_email='mattheusxs@gmail.com',

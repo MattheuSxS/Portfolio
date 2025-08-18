@@ -27,7 +27,6 @@ resource "google_service_account" "data_tools_creating_sa" {
   }
 }
 
-
 resource "google_project_iam_member" "roles_sa_composer" {
   project = var.project[terraform.workspace]
   count   = length(var.roles_sa_composer)

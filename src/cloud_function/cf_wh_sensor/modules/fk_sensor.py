@@ -53,11 +53,11 @@ class FakeWhSensorData:
 
         list_warehouse = \
             [
-                "Warehouse_SP",
-                "Warehouse_RJ",
-                "Warehouse_DF",
-                "Warehouse_BA",
-                "Warehouse_MA"
+                "WH_Smithville_SP",
+                "WH_Lambertstad_SC",
+                "WH_Lake_Michelle_DF",
+                "WH_New_Kristen_BA",
+                "WH_North_Allison_AM"
             ]
 
         for index in list_warehouse:

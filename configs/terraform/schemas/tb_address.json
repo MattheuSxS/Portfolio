@@ -36,6 +36,12 @@
         "description": "Postal code of the customer's address."
     },
     {
+        "name": "region",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Region of the customer's address."
+    },
+    {
         "name": "latitude",
         "type": "FLOAT",
         "mode": "REQUIRED",

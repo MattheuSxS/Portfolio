@@ -30,7 +30,7 @@ module "GCP_BigQuery" {
     environment             = var.environment
     bq_dataset              = var.bq_dataset
     tb_raw_hw_sensor        = var.tb_raw_hw_sensor
-    tb_dw_messages          = var.tb_dw_messages
+    tb_wh_sensor          = var.tb_wh_sensor
     tb_feedback             = var.tb_feedback
     tb_customers            = var.tb_customers
     tb_cards                = var.tb_cards

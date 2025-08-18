@@ -18,6 +18,31 @@
         "description": "Location of the inventory item"
     },
     {
+        "name": "region",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Region where the inventory item is stored"
+    },
+    {
+        "name": "coordinates",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+            {
+                "name": "latitude",
+                "type": "FLOAT64",
+                "mode": "NULLABLE",
+                "description": "Latitude of the storage location"
+            },
+            {
+                "name": "longitude",
+                "type": "FLOAT64",
+                "mode": "NULLABLE",
+                "description": "Longitude of the storage location"
+            }
+        ]
+    },
+    {
         "name": "quantity",
         "type": "INTEGER",
         "mode": "NULLABLE",

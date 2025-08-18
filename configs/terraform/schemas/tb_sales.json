@@ -42,6 +42,12 @@
         "description": "Location store where the purchase was made."
     },
     {
+        "name": "region",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Region where the product is stored."
+    },
+    {
         "name": "quantity",
         "type": "INTEGER",
         "mode": "REQUIRED",
