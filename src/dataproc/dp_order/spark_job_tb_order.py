@@ -26,8 +26,8 @@ from utils.helpers import (
 #   ********************************************************************************************************   #
 def main(args) -> None:
     spark = SparkSession.builder \
-        .appName("BigQuery-ETL-Table-Sales") \
-        .config("spark.jars.packages", "com.google.cloud.spark:spark-3.5-bigquery:0.42.2") \
+        .appName("BigQuery-ETL-TTable-Sales") \
+        .config("spark.jars.packages", "com.google.cloud.spark:spark-3.5-bigquery:0.42.4") \
         .getOrCreate()
 
     VAR_PROJECT_ID      = args.project_id
@@ -46,17 +46,15 @@ def main(args) -> None:
         .load()
 
     df_orders_fake = generate_fake_orders(
-        generate_fake_purchases(spark, df_customers, df_products, VAR_NUM_PURCHASES))
+        generate_fake_purchases(df_customers, df_products, VAR_NUM_PURCHASES))
 
-    df_orders_fake.show()
-
-    # df_orders_fake.write.format("bigquery") \
-    #     .option("table", f"{VAR_PROJECT_ID}.{VAR_DATASET_ID}.tb_sales") \
-    #     .option("writeMethod", "direct") \
-    #     .option("partitionType", "DAY") \
-    #     .option("partitionField", "purchase_date") \
-    #     .mode("append") \
-    #     .save()
+    df_orders_fake.write.format("bigquery") \
+        .option("table", f"{VAR_PROJECT_ID}.{VAR_DATASET_ID}.tb_sales") \
+        .option("writeMethod", "direct") \
+        .option("partitionType", "DAY") \
+        .option("partitionField", "purchase_date") \
+        .mode("append") \
+        .save()
 
 
 if __name__ == "__main__":
