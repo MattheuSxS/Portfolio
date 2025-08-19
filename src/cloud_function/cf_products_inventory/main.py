@@ -4,7 +4,6 @@ from modules.bigquery import BigQuery
 from modules.fk_products import FkCommerce
 from modules.secret_manager import get_credentials
 
-
 logging.basicConfig(
     format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
             "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),

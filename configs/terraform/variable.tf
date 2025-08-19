@@ -238,47 +238,47 @@ variable "tb_raw_wh_sensor" {
 #                         |  ~~~~~~~~~~~~~~~~~~~~~~>>>> Trusted <<<<~~~~~~~~~~~~~~~~~~~~~~  |                   #
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    #
 variable "tb_wh_sensor" {
-    description = "The name of the table"
+    description = "Table with warehouse sensor information"
     type        = string
 }
 
 variable "tb_feedback" {
-    description = "The name of the table"
+    description = "Table with feedback information of customers"
     type        = string
 }
 
 variable "tb_customers" {
-    description = "The name of the table"
+    description = "Table with customer information"
     type        = string
 }
 
 variable "tb_cards" {
-    description = "The name of the table"
+    description = "Table with card information of customers"
     type        = string
 }
 
 variable "tb_address" {
-    description = "The name of the table"
+    description = "Table with address information of customers"
     type        = string
 }
 
 variable "tb_products" {
-    description = "The name of the table"
+    description = "Table with product information"
     type        = string
 }
 
 variable "tb_inventory" {
-    description = "The name of the table"
+    description = "Table with inventory information"
     type        = string
 }
 
 variable "tb_sales" {
-    description = "The name of the table"
+    description = "Table with sales information"
     type        = string
 }
 
-variable "tb_delivery_locations" {
-    description = "The name of the table"
+variable "tb_vehicles" {
+    description = "Table with vehicle information"
     type        = string
 }
 

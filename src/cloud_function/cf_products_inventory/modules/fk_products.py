@@ -1,13 +1,14 @@
-import json
 import random
 from faker import Faker
-from typing import Dict, List, Optional
-from datetime import datetime, timedelta
+from typing import Dict, List
+from modules.fk_dates import GeneratorDate
 from faker.providers import DynamicProvider
+from modules.fk_vehicle import GeneratorDeliveryVehicle
 
 
-class FkCommerce:
+class FkCommerce(GeneratorDate):
     def __init__(self, country: str = 'en_US'):
+        super().__init__(country)
         self.fake = Faker(country)
         self.fake.seed_instance(0)
         self.fake.add_provider(
@@ -190,41 +191,6 @@ class FkCommerce:
         return f"{random.choice(adjectives)} {random.choice(nouns[category])} {random.randint(1, 1000)}"
 
 
-    def generate_date(self, start_date=None, end_date=None, option='date'):
-        """
-            Generates a random date or datetime string within the specified range.
-
-            Args:
-                start_date (datetime, optional): The start of the date range. Defaults to None.
-                end_date (datetime, optional): The end of the date range. Defaults to None.
-                option (str, optional): The format of the output. Must be one of 'date', 'datetime', or 'datetime_v1'.
-                    - 'date': Returns a date string in 'YYYY-MM-DD' format.
-                    - 'datetime': Returns a datetime string in 'YYYY-MM-DD HH:MM:SS' format.
-                    - 'datetime_v1': Returns a datetime string in 'YYYY-MM-DD HH:MM:SS' format,
-                    with the date randomly chosen from the last 90 days.
-
-            Returns:
-                str: The generated date or datetime string in the specified format.
-
-            Raises:
-                ValueError: If the option is not one of 'date', 'datetime', or 'datetime_v1'.
-        """
-        if option not in ['date', 'datetime', 'datetime_v1']:
-            raise ValueError("Option must be either 'date' or 'datetime'.")
-
-        match option:
-            case 'date':
-                return self.fake.date_time_between(start_date=start_date, end_date=end_date).strftime('%Y-%m-%d')
-
-            case 'datetime':
-                return self.fake.date_time_between(start_date=start_date, end_date=end_date).strftime('%Y-%m-%d %H:%M:%S')
-
-            case 'datetime_v1':
-                return self.fake.date_time_between_dates(
-                datetime_start  = (datetime.now() - timedelta(days=90)),
-                datetime_end    = datetime.now()
-                ).strftime('%Y-%m-%d %H:%M:%S')
-
     def generate_products(self, num_products: int = 20) -> List[Dict]:
         """
             Generate a list of fake product dictionaries with randomized attributes.
@@ -319,16 +285,22 @@ class FkCommerce:
 
 
 # Generate complete dataset
-    def generate_complete_dataset(self, quantity: int) -> Dict[str, List[Dict]]:
-        products            = self.generate_products(quantity)
+    def generate_complete_dataset(self, qtd_products: int, qtd_vehicles: int = 75) -> Dict[str, List[Dict]]:
+        fk_vehicle = GeneratorDeliveryVehicle()
+
+
+        products            = self.generate_products(qtd_products)
         inventory           = self.generate_inventory(products)
+        vehicles            = fk_vehicle.generate_fleet(qtd_vehicles)
+
         # locations           = self.generate_delivery_locations(100)
         # processing_times    = self.generate_processing_times(products, locations)
 
         return \
             {
                 "tb_products": products,
-                "tb_inventory": inventory
+                "tb_inventory": inventory,
+                "tb_vehicles": vehicles
             }
 
 # Example usage

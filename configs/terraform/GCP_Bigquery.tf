@@ -154,6 +154,20 @@ resource "google_bigquery_table" "tb_sales" {
     clustering = ["purchase_id", "associate_id", "product_id", "inventory_id"]
 }
 
+resource "google_bigquery_table" "tb_vehicles" {
+    dataset_id            = local.bq_dataset_ls_customers
+    table_id              = var.tb_vehicles
+    schema                = file("${path.module}/schemas/tb_vehicles.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["vehicle_id", "location", "year", "type"]
+}
+
 # resource "google_bigquery_table" "tb_delivery_locations" {
 #     dataset_id            = local.bq_dataset_ls_customers
 #     table_id              = var.tb_delivery_locations

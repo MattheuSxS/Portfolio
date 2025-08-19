@@ -28,7 +28,7 @@ from utils.helpers import (
 def main(args) -> None:
     spark = SparkSession.builder \
         .appName("BigQuery-ETL-Table-FeedBack") \
-        .config("spark.jars.packages", "com.google.cloud.spark:spark-3.5-bigquery:0.42.2") \
+        .config("spark.jars.packages", "com.google.cloud.spark:spark-3.5-bigquery:0.42.4") \
         .getOrCreate()
 
     VAR_PROJECT_ID          = args.project_id

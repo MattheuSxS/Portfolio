@@ -1,0 +1,148 @@
+[
+    {
+        "name": "vehicle_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the vehicle."
+    },
+    {
+        "name": "location",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Location of the vehicle where it is parked."
+    },
+    {
+        "name": "type",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Type of the vehicle (e.g., car, truck, motorcycle)."
+    },
+    {
+        "name": "brand",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Brand of the vehicle (e.g., Toyota, Ford, Honda)."
+    },
+    {
+        "name": "model",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "model of the vehicle (e.g., 'CG 160', 'Factor 125')."
+    },
+    {
+        "name": "year",
+        "type": "INTEGER",
+        "mode": "REQUIRED",
+        "description": "Year of the vehicle (e.g., 2020, 2021)."
+    },
+    {
+        "name": "license_plate",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "License plate of the vehicle (e.g., 'ABC1234', 'XYZ5678')."
+    },
+    {
+        "name": "capacity_kg",
+        "type": "INTEGER",
+        "mode": "REQUIRED",
+        "description": "Carrying capacity of the vehicle in kilograms."
+    },
+    {
+        "name": "fuel_efficiency_km_l",
+        "type": "NUMERIC",
+        "mode": "REQUIRED",
+        "description": "Fuel efficiency of the vehicle in kilometers per liter."
+    },
+    {
+        "name": "status",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Status of the vehicle (e.g., 'available', 'in use', 'under maintenance')."
+    },
+    {
+        "name": "manufacture_date",
+        "type": "DATE",
+        "mode": "REQUIRED",
+        "description": "Manufacture date of the vehicle (e.g., '2020-01-01')."
+    },
+    {
+        "name": "last_maintenance",
+        "type": "DATE",
+        "mode": "REQUIRED",
+        "description": "Last maintenance date of the vehicle (e.g., '2020-01-01')."
+    },
+    {
+        "name": "next_maintenance",
+        "type": "DATE",
+        "mode": "REQUIRED",
+        "description": "Next maintenance date of the vehicle (e.g., '2020-01-01')."
+    },
+    {
+        "name": "tracker",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED",
+        "description": "Whether the vehicle is being tracked (e.g., true, false)."
+    },
+    {
+        "name": "insurance",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+            {
+                "name": "insurer",
+                "type": "STRING",
+                "mode": "NULLABLE",
+                "description": "Insurance company name"
+            },
+            {
+                "name": "policy_number",
+                "type": "INTEGER",
+                "mode": "NULLABLE",
+                "description": "Insurance policy number"
+            },
+            {
+                "name": "validity",
+                "type": "DATE",
+                "mode": "NULLABLE",
+                "description": "Insurance policy expiry date"
+            }
+        ]
+    },
+    {
+        "name": "driver",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+            {
+                "name": "name",
+                "type": "STRING",
+                "mode": "NULLABLE",
+                "description": "Driver's name"
+            },
+            {
+                "name": "cnh",
+                "type": "INTEGER",
+                "mode": "NULLABLE",
+                "description": "Driver's CNH (National Driver's License) number"
+            },
+            {
+                "name": "cnh_validity",
+                "type": "DATE",
+                "mode": "NULLABLE",
+                "description": "Driver's CNH validity date"
+            }
+        ]
+    },
+    {
+        "name": "created_at",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE",
+        "description": "Creation date of the vehicle record"
+    },
+    {
+        "name": "updated_at",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE",
+        "description": "Last update date of the vehicle record"
+    }
+]
