@@ -22,7 +22,8 @@ locals {
 
 
     secret_wh_sensor_access_authorization       = google_secret_manager_secret.create_secrets[0].id
-    secret_bq_feedback_access_authorization     = google_secret_manager_secret.create_secrets[1].id
-    secret_bq_customers_access_authorization    = google_secret_manager_secret.create_secrets[2].id
-    secret_bq_products_access_authorization     = google_secret_manager_secret.create_secrets[3].id
+    secret_delivery_sensor_access_authorization = google_secret_manager_secret.create_secrets[1].id
+    secret_bq_feedback_access_authorization     = google_secret_manager_secret.create_secrets[2].id
+    secret_bq_customers_access_authorization    = google_secret_manager_secret.create_secrets[3].id
+    secret_bq_products_access_authorization     = google_secret_manager_secret.create_secrets[4].id
 }

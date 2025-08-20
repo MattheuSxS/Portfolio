@@ -63,57 +63,80 @@ class BigQuery:
             raise
 
 
-    def read_bigquery_with_params(self, dataset_id, table_id, columns=None, filters=None, limit=None) -> list[dict]:
+    def get_query(self, table: str) -> str:
+        """
+            Generates and returns a predefined SQL query string based on the specified table key.
 
-        table_ref = f"{self.project}.{dataset_id}.{table_id}"
+            Args:
+                table (str): The key indicating which SQL query to return.
+                    Accepted values are:
+                        - "purchase_query": Returns a query joining sales, inventory, customers, and address tables.
+                        - "delivery_query": Returns a query joining vehicles and inventory tables.
 
-        where_clause = ""
-        if filters:
-            conditions = [f"{k} = '{v}'" if isinstance(v, str) else f"{k} = {v}"
-                        for k, v in filters.items()]
-            where_clause = "WHERE \n" + " AND ".join(conditions)
-        if columns:
-            columns_list = ", ".join(columns)
-        else:
-            columns_list = ""
+            Returns:
+                str: The corresponding SQL query string.
 
-        query = \
-            f"""
-                SELECT
-                    TBSA.purchase_id,
-                    TBIN.location,
-                    TBIN.coordinates.latitude,
-                    TBIN.coordinates.longitude,
-                    TBSA.associate_id,
-                    CONCAT(TBCU.name, " ", TBCU.last_name) AS customer_name,
-                    CONCAT(TBAD.address, ", ", TBAD.city, " - ", TBAD.state) AS address,
-                    TBAD.latitude,
-                    TBAD.longitude,
-                    {columns_list}
-                FROM
-                    `{self.project}.ls_customers.tb_sales` AS TBSA
-                INNER JOIN
-                    `{self.project}.ls_customers.tb_inventory` AS TBIN
-                ON
-                    TBSA.inventory_id = TBIN.inventory_id
-                INNER JOIN
-                    `{self.project}.ls_customers.tb_customers` AS TBCU
-                ON
-                    TBSA.associate_id = TBCU.associate_id
-                INNER JOIN
-                    `{self.project}.ls_customers.tb_address` AS TBAD
-                ON
-                    TBSA.associate_id = TBAD.fk_associate_id
-                {where_clause}
-                {'LIMIT ' + str(limit) if limit else ''}
-            """
+            Raises:
+                KeyError: If the provided table key does not exist in the predefined queries.
+        """
+        QUERY_SQL = \
+            {
+                "purchase_query": \
+                    f"""
+                        SELECT
+                            TBSA.purchase_id,
+                            TBIN.location,
+                            CONCAT(TBCU.name, " ", TBCU.last_name) AS customer_name,
+                            CONCAT(TBAD.address, ", ", TBAD.city, " - ", TBAD.state) AS address,
+                            TBAD.latitude,
+                            TBAD.longitude
+                        FROM
+                            `{self.project}.ls_customers.tb_sales` AS TBSA TABLESAMPLE SYSTEM (1 PERCENT)
+                        INNER JOIN
+                            `{self.project}.ls_customers.tb_inventory` AS TBIN
+                        ON
+                            TBSA.inventory_id = TBIN.inventory_id
+                        INNER JOIN
+                            `{self.project}.ls_customers.tb_customers` AS TBCU
+                        ON
+                            TBSA.associate_id = TBCU.associate_id
+                        INNER JOIN
+                            `{self.project}.ls_customers.tb_address` AS TBAD
+                        ON
+                            TBSA.associate_id = TBAD.fk_associate_id
+                    """,
+                "delivery_query": \
+                    f"""
+                        SELECT
+                            DISTINCT
+                                TBVE.vehicle_id,
+                                TBLO.location,
+                                TBVE.average_speed_km_h,
+                                TBVE.capacity_kg,
+                                TBLO.coordinates.latitude,
+                                TBLO.coordinates.longitude
+                        FROM
+                            `{self.project}.ls_customers.tb_vehicles` AS TBVE
+                        INNER JOIN
+                            `{self.project}.ls_customers.tb_inventory` AS TBLO
+                        ON
+                            TBVE.location = TBLO.location
+                        WHERE
+                            TBVE.status = "available"
+                    """
+            }
 
+        return QUERY_SQL[table]
+
+
+    def read_bq(self, query: str) -> list[list]:
         job_config = QueryJobConfig()
         job_config.use_legacy_sql = False
 
         query_job = self.client.query(query, job_config=job_config)
+        rows = query_job.result()  # espera o término do job
 
-        return [[col for col in row[0:9]] for row in query_job]
+        return [list(row) for row in rows]
 
 # Exemplo de uso:
 # results = read_bigquery_with_params(
@@ -124,12 +147,13 @@ class BigQuery:
 #     limit=100
 # )
 if __name__ == '__main__':
+
+
+
     bq = BigQuery(project="mts-default-portofolio")
-    result = bq.read_bigquery_with_params(
-        dataset_id="ls_customers",
-        table_id="tb_sales",
-        columns=None,
-        filters=None,
-        limit=5
-    )
-    print(result[0])  # Exibe os primeiros 5 resultados
+
+    for query in ['purchase_query', 'delivery_query']:
+        result = bq.read_bq(
+            query=bq.get_query(query)
+        )
+        print(result[0])

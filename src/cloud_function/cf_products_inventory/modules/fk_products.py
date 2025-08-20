@@ -1,12 +1,54 @@
 import random
 from faker import Faker
 from typing import Dict, List
-from modules.fk_dates import GeneratorDate
 from faker.providers import DynamicProvider
 from modules.fk_vehicle import GeneratorDeliveryVehicle
 
+try:
+    from modules.fk_dates import GeneratorDate
+except ImportError:
+    from fk_dates import GeneratorDate
+
 
 class FkCommerce(GeneratorDate):
+    """
+        FkCommerce is a class for generating realistic fake product, inventory, and vehicle datasets for commerce applications.
+
+        Inherits from:
+            GeneratorDate
+
+        Attributes:
+            fake (Faker): An instance of the Faker library for generating fake data.
+            product_conditions (List[str]): List of possible product conditions.
+            description_templates (Dict): Templates and placeholder values for generating product descriptions.
+            default_template (Dict): Default template for product descriptions when category-specific templates are unavailable.
+
+        Methods:
+            __init__(country: str = 'en_US'):
+                Initializes the FkCommerce instance, sets up Faker, product categories, and description templates.
+
+            _init_description_templates():
+
+            generate_product_description(product: Dict) -> str:
+
+            generate_product_name(category: str) -> str:
+
+            generate_products(num_products: int = 20) -> List[Dict]:
+                Generates a list of fake product dictionaries with randomized attributes.
+
+            generate_inventory(products: List[Dict]) -> List[Dict]:
+                Generates inventory records for each product across multiple warehouse locations.
+
+            generate_complete_dataset(qtd_products: int, qtd_vehicles: int = 250) -> Dict[str, List[Dict]]:
+                Generates a complete dataset including products, inventory, and delivery vehicles.
+
+        Usage:
+            fk_commerce = FkCommerce()
+            products = fk_commerce.generate_products(10)
+            inventory = fk_commerce.generate_inventory(products)
+            dataset = fk_commerce.generate_complete_dataset(100, 50)
+    """
+
     def __init__(self, country: str = 'en_US'):
         super().__init__(country)
         self.fake = Faker(country)
@@ -161,6 +203,7 @@ class FkCommerce(GeneratorDate):
 
         return description
 
+
     def generate_product_name(self, category: str) -> str:
         """
             Generates a random product name based on the specified category.
@@ -232,6 +275,7 @@ class FkCommerce(GeneratorDate):
 
         return products
 
+
     def generate_inventory(self, products: List[Dict]) -> List[Dict]:
         locations = [
             ["WH_Lambertstad_SP",   'Sudeste',      {'latitude': -23.5505,  'longitude': -46.6333}],
@@ -259,42 +303,26 @@ class FkCommerce(GeneratorDate):
                 })
         return inventory
 
-    #TODO: Transfer this to a separate module [ Delivery Locations ]
-    # def generate_delivery_locations(self, num_locations=50):
-    #     locations = []
-    #     for _ in range(num_locations):
-    #         city = self.fake.city()
-    #         locations.append({
-    #             "location_id": f"LC##{self.fake.uuid4()}",
-    #             "address": self.fake.street_address(),
-    #             "city": city,
-    #             'neighborhood': None,
-    #             "state": self.fake.state(),
-    #             "postal_code": self.fake.postcode(),
-    #             "country": self.fake.country(),
-    #             "coordinates": {
-    #                 "latitude": float(self.fake.latitude()),
-    #                 "longitude": float(self.fake.longitude())
-    #             },
-    #             "delivery_zone": random.choice(['Urban', 'Suburban', 'Rural']),
-    #             "delivery_difficulty": random.choice(['Easy', 'Medium', 'Hard']),
-    #             "created_at": self.generate_date(start_date='-2y', end_date='now'),
-    #             "fk_associate_id": None,
-    #         })
-    #     return locations
 
+    def generate_complete_dataset(self, qtd_products: int, qtd_vehicles: int = 750) -> Dict[str, List[Dict]]:
+        """
+            Generates a complete dataset containing products, inventory, and vehicles.
 
-# Generate complete dataset
-    def generate_complete_dataset(self, qtd_products: int, qtd_vehicles: int = 75) -> Dict[str, List[Dict]]:
+            Args:
+                qtd_products (int): The number of products to generate.
+                qtd_vehicles (int, optional): The number of vehicles to generate. Defaults to 250.
+
+            Returns:
+                Dict[str, List[Dict]]: A dictionary with the following keys:
+                    - "tb_products": List of generated product dictionaries.
+                    - "tb_inventory": List of generated inventory dictionaries.
+                    - "tb_vehicles": List of generated vehicle dictionaries.
+        """
         fk_vehicle = GeneratorDeliveryVehicle()
-
 
         products            = self.generate_products(qtd_products)
         inventory           = self.generate_inventory(products)
         vehicles            = fk_vehicle.generate_fleet(qtd_vehicles)
-
-        # locations           = self.generate_delivery_locations(100)
-        # processing_times    = self.generate_processing_times(products, locations)
 
         return \
             {

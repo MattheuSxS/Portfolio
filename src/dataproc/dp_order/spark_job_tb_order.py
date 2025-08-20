@@ -30,6 +30,8 @@ def main(args) -> None:
         .config("spark.jars.packages", "com.google.cloud.spark:spark-3.5-bigquery:0.42.4") \
         .getOrCreate()
 
+    spark.sparkContext.setLogLevel("ERROR")
+
     VAR_PROJECT_ID      = args.project_id
     VAR_DATASET_ID      = args.dataset_id
     VAR_NUM_PURCHASES   = args.num_purchases

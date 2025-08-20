@@ -2,9 +2,12 @@ import random
 from faker import Faker
 from typing import List, Dict
 from datetime import timedelta
-from modules.fk_dates import GeneratorDate
 from faker_vehicle import VehicleProvider
 
+try:
+    from modules.fk_dates import GeneratorDate
+except ImportError:
+    from fk_dates import GeneratorDate
 
 
 class GeneratorDeliveryVehicle(GeneratorDate):
@@ -43,23 +46,27 @@ class GeneratorDeliveryVehicle(GeneratorDate):
                 'brand': ['Honda', 'Yamaha', 'Suzuki', 'Kawasaki'],
                 'model': ['CG 160', 'Factor 125', 'Biz 125', 'Ninja 300'],
                 'capacity_kg': (5, 30),
-                'fuel_efficiency_km_l': (30, 40)  # km/l
+                'fuel_efficiency_km_l': (30, 40),
+                'average_speed_km_h': (80, 110)
             },
             'van': {
                 'brand': ['Fiat', 'Volkswagen', 'Renault', 'Mercedes-Benz'],
                 'model': ['Fiorino', 'Saveiro', 'Kangoo', 'Sprinter'],
                 'capacity_kg': (200, 800),
-                'fuel_efficiency_km_l': (15, 25)
+                'fuel_efficiency_km_l': (15, 25),
+                'average_speed_km_h': (80, 100)
             },
             'truck': {
                 'brand': ['Volvo', 'Scania', 'MAN', 'Mercedes-Benz'],
                 'model': ['FH 540', 'R 450', 'TGX 440', 'Actros 2651'],
                 'capacity_kg': (5000, 15000),
-                'fuel_efficiency_km_l': (10, 20)
+                'fuel_efficiency_km_l': (10, 20),
+                'average_speed_km_h': (70, 80)
             }
         }
 
         self.STATUS = ['available', 'in_route', 'under_maintenance', 'deactivated']
+        self.STATUS_PROBABILITIES = [0.80, 0.10, 0.07, 0.03]
 
 
     def generate_board(self, type: str) -> str:
@@ -93,6 +100,7 @@ class GeneratorDeliveryVehicle(GeneratorDate):
                     - year (int): Year of manufacture.
                     - license_plate (str): Generated license plate.
                     - capacity_kg (int): Vehicle load capacity in kilograms.
+                    - average_speed_km_h (float): Average speed in km/h.
                     - fuel_efficiency_km_l (float): Fuel efficiency in km/l.
                     - status (str): Current status of the vehicle.
                     - manufacture_date (str): Manufacture date in 'YYYY-MM-DD' format.
@@ -136,8 +144,9 @@ class GeneratorDeliveryVehicle(GeneratorDate):
             'year': manufacturing_data.year,
             'license_plate': self.generate_board(_type),
             'capacity_kg': random.randint(*specs['capacity_kg']),
+            'average_speed_km_h': round(random.uniform(*specs['average_speed_km_h']), 2),
             'fuel_efficiency_km_l': round(random.uniform(*specs['fuel_efficiency_km_l']), 2),
-            'status': random.choice(self.STATUS),
+            'status': random.choices(self.STATUS, weights=self.STATUS_PROBABILITIES, k=1)[0],
             'manufacture_date': manufacturing_data.strftime('%Y-%m-%d'),
             'last_maintenance': last_maintenance.strftime('%Y-%m-%d'),
             'next_maintenance': (last_maintenance + timedelta(days=180)).strftime('%Y-%m-%d'),

@@ -9,7 +9,9 @@ from modules.secret_manager import get_credentials
 from modules.transformation import hide_data, add_columns, split_data
 
 
-
+# ******************************************************************************************************************** #
+#                                              System Logging                                                          #
+# ******************************************************************************************************************** #
 # logging.basicConfig(
 #     format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
 #             "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
@@ -17,6 +19,9 @@ from modules.transformation import hide_data, add_columns, split_data
 # )
 
 
+# ******************************************************************************************************************** #
+#                                               Auxiliary Function                                                     #
+# ******************************************************************************************************************** #
 def generate_fake_data_bulk_cached(num_records: int) -> List[Dict]:
     """
         Generates a list of fake customer data records using cached faker instances.
@@ -42,12 +47,16 @@ def generate_fake_data_bulk_cached(num_records: int) -> List[Dict]:
     return results
 
 
+# ******************************************************************************************************************** #
+#                                               Main function                                                          #
+# ******************************************************************************************************************** #
 def main(request: dict) -> dict:
     """
     Processes a request to generate, transform, and insert fake customer data into BigQuery tables.
 
     Args:
-        request (dict): The request payload containing configuration parameters. If not a dict, attempts to parse JSON from the request object.
+        request (dict): The request payload containing configuration parameters. If not a dict,
+        attempts to parse JSON from the request object.
 
     Returns:
         list: A list of generated fake data records after processing.

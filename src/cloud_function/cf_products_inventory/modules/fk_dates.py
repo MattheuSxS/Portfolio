@@ -45,13 +45,16 @@ class GeneratorDate:
 
         match option:
             case 'date':
-                return self.fake.date_time_between(start_date=start_date, end_date=end_date).strftime('%Y-%m-%d')
+                return self.fake.date_time_between(
+                    start_date=start_date,
+                    end_date=end_date).strftime('%Y-%m-%d')
 
             case 'datetime':
-                return self.fake.date_time_between(start_date=start_date, end_date=end_date).strftime('%Y-%m-%d %H:%M:%S')
+                return self.fake.date_time_between(
+                    start_date=start_date,
+                    end_date=end_date).strftime('%Y-%m-%d %H:%M:%S')
 
             case 'datetime_v1':
                 return self.fake.date_time_between_dates(
-                datetime_start  = (datetime.now() - timedelta(days=90)),
-                datetime_end    = datetime.now()
-                    ).strftime('%Y-%m-%d %H:%M:%S')
+                    datetime_start=(datetime.now() - timedelta(days=90)),
+                    datetime_end=datetime.now()).strftime('%Y-%m-%d %H:%M:%S')

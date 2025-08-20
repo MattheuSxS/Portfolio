@@ -61,6 +61,17 @@ class FakeDataAddress:
          }
 
     def get_random_address(self):
+        """
+            Generates and returns a random address dictionary based on Brazilian capital cities.
+
+            The address includes a unique address ID, street name, building number, neighborhood,
+            city, state, postal code, region, latitude, longitude, and placeholder fields for
+            creation, update, deletion, and associate ID. The latitude and longitude are randomly
+            generated within a small range around the selected capital city's coordinates.
+
+            Returns:
+                dict: A dictionary containing randomly generated address information.
+        """
 
         select_uf = random.choice(list(self.capitais_coords.keys()))
 

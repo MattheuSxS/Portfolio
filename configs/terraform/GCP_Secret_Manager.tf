@@ -28,6 +28,16 @@ resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorizati
     })
 }
 
+resource "google_secret_manager_secret_version" "ps_delivery_sensor_access_authorization" {
+    secret      = local.secret_delivery_sensor_access_authorization
+    secret_data = jsonencode({
+        "project_id"    = var.project[terraform.workspace]
+        "topic_id"      = local.pb_delivery_sensor_topic
+        "subscriber_id" = google_pubsub_subscription.pub_sub_delivery_sensor_subs.name
+    })
+}
+
+
 resource "google_secret_manager_secret_version" "bq_customers_access_authorization" {
     secret      = local.secret_bq_customers_access_authorization
     secret_data = jsonencode({

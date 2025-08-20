@@ -9,6 +9,9 @@ from modules.fk_sensor import FakeWhSensorData
 from modules.secret_manager import get_credentials
 
 
+# ******************************************************************************************************************** #
+#                                              System Logging                                                          #
+# ******************************************************************************************************************** #
 logging.basicConfig(
     format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
             "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
@@ -16,9 +19,13 @@ logging.basicConfig(
 )
 
 
+# ******************************************************************************************************************** #
+#                                               Auxiliary Function                                                     #
+# ******************************************************************************************************************** #
 def _process_batch(faker: FakeWhSensorData, pubsub: PubSub, batch_size: int) -> int:
     """
-        Processes a batch of fake warehouse sensor data and publishes each data point using the provided PubSub publisher.
+        Processes a batch of fake warehouse sensor data and publishes each data point using the provided
+        PubSub publisher.
 
         Args:
             faker (FakeWhSensorData): An instance capable of generating fake warehouse sensor data.
@@ -46,6 +53,9 @@ def _process_batch(faker: FakeWhSensorData, pubsub: PubSub, batch_size: int) -> 
     return messages_sent
 
 
+# ******************************************************************************************************************** #
+#                                               Main function                                                          #
+# ******************************************************************************************************************** #
 def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
     """
     Entry point function for the Cloud Function that publishes fake sensor data to Pub/Sub.
@@ -62,7 +72,6 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         ValueError: If the request format is invalid
     """
 
-    # Initialize counters and metrics
     metrics = {
         'success': 0,
         'fail': 0,

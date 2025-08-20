@@ -48,6 +48,12 @@
         "description": "Carrying capacity of the vehicle in kilograms."
     },
     {
+        "name": "average_speed_km_h",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Average speed of the vehicle in kilometers per hour."
+    },
+    {
         "name": "fuel_efficiency_km_l",
         "type": "NUMERIC",
         "mode": "REQUIRED",

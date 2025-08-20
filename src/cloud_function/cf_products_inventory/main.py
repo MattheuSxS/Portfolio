@@ -4,6 +4,10 @@ from modules.bigquery import BigQuery
 from modules.fk_products import FkCommerce
 from modules.secret_manager import get_credentials
 
+
+# ******************************************************************************************************************** #
+#                                              System Logging                                                          #
+# ******************************************************************************************************************** #
 logging.basicConfig(
     format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
             "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
@@ -11,6 +15,9 @@ logging.basicConfig(
 )
 
 
+# ******************************************************************************************************************** #
+#                                               Main function                                                          #
+# ******************************************************************************************************************** #
 def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
     try:
         logging.info("Checking request format and authorization...")

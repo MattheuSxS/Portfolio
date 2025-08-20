@@ -26,6 +26,22 @@ class FakeDataPerson:
         # self.fake.seed_instance(0)
 
     def dict_customers(self) -> dict[str, dict]:
+        """
+            Generate a dictionary representing a customer with fake data.
+
+            Returns:
+                dict[str, dict]: A dictionary containing customer information, including:
+                    - associate_id (str): Unique identifier for the associate.
+                    - name (str): Customer's first name.
+                    - last_name (str): Customer's last name(s).
+                    - cpf (str): Unique CPF number.
+                    - email (str): Customer's email address.
+                    - phone (str): Unique phone number.
+                    - birth_date (str): Customer's birth date as a string (between 1925-01-01 and 18 years ago).
+                    - created_at (None): Placeholder for creation timestamp.
+                    - updated_at (None): Placeholder for update timestamp.
+                    - deleted_at (None): Placeholder for deletion timestamp.
+        """
 
         full_name = f"{self.fake.first_name()} {self.fake.last_name()}"
         fk_birthday = (date.today() - timedelta(days=6570)) # 18 years ago
@@ -45,6 +61,24 @@ class FakeDataPerson:
 
 
     def dict_card(self) -> dict[str, dict]:
+        """
+            Generates a dictionary representing a card with randomized and placeholder data.
+
+            Returns:
+                dict[str, dict]: A dictionary containing card information with the following keys:
+                    - "card_id" (str): A unique identifier for the card.
+                    - "card_holder_name" (str or None): The name of the card holder (currently None).
+                    - "card_type" (str): The type of card, either 'Credit' or 'Debit'.
+                    - "card_number" (str): A randomly generated card number matching the selected card flag.
+                    - "card_expiration_date" (str): The expiration date of the card in 'MM/YY' format.
+                    - "card_code_security" (str): The card's security code (CVV/CVC).
+                    - "card_flag" (str): The card network, e.g., 'visa', 'mastercard', or 'amex'.
+                    - "Enabled" (bool): Indicates if the card is enabled (always True).
+                    - "created_at" (None): Placeholder for the creation timestamp.
+                    - "updated_at" (None): Placeholder for the update timestamp.
+                    - "deleted_at" (None): Placeholder for the deletion timestamp.
+                    - "fk_associate_id" (None): Placeholder for a foreign key to an associate.
+        """
         card_flags = choice(['visa', 'mastercard', 'amex'])
         return \
            {

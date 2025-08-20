@@ -4,6 +4,22 @@ from concurrent.futures import TimeoutError
 
 
 class PubSub:
+    """
+        A class for interacting with Google Cloud Pub/Sub, providing methods to publish messages to
+        a topic and pull messages from a subscription.
+
+        Attributes:
+            project_id (str): The Google Cloud project ID.
+            topic_id (str): The Pub/Sub topic ID.
+            client (pubsub_v1.PublisherClient): The Pub/Sub publisher client instance.
+
+        Methods:
+            publisher(menssage: str):
+                Publishes a message to the specified Pub/Sub topic.
+
+            pull_messages(subscription_id: str, max_messages: int = 10, timeout: int = 10) -> list:
+                Pulls messages from the specified Pub/Sub subscription.
+    """
     def __init__(self, project_id:str, topic_id:str) -> None:
         self.project_id = project_id
         self.topic_id = topic_id

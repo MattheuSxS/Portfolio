@@ -5,6 +5,29 @@ from faker import Faker
 
 
 class FakeWhSensorData:
+    """
+        FakeWhSensorData is a class for generating fake warehouse sensor data for testing and development purposes.
+
+        Attributes:
+            fake (Faker): An instance of the Faker class for generating fake data.
+
+            country (str, optional): Locale code for generating localized fake data. Defaults to 'en_US'.
+
+        Methods:
+            temperature() -> dict:
+                Generates a dictionary containing fake sensor data, including sensor ID, timestamp, temperature,
+                humidity, and pressure.
+
+            warehouse(warehouse_id: str, data_dict: dict) -> dict:
+                Combines a warehouse ID with a sensor data dictionary into a single dictionary.
+
+            generate_sensor_data():
+                Yields fake sensor data for a predefined list of warehouses, simulating real-time data generation with a delay.
+
+            # process_batch(pubsub, batch_size: int) -> int:
+            #     Processes and publishes a batch of fake warehouse sensor data using a provided PubSub publisher.
+            #     Returns the total number of messages sent, and raises exceptions to trigger batch retries.
+    """
     def __init__(self, country:str = 'en_US') -> None:
         self.fake   = Faker(country)
         self.fake.seed_instance(0)
