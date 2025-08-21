@@ -85,7 +85,7 @@ resource "google_cloudfunctions2_function" "cf_wh_sensor" {
     min_instance_count    = 1
     available_memory      = "512M"
     timeout_seconds       = 3000
-    service_account_email = local.sa_cf_wh_sensor
+    service_account_email = local.sa_cf_pb_sensor
     ingress_settings      = "ALLOW_ALL"
   }
 
@@ -100,13 +100,51 @@ resource "google_cloudfunctions2_function" "cf_wh_sensor" {
 #   ********************************************************************************************************    #
 #                                           Cloud Function Delivery Sensor                                      #
 #   ********************************************************************************************************    #
-# data "archive_file" "cf_path_delivery_files" {
-#     type        = "zip"
-#     source_dir  = "../../src/cloud_function/cf_delivery/"
-#     output_path = "../../src/cloud_function/cf_delivery/index.zip"
-# }
+data "archive_file" "cf_path_cf_delivery_sensor_files" {
+    type        = "zip"
+    source_dir  = "../../src/cloud_function/cf_delivery_sensor/"
+    output_path = "../../src/cloud_function/cf_delivery_sensor/index.zip"
+}
 
 
+resource "google_cloudfunctions2_function" "cf_delivery_sensor" {
+  project       = var.project[terraform.workspace]
+  location      = var.region
+  name          = var.cf_delivery_sensor
+  description   = "It will be triggered via airflow and will send data to the pub/sub"
+
+  build_config {
+    runtime     = "python311"
+    entry_point = "main"
+    source {
+      storage_source {
+        bucket = local.bkt_cf_portfolio
+        object = google_storage_bucket_object.cf_delivery_sensor_files.name
+      }
+    }
+  }
+
+  labels = {
+    "created_by": "terraform",
+    "env": var.environment
+  }
+
+  service_config {
+    max_instance_count    = 1
+    min_instance_count    = 1
+    available_memory      = "3Gi"
+    timeout_seconds       = 3000
+    service_account_email = local.sa_cf_pb_sensor
+    ingress_settings      = "ALLOW_ALL"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      build_config,
+      service_config,
+    ]
+  }
+}
 #   ********************************************************************************************************    #
 #                                          Cloud Function Products/Inventory                                    #
 #   ********************************************************************************************************    #

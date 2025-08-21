@@ -1,6 +1,5 @@
 #TODO: I must get back here tomorrow
 import logging
-from tqdm import tqdm
 from typing import List, Dict
 from modules.bigquery import BigQuery
 from modules.fk_ids import FakeDataPerson
@@ -12,11 +11,11 @@ from modules.transformation import hide_data, add_columns, split_data
 # ******************************************************************************************************************** #
 #                                              System Logging                                                          #
 # ******************************************************************************************************************** #
-# logging.basicConfig(
-#     format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
-#             "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
-#     level=logging.INFO
-# )
+logging.basicConfig(
+    format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
+            "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
+    level=logging.INFO
+)
 
 
 # ******************************************************************************************************************** #
@@ -76,59 +75,42 @@ def main(request: dict) -> dict:
         7. Inserts structured data into specified BigQuery tables.
     """
 
-    disable_tqdm = logging.getLogger().level <= logging.INFO
-
     try:
 
-        with tqdm(total=100, desc="🔄 Processing", disable=disable_tqdm) as pbar:
-            if type(request) != dict:
-                dt_request = request.get_json()
-            else:
-                dt_request = request
-            pbar.update(5)
+        if type(request) != dict:
+            dt_request = request.get_json()
+        else:
+            dt_request = request
 
-            logging.info("Validating access, please wait...")
-            credentials = get_credentials(dt_request)
-            pbar.update(10)  # 15%
-            pbar.set_postfix_str("authorized access")
+        logging.info("Validating access, please wait...")
+        credentials = get_credentials(dt_request)
 
-            logging.info("Generating fake data...")
-            list_fake_data = generate_fake_data_bulk_cached(credentials['number_customers'])
-            pbar.update(20)
-            pbar.set_postfix_str("data generated")
+        logging.info("Generating fake data...")
+        list_fake_data = generate_fake_data_bulk_cached(credentials['number_customers'])
 
-            logging.info("Hiding sensitive data...")
-            list_fake_data = hide_data(list_fake_data)
-            pbar.update(10)
+        logging.info("Hiding sensitive data...")
+        list_fake_data = hide_data(list_fake_data)
 
-            logging.info("Adding columns to the data...")
-            list_fake_data = add_columns(list_fake_data)
-            pbar.update(10)
-            pbar.set_postfix_str("columns added")
+        logging.info("Adding columns to the data...")
+        list_fake_data = add_columns(list_fake_data)
 
-            logging.info("Splitting data into customers, cards, and address...")
-            structured_data = split_data(list_fake_data)
-            pbar.update(15)
-            pbar.set_postfix_str("data split")
-            logging.info("Data split successfully.")
+        logging.info("Splitting data into customers, cards, and address...")
+        structured_data = split_data(list_fake_data)
+        logging.info("Data split successfully.")
 
-            logging.info("Data structure ready for insertion into BigQuery.")
-            logging.info("Inserting data into BigQuery...")
-            bq_client = BigQuery(project=credentials['project_id'])
-            tables = credentials['table_id']
-            for i, table in enumerate(tables, 1):
-                with tqdm(total=1, desc=f"📤 Inserindo {table}", leave=False, disable=disable_tqdm):
-                    bq_client.batch_load_from_memory(
-                        data=structured_data[table],
-                        dataset=credentials['dataset_id'],
-                        table=table
-                    )
-                pbar.update(30/len(tables))  # Progresso proporcional
-                pbar.set_postfix_str(f"Tabela {i}/{len(tables)}")
+        logging.info("Data structure ready for insertion into BigQuery.")
+        logging.info("Inserting data into BigQuery...")
+        bq_client = BigQuery(project=credentials['project_id'])
+        tables = credentials['table_id']
+        for _, table in enumerate(tables, 1):
+            bq_client.batch_load_from_memory(
+                data=structured_data[table],
+                dataset=credentials['dataset_id'],
+                table=table
+            )
+            logging.info(f"Data inserted successfully into BigQuery table: {table}")
 
-            pbar.set_postfix_str("✅ Completo")
-            pbar.update(100 - pbar.n)  # Garante 100%
-            logging.info("All data inserted successfully into BigQuery tables.")
+        logging.info("All data inserted successfully into BigQuery tables.")
 
     except Exception as e:
         logging.error(f"An error occurred: {e}")

@@ -1,10 +1,5 @@
-import json
-from os import system
-import time
 import logging
-from time import sleep
 from datetime import datetime
-from modules.pub_sub import PubSub
 from typing import Dict, Any, Union
 from modules.bigquery import BigQuery
 from modules.delivery_sensor import DeliverySystem
@@ -19,26 +14,6 @@ logging.basicConfig(
             "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
     level=logging.INFO
 )
-
-
-# ******************************************************************************************************************** #
-#                                               Auxiliary Function                                                     #
-# ******************************************************************************************************************** #
-# def _process_batch(faker: FakeWhSensorData, pubsub: PubSub, batch_size: int) -> int:
-#     """Process a single batch of messages."""
-#     messages_sent = 0
-#     for _ in range(batch_size):
-#         for data in faker.generate_sensor_data():
-#             try:
-#                 message = json.dumps(data)
-#                 pubsub.publisher(message)
-#                 messages_sent += 1
-#                 logging.debug(f"Message published: {message[:100]}...")  # Log truncated message
-#             except Exception as e:
-#                 logging.warning(f"Failed to publish message: {str(e)}")
-#                 raise  # Re-raise to trigger batch retry
-
-#     return messages_sent
 
 
 # ******************************************************************************************************************** #
@@ -77,25 +52,34 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         logging.info("Checking request format and authorization...")
         dt_request = get_credentials(dt_request)
 
-        # bq = BigQuery(project=dt_request["project_id"])
+        logging.info("Checking BigQuery access...")
+        bq = BigQuery(
+            project = dt_request["project_id"]
+            )
 
-        # data_dict = {}
-        # for query in ['purchase_query', 'delivery_query']:
-        #     result = bq.read_bq(
-        #         query=bq.get_query(query)
-        #     )
+        data_dict = {}
+        for query in ['purchase_query', 'delivery_query']:
+            logging.info(f"Executing BigQuery for {query}...")
+            result = bq.read_bq(
+                query=bq.get_query(query)
+            )
 
-        #     data_dict[query] = result
+            data_dict[query] = result
 
-        # delivery_system = DeliverySystem(
-        #     client_list=data_dict['purchase_query'],
-        #     vehicle_list=data_dict['delivery_query']
-        # )
+        logging.info("Initializing DeliverySystem...")
+        delivery_system = DeliverySystem(
+            project_id      = dt_request["project_id"],
+            topic_id        = dt_request["topic_id"],
+            client_list     = data_dict['purchase_query'],
+            vehicle_list    = data_dict['delivery_query']
+        )
 
-        # for client in delivery_system.clients:
-        #     delivery_system.create_delivery(client.id)
+        logging.info("Creating deliveries...")
+        for client in delivery_system.clients:
+            delivery_system.create_delivery(client.id)
 
-        # delivery_system.monitor_deliveries(project_id=dt_request["project_id"], topic_id=dt_request["topic_id"])
+        logging.info("Monitoring deliveries...")
+        delivery_system.monitor_deliveries()
 
     except Exception as main_error:
         logging.critical(f"Critical failure in main function: {str(main_error)}")
@@ -109,11 +93,8 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    data_dict = \
-        dict(
-            project_id  = "mts-default-portofolio",
-            topic_id    = "delivery_sensor_topic",
-        )
+    data_dict = {
+            "project_id": "mts-default-portofolio",
+            "secret_id": "ps_delivery_sensor_access_authorization",
+        }
     main(data_dict)
-
-

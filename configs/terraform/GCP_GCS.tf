@@ -127,6 +127,18 @@ resource "google_storage_bucket_object" "cf_wh_sensor_files" {
     }
 }
 
+resource "google_storage_bucket_object" "cf_delivery_sensor_files" {
+    name            = "${var.cf_delivery_sensor}/index.zip"
+    bucket          = "${local.bkt_cf_portfolio}"
+    source          = data.archive_file.cf_path_cf_delivery_sensor_files.output_path
+    content_type    = "application/zip"
+
+    lifecycle {
+        ignore_changes = [
+        source_md5hash,
+        ]
+    }
+}
 
 resource "google_storage_bucket_object" "cf_customers_files" {
     name            = "${var.cf_customers}/index.zip"

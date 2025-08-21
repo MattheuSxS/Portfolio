@@ -1,13 +1,26 @@
 #TODO: I must finish the delivery simulation tomorrow
+import os
 import uuid
 import json
 import time
 import math
 import random
+import logging
 from typing import List, Dict
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-import os
+
+# try:
+#     from modules.pub_sub import PubSub
+# except ImportError:
+#     from pub_sub import PubSub
+
+
+try:
+    from modules.pub_sub import HighThroughputPublisher
+except ImportError:
+    from pub_sub import HighThroughputPublisher
+
 
 
 @dataclass
@@ -41,8 +54,9 @@ class Delivery:
     estimated_time: float  # minutes
 
 
-class DeliverySystem:
-    def __init__(self, client_list: List[List] = None, vehicle_list: List[List] = None):
+class DeliverySystem():
+    def __init__(self, project_id: str, topic_id: str, client_list: List[List] = None, vehicle_list: List[List] = None):
+        self.publisher = HighThroughputPublisher(project_id, topic_id)
         self.clients = self._generate_clients(client_list)
         self.vehicles = self._generate_fleet(vehicle_list)
         self.deliveries = []
@@ -50,21 +64,78 @@ class DeliverySystem:
 
 
     def _generate_clients(self, client_list: List[List] = None) -> List[Client]:
+        """
+        Create Client instances from an iterable of client argument lists.
 
-        return [
-            Client(*client_data) for client_data in client_list
-        ]
+        Args:
+            client_list (List[List] | Iterable[Iterable]): An iterable where each element is itself
+                an iterable of positional arguments to be unpacked into the Client constructor.
+                Although the parameter has a default of None, the function expects a concrete iterable
+                of argument sequences.
+
+        Returns:
+            List[Client]: A list of Client objects constructed from the provided argument sequences.
+
+        Raises:
+            TypeError: If client_list is None or not iterable, or if an inner element cannot be unpacked
+                into the Client constructor.
+            Exception: Any exception raised by the Client(...) constructor (e.g., ValueError) will propagate.
+
+        Notes:
+            - Each inner iterable is passed as positional arguments using unpacking: Client(*client_data).
+            - Ensure each inner iterable supplies the correct number and types of arguments expected
+              by the Client initializer.
+
+        Example:
+            client_data = [
+                ["Alice", "alice@example.com"],
+                ["Bob", "bob@example.com"],
+            ]
+            clients = self._generate_clients(client_data)
+        """
+        return [Client(*client_data) for client_data in client_list]
 
 
     def _generate_fleet(self, vehicle_list: List[List] = None) -> List[Vehicle]:
+        """
+        Generates a fleet of Vehicle objects from a list of vehicle data.
 
-        return [
-            Vehicle(*vehicle_data) for vehicle_data in vehicle_list
-        ]
+        Args:
+            vehicle_list (List[List], optional): A list of lists where each inner list contains 
+                the data required to initialize a Vehicle object. Defaults to None.
+
+        Returns:
+            List[Vehicle]: A list of Vehicle objects created using the provided vehicle data.
+        """
+        return [Vehicle(*vehicle_data) for vehicle_data in vehicle_list]
 
 
     def calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-        """Calculates distance in km using Haversine formula"""
+        """
+            Calculate the great-circle distance between two geographic coordinates using the Haversine formula.
+
+            Args:
+                lat1 (float): Latitude of the first point in decimal degrees.
+                lon1 (float): Longitude of the first point in decimal degrees.
+                lat2 (float): Latitude of the second point in decimal degrees.
+                lon2 (float): Longitude of the second point in decimal degrees.
+
+            Returns:
+                float: Distance between the two points in kilometers.
+
+            Notes:
+                - This function assumes a spherical Earth with radius 6371 km.
+                - Input coordinates must be provided in decimal degrees. The function does not
+                validate input ranges (e.g., lat in [-90, 90], lon in [-180, 180]); providing
+                out-of-range values may yield incorrect results.
+                - The Haversine formula is suitable for most distance calculations; for very high
+                precision over long distances or when ellipsoidal corrections are required,
+                use a geodesic library (e.g., geographiclib).
+
+            Example:
+                >>> calculate_distance(52.5200, 13.4050, 48.8566, 2.3522)
+                878.8  # approximate distance in kilometers (Berlin to Paris)
+        """
         R = 6371  # Radius of the Earth in km
         dlat = math.radians(lat2 - lat1)
         dlon = math.radians(lon2 - lon1)
@@ -76,16 +147,61 @@ class DeliverySystem:
 
 
     def create_delivery(self, client_id: int) -> Delivery:
-        """Assigns a delivery to a vehicle in the same location"""
+        """
+            Create and register a Delivery for the given client ID.
+
+            This method:
+            - Finds the client in self.clients by matching client.id == client_id.
+            - Selects a vehicle:
+                - Prefer a random vehicle located at the client's location.
+                - If no such local vehicle exists, select a random vehicle from self.vehicles
+                    and log a warning indicating the vehicle's location.
+            - Computes the remaining distance between the chosen vehicle and the client
+                using self.calculate_distance(vehicle.latitude, vehicle.longitude,
+                client.latitude, client.longitude).
+            - Creates a Delivery with a generated ID ("DEL##{uuid4}"), status "in_route",
+                an ISO-formatted timestamp, the computed remaining_distance, and computes
+                estimated_time in minutes as (remaining_distance / vehicle.average_speed) * 60.
+            - Appends the created Delivery to self.deliveries and returns it.
+
+            Parameters
+            ----------
+            client_id : int
+                    Identifier of the client for whom the delivery is created.
+
+            Returns
+            -------
+            Delivery
+                    The newly created Delivery object (and also appended to self.deliveries).
+
+            Side effects
+            ------------
+            - Appends the new Delivery to self.deliveries.
+            - Emits a logging.warning if no vehicle is available at the client's location.
+            - Uses random.choice to pick vehicles (non-deterministic selection).
+
+            Raises
+            ------
+            StopIteration
+                    If no client with the provided client_id exists in self.clients (due to
+                    using next(...) without a default).
+            ZeroDivisionError
+                    If the selected vehicle has average_speed == 0 when computing estimated_time.
+
+            Notes
+            -----
+            - Requires that self provides attributes: clients, vehicles, deliveries, and a
+                method calculate_distance(lat1, lon1, lat2, lon2).
+            - Relies on modules/objects: random (for vehicle selection), logging,
+                uuid (for ID generation), and datetime (for timestamp).
+        """
         client = next(c for c in self.clients if c.id == client_id)
 
-        # Filtra veículos da mesma localidade
         local_vehicles = [v for v in self.vehicles if v.location == client.location]
 
         if not local_vehicles:
-            # Fallback: usa qualquer veículo se não houver na localidade
             vehicle = random.choice(self.vehicles)
-            # logging.warning(f"No local vehicles found for {client.location}. Using vehicle from {vehicle.location}")
+            logging.warning(f"No local vehicles found for {client.location}. Using vehicle from {vehicle.location}")
         else:
             vehicle = random.choice(local_vehicles)
 
@@ -107,15 +223,46 @@ class DeliverySystem:
 
 
     def simulate_movement(self):
-        """Updates the position of vehicles and the status of deliveries"""
+        """
+            Simulate movement for all deliveries that are currently en route.
+
+            This method advances each delivery by one simulated hour and updates its
+            state accordingly. For every delivery in self.deliveries with
+            status == "in_route" it:
+
+            - Computes the vehicle speed in km/s using delivery.vehicle.average_speed (km/h).
+            - Advances the delivery by one hour (reducing remaining_distance).
+            - Recomputes estimated_time expressed in minutes based on remaining_distance
+                and vehicle.average_speed.
+            - If the remaining_distance is less than or equal to 0.1 km (100 m tolerance),
+                marks the delivery as "delivered", sets delivery.timestamp to the current
+                ISO-formatted datetime, appends the delivery to self.history, and removes it
+                from self.deliveries.
+
+            Side effects:
+            - Mutates delivery objects (remaining_distance, estimated_time, status,
+                timestamp).
+            - Modifies self.history and self.deliveries.
+            - Uses datetime.now() for timestamps.
+
+            Units and edge cases:
+            - Assumes delivery.vehicle.average_speed is in km/h and delivery.remaining_distance
+                is in km.
+            - estimated_time is stored in minutes.
+            - A zero or very small average_speed may cause division-by-zero or very large
+                estimated_time values; callers should ensure sensible vehicle speeds.
+            - Iteration is performed over a snapshot of in-route deliveries to allow safe
+                removal from self.deliveries during the loop.
+
+            Returns:
+            - None
+        """
         for delivery in [e for e in self.deliveries if e.status == "in_route"]:
-            # Reduce distance based on speed
             km_per_second = delivery.vehicle.average_speed / 3600
             delivery.remaining_distance = max(0, delivery.remaining_distance - km_per_second * 3600)  # 1 hour
 
             delivery.estimated_time = (delivery.remaining_distance / delivery.vehicle.average_speed) * 60
 
-            # If arrived at destination
             if delivery.remaining_distance <= 0.1:  # 100m tolerance
                 delivery.status = "delivered"
                 delivery.timestamp = datetime.now().isoformat()
@@ -123,46 +270,57 @@ class DeliverySystem:
                 self.deliveries.remove(delivery)
 
 
-    def monitor_deliveries(self, interval: int = 5, project_id: str = None, topic_id: str = None):
-        """Simulates real-time update and publishes status to GCP Pub/Sub if configured"""
-        # Try to configure Pub/Sub client using provided args or environment variables
-        publisher = None
-        topic_path = None
-        try:
-            from google.cloud import pubsub_v1  # may raise ImportError if library not installed
+    def monitor_deliveries(self, interval: int = 5):
+        """
+            Monitor deliveries by repeatedly simulating movement and displaying status.
 
-            proj = project_id or os.environ.get("GCP_PROJECT") or os.environ.get("GOOGLE_CLOUD_PROJECT")
-            topic = topic_id or os.environ.get("PUBSUB_TOPIC")
-            if proj and topic:
-                publisher = pubsub_v1.PublisherClient()
-                topic_path = publisher.topic_path(proj, topic)
-            else:
-                print("Pub/Sub not configured (missing project or topic). Running local only.")
-        except Exception as e:
-            # If Pub/Sub client not available or configuration missing, continue without publishing
-            print(f"Pub/Sub disabled: {e}")
+            This method enters a loop that:
+            - Calls self.simulate_movement() to update delivery positions/state.
+            - Calls self._display_status() to present current status to logs/UI.
+            - Waits for the specified interval (in seconds) between iterations.
+            - Exits the loop automatically when self.deliveries is empty (all deliveries completed).
 
+            Parameters
+            ----------
+            interval : int
+                Number of seconds to sleep between monitoring iterations. Defaults to 5.
+
+            Behavior and side effects
+            -------------------------
+            - Mutates internal state via simulate_movement().
+            - Produces output via _display_status() and logging.
+            - Blocks the calling thread while running.
+            - Returns when all deliveries are completed or when monitoring is interrupted.
+
+            Exceptions
+            ----------
+            - KeyboardInterrupt is caught internally; an informational log is written and the method returns.
+            - Passing a negative interval will propagate a ValueError from time.sleep.
+        """
         try:
             while True:
                 self.simulate_movement()
-                self._display_status(publisher, topic_path)
+                self._display_status()
 
-                # Stop monitoring as soon as there are no more active deliveries
                 if not self.deliveries:
-                    print("All deliveries completed. Stopping monitor.")
+                    logging.info("All deliveries completed. Stopping monitor.")
+                    self.shutdown()
                     break
 
                 time.sleep(interval)
         except KeyboardInterrupt:
-            print("\nMonitoring stopped")
+            logging.info("Monitoring stopped")
 
 
-    def _display_status(self, publisher=None, topic_path=None):
-        """Displays the current status of deliveries and publishes each delivery as a separate JSON message to Pub/Sub when available"""
+    def _display_status(self):
         timestamp = datetime.now()
-        print(f"\n{timestamp.strftime('%H:%M:%S')} - Delivery Status:")
+        logging.info(f"⏰ {timestamp.strftime('%H:%M:%S')} - Processing {len(self.deliveries):,} deliveries")
 
-        deliveries = []
+        if not self.deliveries:
+            return
+
+        # Prepara mensagens em lote
+        messages = []
         for delivery in self.deliveries:
             entry = {
                 "timestamp": timestamp.isoformat(),
@@ -175,35 +333,42 @@ class DeliverySystem:
                 "vehicle_location": delivery.vehicle.location,
                 "status": delivery.status
             }
-            deliveries.append(entry)
+            messages.append({
+                "data": entry,
+                "delivery_id": str(delivery.id)
+            })
 
-        if not deliveries:
-            print("No deliveries in progress")
-            return
+        # Publica em lote
+        self.publisher.publish_bulk_async(messages)
 
-        for entry in deliveries:
-            if publisher and topic_path:
-                try:
-                    data = json.dumps(entry).encode("utf-8")
-                    # publish returns a future; don't block the loop.
-                    future = publisher.publish(topic_path, data, delivery_id=entry["id"])
-
-                    # attach a callback that captures the delivery id
-                    def _make_cb(delivery_id):
-                        def _cb(fut):
-                            try:
-                                fut.result()
-                            except Exception as exc:
-                                print(f"Failed to publish delivery {delivery_id}: {exc}")
-                        return _cb
-
-                    future.add_done_callback(_make_cb(entry["id"]))
-                except Exception as e:
-                    print(f"Failed to publish status for {entry['id']} to Pub/Sub: {e}")
+    def shutdown(self):
+        """Chamar no final da aplicação"""
+        self.publisher.shutdown()
 
 
     def generate_report(self):
-        """Generates a JSON report of completed deliveries"""
+        """
+            Generate a JSON-formatted report from the object's delivery history.
+
+            Returns:
+                str: A JSON string (pretty-printed with indent=2) representing a list of delivery records. Each record
+                is a JSON object with the following fields:
+                    - id: the event identifier (from e.id)
+                    - client: the client name (from e.client.name)
+                    - address: the client address (from e.client.address)
+                    - total_time: total time in minutes for the delivery event, computed as the difference between
+                    two ISO-8601 timestamps converted via datetime.fromisoformat and divided by 60 (seconds → minutes)
+                    - vehicle: the vehicle identifier (from e.vehicle.id)
+
+            Notes:
+                - Expects self.history to be an iterable of event-like objects with attributes:
+                id, client (with .name and .address), timestamp (ISO-8601 string), and vehicle (with .id).
+                - timestamp values must be parseable by datetime.fromisoformat; otherwise a ValueError will be raised.
+                - Currently the implementation computes total_time by subtracting the same timestamp (e.timestamp - e.timestamp),
+                which yields 0.0 minutes. To obtain a meaningful duration, ensure event objects supply distinct start/end
+                timestamps or adjust the calculation to use the appropriate timestamp fields.
+                - The method returns a serialized JSON string and does not modify the underlying event objects.
+        """
         return json.dumps([
             {
                 "id": e.id,
@@ -215,7 +380,7 @@ class DeliverySystem:
             for e in self.history
         ], indent=2)
 
-# Example usage
+
 if __name__ == "__main__":
     system = DeliverySystem()
 

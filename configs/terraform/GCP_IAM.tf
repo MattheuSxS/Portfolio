@@ -55,11 +55,11 @@ resource "google_project_iam_member" "roles_sa_cf_customers" {
   member  = "serviceAccount:${local.sa_cf_customers}"
 }
 
-resource "google_project_iam_member" "roles_sa_cf_wh_sensor" {
+resource "google_project_iam_member" "roles_sa_cf_pb_sensor" {
   project = var.project[terraform.workspace]
-  count   = length(var.roles_sa_cf_wh_sensor)
-  role    = var.roles_sa_cf_wh_sensor[count.index]
-  member  = "serviceAccount:${local.sa_cf_wh_sensor}"
+  count   = length(var.roles_sa_cf_pb_sensor)
+  role    = var.roles_sa_cf_pb_sensor[count.index]
+  member  = "serviceAccount:${local.sa_cf_pb_sensor}"
 }
 
 resource "google_project_iam_member" "roles_sa_cf_products_inventory" {

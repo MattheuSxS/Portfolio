@@ -6,6 +6,10 @@ from google.cloud.bigquery import QueryJobConfig
 
 
 class BigQuery:
+    """
+        ....
+    """
+
     def __init__(self, project: str) -> None:
         self.project = project
         self.client = bigquery.Client(self.project)
@@ -91,7 +95,7 @@ class BigQuery:
                             TBAD.latitude,
                             TBAD.longitude
                         FROM
-                            `{self.project}.ls_customers.tb_sales` AS TBSA TABLESAMPLE SYSTEM (1 PERCENT)
+                            `{self.project}.ls_customers.tb_sales` AS TBSA
                         INNER JOIN
                             `{self.project}.ls_customers.tb_inventory` AS TBIN
                         ON
@@ -104,6 +108,9 @@ class BigQuery:
                             `{self.project}.ls_customers.tb_address` AS TBAD
                         ON
                             TBSA.associate_id = TBAD.fk_associate_id
+                        ORDER BY
+                            RAND()
+                        LIMIT 30000;
                     """,
                 "delivery_query": \
                     f"""
@@ -130,6 +137,32 @@ class BigQuery:
 
 
     def read_bq(self, query: str) -> list[list]:
+        """
+            Execute a BigQuery SQL query and return the results as a list of rows.
+
+            Parameters
+            ----------
+            query : str
+                The SQL query to execute. Legacy SQL is disabled (standard SQL is used).
+
+            Returns
+            -------
+            list[list]
+                A list of rows, where each row is represented as a list of column values in the same
+                order as the SELECT clause.
+
+            Raises
+            ------
+            ValueError
+                If the provided query is not a non-empty string.
+            google.api_core.exceptions.GoogleAPICallError, google.api_core.exceptions.RetryError
+                If the BigQuery request fails or the job cannot be completed.
+
+            Notes
+            -----
+            This method submits the query using self.client, waits for the query job to finish
+            (synchronous/blocking), and converts each returned Row to a plain list via list(row).
+        """
         job_config = QueryJobConfig()
         job_config.use_legacy_sql = False
 
@@ -138,20 +171,9 @@ class BigQuery:
 
         return [list(row) for row in rows]
 
-# Exemplo de uso:
-# results = read_bigquery_with_params(
-#     project_id="seu-projeto-gcp",
-#     dataset_id="dataset_exemplo",
-#     table_id="tabela_clientes",
-#     filters={"status": "ativo", "idade": 30},
-#     limit=100
-# )
+
 if __name__ == '__main__':
-
-
-
     bq = BigQuery(project="mts-default-portofolio")
-
     for query in ['purchase_query', 'delivery_query']:
         result = bq.read_bq(
             query=bq.get_query(query)

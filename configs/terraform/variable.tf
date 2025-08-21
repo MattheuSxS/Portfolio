@@ -132,7 +132,7 @@ variable "roles_sa_cf_customers" {
     type        = list(string)
 }
 
-variable "roles_sa_cf_wh_sensor" {
+variable "roles_sa_cf_pb_sensor" {
     description = "The roles to assign to the service account"
     type        = list(string)
 }
@@ -335,6 +335,21 @@ variable "dfl_wh_sensor_template" {
 }
 variable "dfl_wh_sensor_script_path" {
     description = "The path to the Python script"
+    type        = string
+}
+
+variable "dfl_delivery_sensor_template" {
+    description = "The name of the Dataflow template for delivery sensor"
+    type        = string
+}
+
+variable "dfl_delivery_sensor_job_name" {
+    description = "The name of the Dataflow job for delivery sensor"
+    type        = string
+}
+
+variable "dfl_delivery_sensor_script_path" {
+    description = "The path to the Python script for delivery sensor"
     type        = string
 }
 

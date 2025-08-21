@@ -1,68 +1,118 @@
+import time
+import json
 import logging
+import threading
+from concurrent import futures
 from google.cloud import pubsub_v1
-from concurrent.futures import TimeoutError
 
 
-class PubSub:
-    """
-        A class for interacting with Google Cloud Pub/Sub, providing methods to publish messages to
-        a topic and pull messages from a subscription.
-
-        Attributes:
-            project_id (str): The Google Cloud project ID.
-            topic_id (str): The Pub/Sub topic ID.
-            client (pubsub_v1.PublisherClient): The Pub/Sub publisher client instance.
-
-        Methods:
-            publisher(menssage: str):
-                Publishes a message to the specified Pub/Sub topic.
-
-            pull_messages(subscription_id: str, max_messages: int = 10, timeout: int = 10) -> list:
-                Pulls messages from the specified Pub/Sub subscription.
-    """
-    def __init__(self, project_id:str, topic_id:str) -> None:
+class HighThroughputPublisher:
+    def __init__(self, project_id: str, topic_id: str):
         self.project_id = project_id
         self.topic_id = topic_id
-        self.client = pubsub_v1.PublisherClient()
 
 
-    def publisher(self, menssage:str):
-        """
-        Publishes a message to a specified Google Cloud Pub/Sub topic.
+        self.publisher_client = pubsub_v1.PublisherClient(
+            client_options={
+                "api_endpoint": "pubsub.googleapis.com:443",
+                "quota_project_id": project_id,
+            },
+            batch_settings=pubsub_v1.types.BatchSettings(
+                max_bytes=10 * 1024 * 1024,     # 10MB por batch
+                max_latency=0.5,                # 500ms max latency
+                max_messages=1000               # 1000 mensagens por batch
+            ),
+            publisher_options=pubsub_v1.types.PublisherOptions(
+                enable_message_ordering=False,
+                flow_control=pubsub_v1.types.PublishFlowControl(
+                    message_limit=10000,        # 10K mensagens em buffer
+                    byte_limit=100 * 1024 * 1024, # 100MB buffer
+                    limit_exceeded_behavior=pubsub_v1.types.LimitExceededBehavior.BLOCK
+                )
+            )
+        )
 
-        Args:
-            menssage (str): The message to be published to the topic.
+        self.topic_path = self.publisher_client.topic_path(project_id, topic_id)
 
-        Raises:
-            Exception: If publishing the message fails, the exception is logged and re-raised.
-        """
+        self.executor = futures.ThreadPoolExecutor(
+            max_workers=50,  # 50 threads para alto throughput
+            thread_name_prefix="pubsub_publisher"
+        )
+
+        self.message_counter = 0
+        self.last_print_time = time.time()
+        self.lock = threading.Lock()
+
+    def publish_message(self, message_data: dict, delivery_id: str):
+        """Publica uma mensagem individual"""
         try:
-            topic_path = self.client.topic_path(self.project_id, self.topic_id)
-            self.client.publish(topic_path, menssage.encode("utf-8"))
+            data = json.dumps(message_data).encode("utf-8")
+
+            future = self.publisher_client.publish(
+                self.topic_path,
+                data=data,
+                delivery_id=delivery_id
+            )
+
+            with self.lock:
+                self.message_counter += 1
+                current_time = time.time()
+                if current_time - self.last_print_time >= 1.0:  # Log a cada segundo
+                    logging.info(f"📤 Publishing rate: {self.message_counter}/sec")
+                    self.message_counter = 0
+                    self.last_print_time = current_time
+
+            return future
 
         except Exception as e:
-            logging.error(f"Failed to publish message: {str(e)}")
+            logging.error(f"❌ Failed to publish message {delivery_id}: {e}")
             raise
 
+    def publish_bulk_async(self, messages: list):
+        if not messages:
+            return
 
-    def pull_messages(self, subscription_id:str, max_messages:int = 10, timeout:int = 10) -> list:
-        """
-        Pulls messages from a Google Cloud Pub/Sub subscription.
+        logging.info(f"🚀 Starting bulk publish of {len(messages):,} messages")
+        start_time = time.time()
 
-        Args:
-            subscription_id (str): The ID of the subscription to pull messages from.
-            max_messages (int): The maximum number of messages to pull.
-            timeout (int): The timeout for pulling messages.
+        chunk_size = 500
+        chunks = [messages[i:i + chunk_size] for i in range(0, len(messages), chunk_size)]
 
-        Returns:
-            list: A list of pulled messages.
-        """
-        subscription_path = self.client.subscription_path(self.project_id, subscription_id)
-        response = self.client.pull(subscription_path, max_messages=max_messages, timeout=timeout)
-        return response.received_messages
+        futures_list = []
+        for chunk in chunks:
+            future = self.executor.submit(self._publish_chunk, chunk)
+            futures_list.append(future)
 
+        # Aguarda conclusão
+        successful = 0
+        for future in futures_list:
+            try:
+                result = future.result(timeout=30.0)
+                successful += result
+            except futures.TimeoutError:
+                logging.warning("⏰ Chunk timeout")
+            except Exception as e:
+                logging.error(f"💥 Chunk error: {e}")
 
+        end_time = time.time()
+        duration = end_time - start_time
+        rate = len(messages) / duration if duration > 0 else 0
 
-if __name__ == "__main__":
-    t = PubSub("mts-default-portofolio", "wh_sensor_topic")
-    t.publisher('{"hello": "2131"}')
+        logging.info(f"✅ Bulk publish complete: {successful:,}/{len(messages):,} "
+                    f"messages in {duration:.2f}s ({rate:,.0f} msgs/sec)")
+
+    def _publish_chunk(self, chunk: list):
+        successful = 0
+        for message_data in chunk:
+            try:
+                self.publish_message(message_data["data"], message_data["delivery_id"])
+                successful += 1
+            except Exception as e:
+                logging.error(f"Failed to publish in chunk: {e}")
+
+        return successful
+
+    def shutdown(self):
+        """Clean shutdown"""
+        self.executor.shutdown(wait=True)
+        logging.info("Publisher shutdown complete")
