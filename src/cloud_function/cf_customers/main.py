@@ -108,7 +108,6 @@ def main(request: dict) -> dict:
                 dataset=credentials['dataset_id'],
                 table=table
             )
-            logging.info(f"Data inserted successfully into BigQuery table: {table}")
 
         logging.info("All data inserted successfully into BigQuery tables.")
 

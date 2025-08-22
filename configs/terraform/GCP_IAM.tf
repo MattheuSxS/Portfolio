@@ -48,11 +48,11 @@ resource "google_project_iam_member" "roles_sa_dataflow" {
   member  = "serviceAccount:${local.sa_dataflow}"
 }
 
-resource "google_project_iam_member" "roles_sa_cf_customers" {
+resource "google_project_iam_member" "roles_sa_cf_default" {
   project = var.project[terraform.workspace]
-  count   = length(var.roles_sa_cf_customers)
-  role    = var.roles_sa_cf_customers[count.index]
-  member  = "serviceAccount:${local.sa_cf_customers}"
+  count   = length(var.roles_sa_cf_default)
+  role    = var.roles_sa_cf_default[count.index]
+  member  = "serviceAccount:${local.sa_cf_default}"
 }
 
 resource "google_project_iam_member" "roles_sa_cf_pb_sensor" {
@@ -60,13 +60,6 @@ resource "google_project_iam_member" "roles_sa_cf_pb_sensor" {
   count   = length(var.roles_sa_cf_pb_sensor)
   role    = var.roles_sa_cf_pb_sensor[count.index]
   member  = "serviceAccount:${local.sa_cf_pb_sensor}"
-}
-
-resource "google_project_iam_member" "roles_sa_cf_products_inventory" {
-  project = var.project[terraform.workspace]
-  count   = length(var.roles_sa_cf_products_inventory)
-  role    = var.roles_sa_cf_products_inventory[count.index]
-  member  = "serviceAccount:${local.sa_cf_products_inventory}"
 }
 
 resource "google_project_iam_member" "roles_sa_default_compute" {

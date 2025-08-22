@@ -81,6 +81,14 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         logging.info("Monitoring deliveries...")
         delivery_system.monitor_deliveries()
 
+        return {
+            "status": 200,
+            "body": {
+                "message": "Whole message has been processed successfully.",
+                **metrics
+            }
+        }
+
     except Exception as main_error:
         logging.critical(f"Critical failure in main function: {str(main_error)}")
         return {

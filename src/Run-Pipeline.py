@@ -39,14 +39,14 @@ scripts = [
 ]
 
 #spark-submit
-spark_scripts = [
-    'src/dataproc/dp_order/spark_job_tb_order.py --project_id mts-default-portofolio --dataset_id ls_customers --num_purchases 200000 --job_id job_23112741288',
-]
+# spark_scripts = [
+#     'src/dataproc/dp_order/spark_job_tb_order.py --project_id mts-default-portofolio --dataset_id ls_customers --num_purchases 200000 --job_id job_23112741288',
+# ]
 
 for script in scripts:
     main(script)
 
-for spark_script in spark_scripts:
-    main(spark_script, is_spark_job=True)
+# for spark_script in spark_scripts:
+#     main(spark_script, is_spark_job=True)
 
 logging.info("Pipeline executed successfully. \o.O/")

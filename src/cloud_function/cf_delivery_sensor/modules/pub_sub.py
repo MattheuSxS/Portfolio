@@ -1,15 +1,41 @@
+#TODO: I must finish this
 import time
 import json
 import logging
 import threading
 from concurrent import futures
+from dataclasses import dataclass
 from google.cloud import pubsub_v1
+from typing import List, Dict, Tuple
 
 
-class HighThroughputPublisher:
+@dataclass
+class PublishResult:
+    successful: int = 0
+    failed: int = 0
+    errors: List[Tuple[str, Exception]] = None  # (delivery_id, error)
+
+    def __init__(self):
+        self.successful = 0
+        self.failed = 0
+        self.errors = []
+
+    def add_success(self):
+        self.successful += 1
+
+    def add_error(self, delivery_id: str, error: Exception):
+        self.failed += 1
+        self.errors.append((delivery_id, error))
+
+    def __str__(self):
+        return f"✅ {self.successful:,} successful, ❌ {self.failed:,} failed"
+
+
+class HighThroughputPublisher():
     def __init__(self, project_id: str, topic_id: str):
         self.project_id = project_id
         self.topic_id = topic_id
+        self.publish_result = PublishResult()
 
 
         self.publisher_client = pubsub_v1.PublisherClient(
@@ -43,8 +69,8 @@ class HighThroughputPublisher:
         self.last_print_time = time.time()
         self.lock = threading.Lock()
 
+
     def publish_message(self, message_data: dict, delivery_id: str):
-        """Publica uma mensagem individual"""
         try:
             data = json.dumps(message_data).encode("utf-8")
 
@@ -67,6 +93,7 @@ class HighThroughputPublisher:
         except Exception as e:
             logging.error(f"❌ Failed to publish message {delivery_id}: {e}")
             raise
+
 
     def publish_bulk_async(self, messages: list):
         if not messages:
@@ -101,12 +128,12 @@ class HighThroughputPublisher:
         logging.info(f"✅ Bulk publish complete: {successful:,}/{len(messages):,} "
                     f"messages in {duration:.2f}s ({rate:,.0f} msgs/sec)")
 
+
     def _publish_chunk(self, chunk: list):
         successful = 0
         for message_data in chunk:
             try:
                 self.publish_message(message_data["data"], message_data["delivery_id"])
-                successful += 1
             except Exception as e:
                 logging.error(f"Failed to publish in chunk: {e}")
 

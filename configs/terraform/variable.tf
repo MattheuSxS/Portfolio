@@ -114,6 +114,17 @@ variable "data_tools_creating_sa" {
     type        = list(string)
 }
 
+variable "roles_sa_composer" {
+    description = "The roles to assign to the service account"
+    type        = list(string)
+}
+
+
+variable "roles_sa_default_compute" {
+    description = "The roles to assign to the default compute service account"
+    type        = list(string)
+}
+
 variable "roles_sa_dataflow" {
     description = "The roles to assign to the service account"
     type        = list(string)
@@ -122,12 +133,8 @@ variable "roles_sa_pub_sub" {
     description = "The roles to assign to the service account"
     type        = list(string)
 }
-# variable "roles_sa_dataproc" {
-#     description = "The roles to assign to the service account"
-#     type        = list(string)
-# }
 
-variable "roles_sa_cf_customers" {
+variable "roles_sa_cf_default" {
     description = "The roles to assign to the service account"
     type        = list(string)
 }
@@ -137,25 +144,10 @@ variable "roles_sa_cf_pb_sensor" {
     type        = list(string)
 }
 
-variable "roles_sa_cf_feedback" {
-    description = "The roles to assign to the service account"
-    type        = list(string)
-}
-
-variable "roles_sa_composer" {
-    description = "The roles to assign to the service account"
-    type        = list(string)
-}
-
-variable "roles_sa_cf_products_inventory" {
-    description = "The roles to assign to the service account for products inventory"
-    type        = list(string)
-}
-
-variable "roles_sa_default_compute" {
-    description = "The roles to assign to the default compute service account"
-    type        = list(string)
-}
+# variable "roles_sa_dataproc" {
+#     description = "The roles to assign to the service account"
+#     type        = list(string)
+# }
 #   ********************************************************************************************************    #
 #                                              Google Cloud Function                                            #
 #   ********************************************************************************************************    #
