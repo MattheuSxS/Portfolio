@@ -4,7 +4,7 @@ from typing import List, Dict
 from modules.bigquery import BigQuery
 from modules.fk_ids import FakeDataPerson
 from modules.fk_address import FakeDataAddress
-from modules.secret_manager import get_credentials
+from modules.secret_manager import get_request_data
 from modules.transformation import hide_data, add_columns, split_data
 
 
@@ -83,7 +83,7 @@ def main(request: dict) -> dict:
             dt_request = request
 
         logging.info("Validating access, please wait...")
-        credentials = get_credentials(dt_request)
+        credentials = get_request_data(dt_request)
 
         logging.info("Generating fake data...")
         list_fake_data = generate_fake_data_bulk_cached(credentials['number_customers'])

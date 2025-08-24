@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Dict, Any, Union
 from modules.bigquery import BigQuery
 from modules.delivery_sensor import DeliverySystem
-from modules.secret_manager import get_credentials
+from modules.secret_manager import get_request_data
 
 
 # ******************************************************************************************************************** #
@@ -50,7 +50,7 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
             dt_request = request
 
         logging.info("Checking request format and authorization...")
-        dt_request = get_credentials(dt_request)
+        dt_request = get_request_data(dt_request)
 
         logging.info("Checking BigQuery access...")
         bq = BigQuery(
@@ -79,7 +79,7 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
             delivery_system.create_delivery(client.id)
 
         logging.info("Monitoring deliveries...")
-        delivery_system.monitor_deliveries()
+        metrics = delivery_system.monitor_deliveries()
 
         return {
             "status": 200,
@@ -105,4 +105,4 @@ if __name__ == "__main__":
             "project_id": "mts-default-portofolio",
             "secret_id": "ps_delivery_sensor_access_authorization",
         }
-    main(data_dict)
+    print(main(data_dict))

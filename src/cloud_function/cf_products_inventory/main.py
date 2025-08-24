@@ -2,7 +2,7 @@ import logging
 from typing import Dict, Any, Union
 from modules.bigquery import BigQuery
 from modules.fk_products import FkCommerce
-from modules.secret_manager import get_credentials
+from modules.secret_manager import get_request_data
 
 
 # ******************************************************************************************************************** #
@@ -21,7 +21,7 @@ logging.basicConfig(
 def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
     try:
         logging.info("Checking request format and authorization...")
-        dt_request = get_credentials(request)
+        dt_request = get_request_data(request)
         logging.info("Request validation successful...")
 
         # Initialize components

@@ -5,20 +5,26 @@ from typing import Dict, Any, Union
 from google.cloud import secretmanager
 
 
-def _secret_manager_access(data_dict: dict) -> bool:
+def _secret_manager(data_dict: dict) -> bool:
     """
-        Checks authorization by accessing a secret from Google Secret Manager.
+        Retrieves and decodes a secret from Google Cloud Secret Manager.
 
         Args:
-            data_dict (dict): A dictionary containing 'project_id' and 'secret_id' keys required to locate the secret.
+            data_dict (dict): Dictionary containing secret access parameters.
+                Expected keys:
+                    - 'project_id' (str): Google Cloud project ID
+                    - 'secret_id' (str): Secret identifier/name
 
         Returns:
-            bool: The decoded secret value as a boolean.
+            dict: Parsed JSON content of the secret payload
 
         Raises:
-            google.api_core.exceptions.GoogleAPICallError: If access to the secret fails.
-    """
+            str: Formatted error message when access to the secret is denied
 
+        Note:
+            The function return type annotation indicates 'bool' but actually
+            returns a dict (parsed JSON) or raises an exception.
+    """
     client      = secretmanager.SecretManagerServiceClient()
     secret_url  = {
         "name": f"projects/{data_dict['project_id']}/secrets/{data_dict['secret_id']}/versions/latest"
@@ -29,17 +35,17 @@ def _secret_manager_access(data_dict: dict) -> bool:
         return json.loads(result.payload.data.decode("UTF-8"))
 
     except google.api_core.exceptions.GoogleAPICallError as e:
-        logging.error(f"Access to secret key denied")
+        logging.error(f"It hasn't been possible to access the secret: {e}")
         raise f"Access denied! --> {e}"
 
 
-def get_credentials(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+def get_request_data(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
     """
-        Validates and parses an incoming request for required fields and authorization.
+        Extracts and validates request data from the incoming request.
 
-        This function accepts a request object, which can be either a dictionary or an object
-        with a `get_json()` method (such as a Flask request). It ensures the request contains
-        the required fields and passes authorization checks.
+        This function checks if the request is in the expected format and contains all
+        required fields. It also handles authorization by accessing secrets from Google
+        Secret Manager.
 
         Args:
             request (Union[Dict[str, Any], Any]): The incoming request data, either as a dictionary
@@ -60,7 +66,7 @@ def get_credentials(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         except Exception as e:
             raise ValueError(f"Invalid request format: {str(e)}")
 
-    dt_request = _secret_manager_access(dt_request)
+    dt_request = _secret_manager(dt_request)
     logging.info("Request validation successful...")
 
     required_fields = ["project_id", "topic_id"]
