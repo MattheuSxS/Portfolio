@@ -46,7 +46,7 @@ resource "google_bigquery_table" "tb_raw_delivery_sensor" {
         # expiration_ms = 7776000000
     }
 
-    clustering = ["message_id"]
+    clustering = ["message_id", "attributes"]
 }
 
 

@@ -206,18 +206,30 @@ class DeliverySystem():
 
     def _simulate_movement(self):
         """
-            Simulates the movement of deliveries that are currently in route.
+            Simulates the movement of delivery vehicles and updates delivery status.
 
-            This method updates the position and status of all deliveries with "in_route" status by:
-            - Calculating distance traveled based on vehicle average speed over a 1-hour period
-            - Updating remaining distance (ensuring it doesn't go below 0)
-            - Recalculating estimated delivery time in minutes
-            - Marking deliveries as "delivered" when within 100m tolerance of destination
-            - Moving completed deliveries from active list to history with timestamp
+            This method processes all deliveries with "in_route" status, simulating their
+            progress by reducing remaining distance based on vehicle speed over a 1-hour
+            time period. When deliveries reach their destination (within 100m tolerance),
+            they are marked as "delivered" and moved to history.
 
-            The simulation assumes a 1-hour time step and uses vehicle average speed in km/h.
-            Deliveries are considered complete when remaining distance is <= 0.1 km (100m).
+            The method performs the following operations:
+            - Calculates distance traveled based on vehicle average speed over 1 hour
+            - Updates remaining distance and estimated time for each delivery
+            - Marks deliveries as "delivered" when within 100m of destination
+            - Creates message entries for completed deliveries with delivery details
+            - Publishes completion messages asynchronously
+            - Moves completed deliveries from active list to history
+
+            Side effects:
+            - Modifies delivery.remaining_distance and delivery.estimated_time
+            - Changes delivery.status to "delivered" for completed deliveries
+            - Updates delivery.timestamp for completed deliveries
+            - Adds completed deliveries to self.history
+            - Removes completed deliveries from self.deliveries
+            - Publishes messages via self.publisher
         """
+        messages = []
         for delivery in [e for e in self.deliveries if e.status == "in_route"]:
             km_per_second = delivery.vehicle.average_speed / 3600
             delivery.remaining_distance = max(0, delivery.remaining_distance - km_per_second * 3600)  # 1 hour
@@ -227,8 +239,28 @@ class DeliverySystem():
             if delivery.remaining_distance <= 0.1:  # 100m tolerance
                 delivery.status = "delivered"
                 delivery.timestamp = datetime.now().isoformat()
+
+                entry = {
+                    "timestamp": delivery.timestamp,
+                    "delivery_id": delivery.id,
+                    "purchase_id": delivery.client.id,
+                    "client": delivery.client.name,
+                    "address": delivery.client.address,
+                    "remaining_distance_km": round(delivery.remaining_distance, 2),
+                    "estimated_time_min": round(delivery.estimated_time, 0),
+                    "vehicle_id": delivery.vehicle.id,
+                    "vehicle_location": delivery.vehicle.location,
+                    "status": delivery.status
+                }
+                messages.append({
+                    "data": entry,
+                    "delivery_id": str(delivery.id)
+                })
+
                 self.history.append(delivery)
                 self.deliveries.remove(delivery)
+
+        self.publisher.publish_bulk_async(messages)
 
 
     def _display_status(self):
@@ -262,7 +294,8 @@ class DeliverySystem():
         for delivery in self.deliveries:
             entry = {
                 "timestamp": timestamp.isoformat(),
-                "id": delivery.id,
+                "delivery_id": delivery.id,
+                "purchase_id": delivery.client.id,
                 "client": delivery.client.name,
                 "address": delivery.client.address,
                 "remaining_distance_km": round(delivery.remaining_distance, 2),
@@ -317,41 +350,6 @@ class DeliverySystem():
         except KeyboardInterrupt:
             logging.info("Monitoring stopped")
             raise
-
-
-    def generate_report(self):
-        """
-            Generate a JSON-formatted report from the object's delivery history.
-
-            Returns:
-                str: A JSON string (pretty-printed with indent=2) representing a list of delivery records. Each record
-                is a JSON object with the following fields:
-                    - id: the event identifier (from e.id)
-                    - client: the client name (from e.client.name)
-                    - address: the client address (from e.client.address)
-                    - total_time: total time in minutes for the delivery event, computed as the difference between
-                    two ISO-8601 timestamps converted via datetime.fromisoformat and divided by 60 (seconds → minutes)
-                    - vehicle: the vehicle identifier (from e.vehicle.id)
-
-            Notes:
-                - Expects self.history to be an iterable of event-like objects with attributes:
-                id, client (with .name and .address), timestamp (ISO-8601 string), and vehicle (with .id).
-                - timestamp values must be parseable by datetime.fromisoformat; otherwise a ValueError will be raised.
-                - Currently the implementation computes total_time by subtracting the same timestamp (e.timestamp - e.timestamp),
-                which yields 0.0 minutes. To obtain a meaningful duration, ensure event objects supply distinct start/end
-                timestamps or adjust the calculation to use the appropriate timestamp fields.
-                - The method returns a serialized JSON string and does not modify the underlying event objects.
-        """
-        return json.dumps([
-            {
-                "id": e.id,
-                "client": e.client.name,
-                "address": e.client.address,
-                "total_time": (datetime.fromisoformat(e.timestamp) - datetime.fromisoformat(e.timestamp)).total_seconds() / 60,
-                "vehicle": e.vehicle.id
-            }
-            for e in self.history
-        ], indent=2)
 
 
 if __name__ == "__main__":

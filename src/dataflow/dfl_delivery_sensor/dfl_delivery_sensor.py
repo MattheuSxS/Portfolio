@@ -2,22 +2,19 @@ import argparse
 import apache_beam as beam
 from apache_beam.transforms import window
 from apache_beam.options.pipeline_options import PipelineOptions
+from modules.functions import (
+    parse_pubsub_message, split_dict, ConvertToTableRowFn, \
+                                    get_schema, write_to_bigquery
+)
 
 #TODO: Redoing whole file, because had plan changes.
 def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
                  bkt_dataflow:str, project:str, dataset:str, subscription:str) -> None:
 
-    from modules.functions import parse_pubsub_message, split_dict, ConvertToTableRowFn, \
-                                    get_schema, write_to_bigquery
-
     project_id      = project
     dataset_id      = dataset
     subscription_id = f"projects/{project_id}/subscriptions/{subscription}"
-    # dict_schema     = get_schema(
-    #                     project_id,
-    #                     dataset_id,
-    #                     ['tb_associate', 'tb_card', 'tb_movement', 'tb_account']
-    #                 )
+
 
     options = \
         PipelineOptions(
@@ -37,16 +34,20 @@ def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
     with beam.Pipeline(options=options) as p:
         messages = (
             p
-            | 'Read from Pub/Sub' >> beam.io.ReadFromPubSub(subscription=subscription_id)
-            | 'Decode messages' >> beam.Map(parse_pubsub_message)
+            | 'Read from Pub/Sub' >> beam.io.ReadFromPubSub(
+                subscription    = subscription_id,
+                with_attributes = False,
+                
+            )
+            # | 'Decode messages' >> beam.Map(parse_pubsub_message)
             | 'Print messages' >> beam.Map(print)
         )
 
         transformed_messages = (
-            messages
-            | 'Split dictionaries' >> beam.FlatMap(split_dict)
-            | 'Flatten dictionaries' >> beam.ParDo(ConvertToTableRowFn())
-            | 'Extract Key' >> beam.Map(lambda x: (next(iter(x)), x))
+            # messages
+            # | 'Split dictionaries' >> beam.FlatMap(split_dict)
+            # | 'Flatten dictionaries' >> beam.ParDo(ConvertToTableRowFn())
+            # | 'Extract Key' >> beam.Map(lambda x: (next(iter(x)), x))
         )
 
         # group_messages = (

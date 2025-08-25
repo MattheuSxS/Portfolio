@@ -14,8 +14,7 @@ def parse_pubsub_message(message) -> dict:
 
     """
 
-    result = json.loads(message.decode('utf-8'))
-    return result
+    return message.decode('utf-8')
 
 
 def split_dict(element) -> list[dict]:
