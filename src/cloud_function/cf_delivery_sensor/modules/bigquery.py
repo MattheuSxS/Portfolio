@@ -110,7 +110,7 @@ class BigQuery:
                             TBSA.associate_id = TBAD.fk_associate_id
                         ORDER BY
                             RAND()
-                        LIMIT 25000;
+                        LIMIT 1000;
                     """,
                 "delivery_query": \
                     f"""
@@ -128,8 +128,7 @@ class BigQuery:
                             `{self.project}.ls_customers.tb_inventory` AS TBLO
                         ON
                             TBVE.location = TBLO.location
-                        WHERE
-                            TBVE.status = "available"
+                            AND TBVE.status = "available"
                     """
             }
 

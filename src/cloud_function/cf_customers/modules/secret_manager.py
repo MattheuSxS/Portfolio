@@ -69,7 +69,7 @@ def get_request_data(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
     dt_request = _secret_manager(dt_request)
     logging.info("Request validation successful...")
 
-    required_fields = ["project_id", "topic_id"]
+    required_fields = ["project_id", "dataset_id", "number_customers", "table_id"]
     for field in required_fields:
         if field not in dt_request:
             raise ValueError(f"Missing required field: {field}")

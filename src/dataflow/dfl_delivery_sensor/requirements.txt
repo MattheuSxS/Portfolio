@@ -1,0 +1,4 @@
+wheel
+Faker==37.1.0
+load_dotenv==0.1.0
+apache_beam[gcp]==2.66.0

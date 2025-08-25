@@ -107,7 +107,7 @@ def _udf_functions() -> list:
 
     return generate_random_date_udf, generate_peak_season_multiplier_udf, generate_order_id_udf
 
-#TODO: I must test this function
+
 def generate_fake_purchases(df_customers, df_products, VAR_NUM_PURCHASES):
     """
     Generates a DataFrame of fake purchase records by randomly pairing customers and products from the same region.
