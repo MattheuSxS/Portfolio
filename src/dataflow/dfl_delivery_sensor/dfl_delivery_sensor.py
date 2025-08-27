@@ -36,8 +36,7 @@ def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
             p
             | 'Read from Pub/Sub' >> beam.io.ReadFromPubSub(
                 subscription    = subscription_id,
-                with_attributes = False,
-                
+                with_attributes = False
             )
             # | 'Decode messages' >> beam.Map(parse_pubsub_message)
             | 'Print messages' >> beam.Map(print)

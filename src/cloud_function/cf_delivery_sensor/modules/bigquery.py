@@ -110,7 +110,7 @@ class BigQuery:
                             TBSA.associate_id = TBAD.fk_associate_id
                         ORDER BY
                             RAND()
-                        LIMIT 5;
+                        LIMIT 15000;
                     """,
                 "delivery_query": \
                     f"""

@@ -1,5 +1,4 @@
 import uuid
-import json
 import time
 import math
 import random
@@ -230,6 +229,9 @@ class DeliverySystem():
             - Publishes messages via self.publisher
         """
         messages = []
+        self.STATUS = ['delivered', 'not_delivered', 'wrong_address', 'other_problems']
+        self.STATUS_PROBABILITIES = [0.80, 0.10, 0.07, 0.03]
+
         for delivery in [e for e in self.deliveries if e.status == "in_route"]:
             km_per_second = delivery.vehicle.average_speed / 3600
             delivery.remaining_distance = max(0, delivery.remaining_distance - km_per_second * 3600)  # 1 hour
@@ -237,7 +239,7 @@ class DeliverySystem():
             delivery.estimated_time = (delivery.remaining_distance / delivery.vehicle.average_speed) * 60
 
             if delivery.remaining_distance <= 0.1:  # 100m tolerance
-                delivery.status = "delivered"
+                delivery.status = random.choices(self.STATUS, weights=self.STATUS_PROBABILITIES, k=1)[0]
                 delivery.timestamp = datetime.now().isoformat()
 
                 entry = {
