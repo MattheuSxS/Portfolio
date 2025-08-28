@@ -84,6 +84,11 @@ class DeliverySystem():
         self.vehicles = self._generate_fleet(vehicle_list)
         self.deliveries = []
         self.history = []
+        self.STATUS = ['delivered', 'not_delivered', 'wrong_address', 'other_problems']
+        self.STATUS_PROBABILITIES = [0.80, 0.10, 0.07, 0.03]
+
+        self.DELIVERY_DIFFICULTY = ['easy', 'medium', 'hard']
+        self.DELIVERY_DIFFICULTY_PROBABILITIES = [0.70, 0.20, 0.10]
 
 
     def _generate_clients(self, client_list: List[List] = None) -> List[Client]:
@@ -189,6 +194,7 @@ class DeliverySystem():
             client=client,
             status="in_route",
             vehicle=vehicle,
+            difficulty=random.choices(self.DELIVERY_DIFFICULTY, weights=self.DELIVERY_DIFFICULTY_PROBABILITIES, k=1)[0],
             timestamp=datetime.now().isoformat(),
             remaining_distance=self.calculate_distance(
                 vehicle.latitude, vehicle.longitude,
@@ -229,8 +235,7 @@ class DeliverySystem():
             - Publishes messages via self.publisher
         """
         messages = []
-        self.STATUS = ['delivered', 'not_delivered', 'wrong_address', 'other_problems']
-        self.STATUS_PROBABILITIES = [0.80, 0.10, 0.07, 0.03]
+
 
         for delivery in [e for e in self.deliveries if e.status == "in_route"]:
             km_per_second = delivery.vehicle.average_speed / 3600
@@ -243,16 +248,17 @@ class DeliverySystem():
                 delivery.timestamp = datetime.now().isoformat()
 
                 entry = {
-                    "timestamp": delivery.timestamp,
-                    "delivery_id": delivery.id,
-                    "purchase_id": delivery.client.id,
-                    "client": delivery.client.name,
-                    "address": delivery.client.address,
+                    "delivery_id":           delivery.id,
+                    "vehicle_id":            delivery.vehicle.id,
+                    "vehicle_location":      delivery.vehicle.location,
+                    "purchase_id":           delivery.client.id,
+                    "customer_name":         delivery.client.name,
+                    "customer_address":      delivery.client.address,
                     "remaining_distance_km": round(delivery.remaining_distance, 2),
-                    "estimated_time_min": round(delivery.estimated_time, 0),
-                    "vehicle_id": delivery.vehicle.id,
-                    "vehicle_location": delivery.vehicle.location,
-                    "status": delivery.status
+                    "estimated_time_min":    round(delivery.estimated_time, 0),
+                    "delivery_difficulty":   delivery.difficulty,
+                    "status":                delivery.status,
+                    "created_at":            delivery.timestamp,
                 }
                 messages.append({
                     "data": entry,
@@ -295,16 +301,17 @@ class DeliverySystem():
         messages = []
         for delivery in self.deliveries:
             entry = {
-                "timestamp": timestamp.isoformat(),
-                "delivery_id": delivery.id,
-                "purchase_id": delivery.client.id,
-                "client": delivery.client.name,
-                "address": delivery.client.address,
-                "remaining_distance_km": round(delivery.remaining_distance, 2),
-                "estimated_time_min": round(delivery.estimated_time, 0),
-                "vehicle_id": delivery.vehicle.id,
-                "vehicle_location": delivery.vehicle.location,
-                "status": delivery.status
+                    "delivery_id":           delivery.id,
+                    "vehicle_id":            delivery.vehicle.id,
+                    "vehicle_location":      delivery.vehicle.location,
+                    "purchase_id":           delivery.client.id,
+                    "customer_name":         delivery.client.name,
+                    "customer_address":      delivery.client.address,
+                    "remaining_distance_km": round(delivery.remaining_distance, 2),
+                    "estimated_time_min":    round(delivery.estimated_time, 0),
+                    "delivery_difficulty":   delivery.difficulty,
+                    "status":                delivery.status,
+                    "created_at":            delivery.timestamp,
             }
             messages.append({
                 "data": entry,

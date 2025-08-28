@@ -184,19 +184,19 @@ resource "google_bigquery_table" "tb_vehicles" {
     clustering = ["vehicle_id", "location", "year", "type"]
 }
 
-# resource "google_bigquery_table" "tb_delivery_locations" {
-#     dataset_id            = local.bq_dataset_ls_customers
-#     table_id              = var.tb_delivery_locations
-#     schema                = file("${path.module}/schemas/tb_delivery_locations.json")
-#     deletion_protection   = false
+resource "google_bigquery_table" "tb_delivery_progress" {
+    dataset_id            = local.bq_dataset_ls_customers
+    table_id              = var.tb_delivery_progress
+    schema                = file("${path.module}/schemas/tb_delivery_progress.json")
+    deletion_protection   = false
 
-#     time_partitioning {
-#         type          = "DAY"
-#         field         = "created_at"
-#     }
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
 
-#     clustering = ["location_id", "state", "city", "neighborhood"]
-# }
+    clustering = ["purchase_id", "delivery_id", "vehicle_id", "vehicle_location"]
+}
 
 # resource "google_bigquery_table" "tb_processing_times" {
 #     dataset_id            = local.bq_dataset_ls_customers

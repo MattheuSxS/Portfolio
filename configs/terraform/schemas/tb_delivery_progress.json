@@ -1,0 +1,68 @@
+[
+    {
+        "name": "delivery_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the delivery location"
+    },
+    {
+        "name": "vehicle_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the vehicle"
+    },
+    {
+        "name": "vehicle_location",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Current location of the vehicle"
+    },
+    {
+        "name": "purchase_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the purchase"
+    },
+    {
+        "name": "customer_name",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Name of the customer"
+    },
+    {
+        "name": "customer_address",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Street address of the customer"
+    },
+    {
+        "name": "remaining_distance_km",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Remaining distance to the delivery location in kilometers"
+    },
+    {
+        "name": "estimated_time_min",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Estimated time to delivery in minutes"
+    },
+    {
+        "name": "delivery_difficulty",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Delivery difficulty of the delivery location"
+    },
+    {
+        "name": "status",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Current status of the delivery"
+    },
+    {
+        "name": "created_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the delivery location was created."
+    }
+]

@@ -279,12 +279,10 @@ variable "tb_vehicles" {
     type        = string
 }
 
-variable "tb_processing_times" {
-    description = "The name of the table"
+variable "tb_delivery_progress" {
+    description = "Processing times for deliveries"
     type        = string
 }
-
-
 #   ********************************************************************************************************    #
 #                                                   Pub/Sub                                                     #
 #   ********************************************************************************************************    #
