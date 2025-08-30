@@ -184,10 +184,10 @@ resource "google_bigquery_table" "tb_vehicles" {
     clustering = ["vehicle_id", "location", "year", "type"]
 }
 
-resource "google_bigquery_table" "tb_delivery_progress" {
+resource "google_bigquery_table" "tb_delivery_status" {
     dataset_id            = local.bq_dataset_ls_customers
-    table_id              = var.tb_delivery_progress
-    schema                = file("${path.module}/schemas/tb_delivery_progress.json")
+    table_id              = var.tb_delivery_status
+    schema                = file("${path.module}/schemas/${var.tb_delivery_status}.json")
     deletion_protection   = false
 
     time_partitioning {
@@ -195,7 +195,21 @@ resource "google_bigquery_table" "tb_delivery_progress" {
         field         = "created_at"
     }
 
-    clustering = ["purchase_id", "delivery_id", "vehicle_id", "vehicle_location"]
+    clustering = ["purchase_id", "delivery_id", "vehicle_id", "status"]
+}
+
+resource "google_bigquery_table" "tb_delivery_status_stage" {
+    dataset_id            = local.bq_dataset_staging
+    table_id              = "${var.tb_delivery_status}_stage"
+    schema                = file("${path.module}/schemas/${var.tb_delivery_status}.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "created_at"
+    }
+
+    clustering = ["purchase_id", "delivery_id", "vehicle_id", "status"]
 }
 
 # resource "google_bigquery_table" "tb_processing_times" {

@@ -46,16 +46,20 @@ class BigQuery:
             logging.error(f"Error converting data to NDJSON: {e}")
             raise
 
-        job_config = bigquery.LoadJobConfig(
-            source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
-            write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
-            create_disposition=bigquery.CreateDisposition.CREATE_NEVER,
-            autodetect=False,
+        job_config = \
+            bigquery.LoadJobConfig(
+                source_format       = bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+                write_disposition   = bigquery.WriteDisposition.WRITE_APPEND,
+                create_disposition  = bigquery.CreateDisposition.CREATE_NEVER,
+                autodetect          = False,
         )
 
         try:
-            load_job = self.client.load_table_from_file(
-                memory_file, table_id, job_config=job_config
+            load_job = \
+                self.client.load_table_from_file(
+                    memory_file,
+                    table_id,
+                    job_config=job_config
             )
 
             load_job.result()
@@ -110,7 +114,7 @@ class BigQuery:
                             TBSA.associate_id = TBAD.fk_associate_id
                         ORDER BY
                             RAND()
-                        LIMIT 15000;
+                        LIMIT 25000;
                     """,
                 "delivery_query": \
                     f"""

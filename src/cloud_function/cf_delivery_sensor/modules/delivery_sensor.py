@@ -39,6 +39,7 @@ class Delivery:
     client: Client
     status: str  # "pending", "in_route", "delivered"
     vehicle: Vehicle
+    difficulty: str  # "easy", "medium", "hard"
     timestamp: str
     remaining_distance: float  # km
     estimated_time: float  # minutes

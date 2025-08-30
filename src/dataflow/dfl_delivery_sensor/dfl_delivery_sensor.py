@@ -1,25 +1,45 @@
+#TODO: I must finish it later
+import logging
 import argparse
-import apache_beam as beam
-from apache_beam.transforms import window
+
+from apache_beam.transforms import ParDo, GroupByKey
+from apache_beam.transforms.window import FixedWindows
 from apache_beam.options.pipeline_options import PipelineOptions
-from modules.functions import (
-    parse_pubsub_message, split_dict, ConvertToTableRowFn, \
-                                    get_schema, write_to_bigquery
+from apache_beam.transforms.trigger import AfterCount, AfterProcessingTime, Repeatedly, AfterAny
+
+
+from modules.helpers import *
+from modules.bigquery import *
+
+
+# ******************************************************************************************************************** #
+#                                              System Logging                                                          #
+# ******************************************************************************************************************** #
+logging.basicConfig(
+    format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
+            "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
+    level=logging.INFO
 )
 
-#TODO: Redoing whole file, because had plan changes.
+
+# ******************************************************************************************************************** #
+#                                              Dataflow Pipeline                                                       #
+# ******************************************************************************************************************** #
 def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
                  bkt_dataflow:str, project:str, dataset:str, subscription:str) -> None:
 
-    project_id      = project
-    dataset_id      = dataset
-    subscription_id = f"projects/{project_id}/subscriptions/{subscription}"
+    BATCH_SIZE = 2000
+    BATCH_DURATION = 120
 
+    PROJECT_ID      = project
+    DATASET_ID      = dataset
+    TABLES_ID       = 'tb_delivery_status'
+    SUBSCRIPTION_ID = f"projects/{PROJECT_ID}/subscriptions/{subscription}"
 
     options = \
         PipelineOptions(
             runner                      = exec_mode,
-            project                     = project_id,
+            project                     = PROJECT_ID,
             region                      = region,
             job_name                    = job_name,
             num_workers                 = 1,
@@ -31,35 +51,51 @@ def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
             streaming                   = True
         )
 
+
     with beam.Pipeline(options=options) as p:
-        messages = (
+        get_messages = (
             p
             | 'Read from Pub/Sub' >> beam.io.ReadFromPubSub(
-                subscription    = subscription_id,
+                subscription    = SUBSCRIPTION_ID,
                 with_attributes = False
             )
-            # | 'Decode messages' >> beam.Map(parse_pubsub_message)
-            | 'Print messages' >> beam.Map(print)
+            | 'ParseMessage' >> ParDo(ParseMessage())
         )
 
-        transformed_messages = (
-            # messages
-            # | 'Split dictionaries' >> beam.FlatMap(split_dict)
-            # | 'Flatten dictionaries' >> beam.ParDo(ConvertToTableRowFn())
-            # | 'Extract Key' >> beam.Map(lambda x: (next(iter(x)), x))
+        treat_the_data = (
+            get_messages
+            | 'Select the fields' >> ParDo(SelectFields())
+            | 'Filter the datas' >> beam.Filter(lambda x: x['status'] != 'in_route')
         )
 
-        # group_messages = (
-        #     transformed_messages
-        #     | 'Window into fixed intervals' >> beam.WindowInto(window.FixedWindows(2 * 30),
-        #                       trigger=beam.transforms.trigger.AfterWatermark(),
-        #                       accumulation_mode=beam.transforms.trigger.AccumulationMode.DISCARDING)
-        #     | 'Group by key' >> beam.GroupByKey()
-        # )
+        windowed_messages = (
+            treat_the_data
+            | 'Window' >> beam.WindowInto(
+                FixedWindows(BATCH_DURATION),
+                trigger=Repeatedly(AfterAny(
+                    AfterCount(BATCH_SIZE),
+                    AfterProcessingTime(BATCH_DURATION)
+                )),
+                accumulation_mode=beam.transforms.trigger.AccumulationMode.ACCUMULATING
+            )
+            | 'AddSkuKey' >> beam.Map(lambda x: (x['delivery_id'], x))
+            | 'Group By DeliveryId' >> GroupByKey()
+            | 'Merge Deliveries' >> ParDo(MergeDelivery())
+        )
 
-        # group_messages | 'Write to BigQuery' >> beam.Map(
-        #         lambda element: write_to_bigquery(element, dict_schema, project_id, dataset_id)
-        # )
+        lastly = (
+            windowed_messages
+            | 'Write to BigQuery' >> ParDo(BigQueryWriter(
+                project_id=PROJECT_ID,
+                dataset_id=DATASET_ID,
+                table_id=TABLES_ID
+            ))
+            | 'Merge in BigQuery' >> ParDo(BigQueryMerger(
+                project_id=PROJECT_ID,
+                dataset_id=DATASET_ID,
+                table_id=TABLES_ID
+            ))
+        )
 
 
 if __name__ == "__main__":

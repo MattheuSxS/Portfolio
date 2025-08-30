@@ -12,28 +12,10 @@
         "description": "Unique identifier for the vehicle"
     },
     {
-        "name": "vehicle_location",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Current location of the vehicle"
-    },
-    {
         "name": "purchase_id",
         "type": "STRING",
         "mode": "REQUIRED",
         "description": "Unique identifier for the purchase"
-    },
-    {
-        "name": "customer_name",
-        "type": "STRING",
-        "mode": "REQUIRED",
-        "description": "Name of the customer"
-    },
-    {
-        "name": "customer_address",
-        "type": "STRING",
-        "mode": "NULLABLE",
-        "description": "Street address of the customer"
     },
     {
         "name": "remaining_distance_km",
@@ -64,5 +46,11 @@
         "type": "TIMESTAMP",
         "mode": "REQUIRED",
         "description": "Timestamp when the delivery location was created."
+    },
+    {
+        "name": "updated_at",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE",
+        "description": "Timestamp when the delivery was last updated."
     }
 ]

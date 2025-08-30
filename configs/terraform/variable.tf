@@ -279,7 +279,7 @@ variable "tb_vehicles" {
     type        = string
 }
 
-variable "tb_delivery_progress" {
+variable "tb_delivery_status" {
     description = "Processing times for deliveries"
     type        = string
 }
