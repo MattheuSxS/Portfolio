@@ -1,5 +1,5 @@
 resource "google_storage_bucket" "bucket" {
-  project                     = var.project[terraform.workspace]
+  project                     = local.project
   count                       = length(var.bkt_names)
   name                        = "bkt-mts-${var.bkt_names[count.index]}"
   location                    = var.region
@@ -57,7 +57,7 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_bucket" "data_tools_bucket" {
-  project                     = var.project_data_tools[terraform.workspace]
+  project                     = local.project_data_tools
   count                       = length(var.bkt_data_tools_names)
   name                        = "bkt-mts-${var.bkt_data_tools_names[count.index]}"
   location                    = var.region

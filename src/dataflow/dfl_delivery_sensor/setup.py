@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='dfl_delivery_sensor_nrt',
+    name='dfl_delivery_sensor',
     version='0.0.2',
     author='Matheus Dos S. Silva',
     author_email='mattheusxs@gmail.com',
@@ -15,7 +15,7 @@ setup(
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Operating System :: POSIX',
-        'Programming Language :: Python :: 3.11.9',
+        'Programming Language :: Python :: 3.11.11',
         'Topic :: Scientific/Engineering :: Training Project'
     ],
 

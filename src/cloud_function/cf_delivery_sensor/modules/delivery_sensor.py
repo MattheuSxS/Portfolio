@@ -255,8 +255,8 @@ class DeliverySystem():
                     "purchase_id":           delivery.client.id,
                     "customer_name":         delivery.client.name,
                     "customer_address":      delivery.client.address,
-                    "remaining_distance_km": round(delivery.remaining_distance, 2),
-                    "estimated_time_min":    round(delivery.estimated_time, 0),
+                    "remaining_distance_km": int(delivery.remaining_distance),
+                    "estimated_time_min":    int(delivery.estimated_time),
                     "delivery_difficulty":   delivery.difficulty,
                     "status":                delivery.status,
                     "created_at":            delivery.timestamp,
@@ -308,8 +308,8 @@ class DeliverySystem():
                     "purchase_id":           delivery.client.id,
                     "customer_name":         delivery.client.name,
                     "customer_address":      delivery.client.address,
-                    "remaining_distance_km": round(delivery.remaining_distance, 2),
-                    "estimated_time_min":    round(delivery.estimated_time, 0),
+                    "remaining_distance_km": int(delivery.remaining_distance),
+                    "estimated_time_min":    int(delivery.estimated_time),
                     "delivery_difficulty":   delivery.difficulty,
                     "status":                delivery.status,
                     "created_at":            delivery.timestamp,
@@ -350,7 +350,6 @@ class DeliverySystem():
 
                 if not self.deliveries:
                     logging.info("All deliveries completed. Stopping monitor.")
-                    self.publisher.shutdown()
                     break
 
                 time.sleep(interval)

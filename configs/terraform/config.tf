@@ -2,7 +2,7 @@ terraform {
   required_providers {
     google = {
       source = "hashicorp/google"
-      version = "6.44.0"
+      version = "7.1.0" # old version "6.44.0" # new version "7.1.0"
     }
     archive = {
       source = "hashicorp/archive"
@@ -21,6 +21,12 @@ terraform {
 }
 
 provider "google" {
-  project     = var.project[terraform.workspace]
+  project     = local.project
   region      = var.region
+  alias       = "default_project"
+}
+
+provider "google" {
+  project = local.project_data_tools
+  alias   = "data_tools_project"
 }

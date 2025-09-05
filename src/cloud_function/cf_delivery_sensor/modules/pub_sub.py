@@ -74,15 +74,15 @@ class HighThroughputPublisher():
                 "quota_project_id": project_id,
             },
             batch_settings=pubsub_v1.types.BatchSettings(
-                max_bytes=10 * 1024 * 1024,     # 10MB por batch
-                max_latency=0.5,                # 500ms max latency
-                max_messages=1000               # 1000 mensagens por batch
+                max_bytes=10 * 1024 * 1024,
+                max_latency=0.5,
+                max_messages=1000
             ),
             publisher_options=pubsub_v1.types.PublisherOptions(
                 enable_message_ordering=False,
                 flow_control=pubsub_v1.types.PublishFlowControl(
-                    message_limit=10000,        # 10K mensagens em buffer
-                    byte_limit=100 * 1024 * 1024, # 100MB buffer
+                    message_limit=10000,
+                    byte_limit=100 * 1024 * 1024,
                     limit_exceeded_behavior=pubsub_v1.types.LimitExceededBehavior.BLOCK
                 )
             )
@@ -91,7 +91,7 @@ class HighThroughputPublisher():
         self.topic_path = self.publisher_client.topic_path(project_id, topic_id)
 
         self.executor = futures.ThreadPoolExecutor(
-            max_workers=50,  # 50 threads para alto throughput
+            max_workers=25,
             thread_name_prefix="pubsub_publisher"
         )
 
@@ -100,6 +100,17 @@ class HighThroughputPublisher():
         self.start_time = time.time()
         self.last_print_time = time.time()
         self.lock = threading.Lock()
+
+
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        logging.info("⏳ Shutting down publisher client and flushing buffer...")
+        self.publisher_client.shutdown(15.0)  # Tempo limite para o shutdown
+        self.executor.shutdown(wait=True)
+        logging.info("✅ Publisher client and executor shut down successfully.")
 
 
     def publish_message(self, message_data: dict, delivery_id: str) -> futures.Future:

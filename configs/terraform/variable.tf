@@ -109,10 +109,6 @@ variable "creating_sa" {
     type        = list(string)
 }
 
-variable "data_tools_creating_sa" {
-    description = "The service account to create for data tools"
-    type        = list(string)
-}
 
 variable "roles_sa_composer" {
     description = "The roles to assign to the service account"
@@ -283,6 +279,16 @@ variable "tb_delivery_status" {
     description = "Processing times for deliveries"
     type        = string
 }
+
+
+#    |  ~~~~~~~~~~~~~~~~~~~~~>>>> Procedure <<<<~~~~~~~~~~~~~~~~~~~~~  |    #
+#    |  ~~~~~~~~~~~~~~~~~~~~~~>>>> Trusted <<<<~~~~~~~~~~~~~~~~~~~~~~  |    #
+variable "sp_merge_delivery_status" {
+    description = "Stored procedure for merging delivery status"
+    type        = string
+}
+
+
 #   ********************************************************************************************************    #
 #                                                   Pub/Sub                                                     #
 #   ********************************************************************************************************    #

@@ -2,7 +2,6 @@ import json
 import logging
 import apache_beam as beam
 from datetime import datetime
-from typing import Dict, Any, List
 
 
 class ParseMessage(beam.DoFn):
@@ -43,20 +42,3 @@ class SelectFields(beam.DoFn):
 
         yield {key: element[key] for key in columns if key in element}
 
-
-class MergeDelivery(beam.DoFn):
-    def process(self, element):
-        delivery_id, delivery_messages = element
-
-        latest_message = max(
-            delivery_messages,
-            key=lambda x: self._get_timestamp(x)
-        )
-
-        yield latest_message
-
-
-    def _get_timestamp(self, delivery: Dict[str, Any]) -> str:
-        return (delivery.get('created_at') or
-                delivery.get('updated_at') or
-                datetime.utcnow().isoformat())

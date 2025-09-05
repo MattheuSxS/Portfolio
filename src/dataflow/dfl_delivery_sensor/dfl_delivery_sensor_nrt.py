@@ -1,15 +1,15 @@
 #TODO: I must finish it later
 import logging
 import argparse
-
-from apache_beam.transforms import ParDo, GroupByKey
+import apache_beam as beam
+from apache_beam.transforms import ParDo
+from modules.bigquery import get_schema_from_bigquery
+from modules.helpers import ParseMessage, SelectFields
 from apache_beam.transforms.window import FixedWindows
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.transforms.trigger import AfterCount, AfterProcessingTime, Repeatedly, AfterAny
 
 
-from modules.helpers import *
-from modules.bigquery import *
 
 
 # ******************************************************************************************************************** #
@@ -25,27 +25,28 @@ logging.basicConfig(
 # ******************************************************************************************************************** #
 #                                              Dataflow Pipeline                                                       #
 # ******************************************************************************************************************** #
-def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
-                 bkt_dataflow:str, project:str, dataset:str, subscription:str) -> None:
+def pipeline_run(exec_mode:str, region:str, job_name:str,
+                    bkt_dataflow:str, project:str, dataset:str,
+                        table:str, subscription:str) -> None:
 
-    BATCH_SIZE = 2000
-    BATCH_DURATION = 120
+    BATCH_SIZE = 3000
+    BATCH_DURATION = 10
 
     PROJECT_ID      = project
     DATASET_ID      = dataset
-    TABLES_ID       = 'tb_delivery_status'
+    TABLES_ID       = table
     SUBSCRIPTION_ID = f"projects/{PROJECT_ID}/subscriptions/{subscription}"
 
     options = \
         PipelineOptions(
             runner                      = exec_mode,
-            project                     = PROJECT_ID,
+            project                     = project,
             region                      = region,
             job_name                    = job_name,
             num_workers                 = 1,
             max_num_workers             = 2,
-            machine_type                = 'n2-standard-2',
-            worker_machine_type         = 'n2-standard-2',
+            machine_type                = 'n2-standard-4',
+            worker_machine_type         = 'n2-standard-4',
             staging_location            = f"gs://{bkt_dataflow}/staging",
             temp_location               = f"gs://{bkt_dataflow}/temp",
             streaming                   = True
@@ -68,33 +69,28 @@ def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
             | 'Filter the datas' >> beam.Filter(lambda x: x['status'] != 'in_route')
         )
 
-        windowed_messages = (
-            treat_the_data
-            | 'Window' >> beam.WindowInto(
-                FixedWindows(BATCH_DURATION),
-                trigger=Repeatedly(AfterAny(
-                    AfterCount(BATCH_SIZE),
-                    AfterProcessingTime(BATCH_DURATION)
-                )),
-                accumulation_mode=beam.transforms.trigger.AccumulationMode.ACCUMULATING
-            )
-            | 'AddSkuKey' >> beam.Map(lambda x: (x['delivery_id'], x))
-            | 'Group By DeliveryId' >> GroupByKey()
-            | 'Merge Deliveries' >> ParDo(MergeDelivery())
-        )
+        # windowed_messages = (
+        #     treat_the_data
+        #     | 'Window into fixed intervals' >> beam.WindowInto(
+        #         FixedWindows(BATCH_DURATION),
+        #         trigger=Repeatedly(AfterAny(
+        #             AfterCount(BATCH_SIZE),
+        #             AfterProcessingTime(BATCH_DURATION)
+        #         )),
+        #         accumulation_mode=beam.transforms.trigger.AccumulationMode.ACCUMULATING
+        #     )
+        # )
 
         lastly = (
-            windowed_messages
-            | 'Write to BigQuery' >> ParDo(BigQueryWriter(
-                project_id=PROJECT_ID,
-                dataset_id=DATASET_ID,
-                table_id=TABLES_ID
-            ))
-            | 'Merge in BigQuery' >> ParDo(BigQueryMerger(
-                project_id=PROJECT_ID,
-                dataset_id=DATASET_ID,
-                table_id=TABLES_ID
-            ))
+            treat_the_data
+                # | 'print' >> beam.Map(print)
+                | 'Write to BigQuery' >> beam.io.WriteToBigQuery(
+                    table                   = f"{PROJECT_ID}.{DATASET_ID}.{TABLES_ID}",
+                    schema                  = get_schema_from_bigquery(PROJECT_ID, DATASET_ID, TABLES_ID),
+                    create_disposition      = beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+                    write_disposition       = beam.io.BigQueryDisposition.WRITE_APPEND,
+                    method                  = "STREAMING_INSERTS",
+                )
         )
 
 
@@ -110,10 +106,10 @@ if __name__ == "__main__":
         help="Choose where apache-beam will run!"
     )
     parser.add_argument(
-        "--project_dataflow",
+        "--project",
         type=str,
         required=True,
-        help="Choose which project apache-beam will run!"
+        help="What project will be used to get the schema!"
     )
     parser.add_argument(
         "--region",
@@ -135,17 +131,17 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--project",
-        type=str,
-        required=True,
-        help="What project will be used to get the schema!"
-    )
-
-    parser.add_argument(
         "--dataset",
         type=str,
         required=True,
         help="What dataset will be used to get the schema!"
+    )
+
+    parser.add_argument(
+        "--table",
+        type=str,
+        required=True,
+        help="What table will be used to get the schema!"
     )
 
     parser.add_argument(
@@ -180,11 +176,11 @@ if __name__ == "__main__":
 
     pipeline_run(
             exec_mode           = args.runner,
-            project_dataflow    = args.project_dataflow,
+            project             = args.project,
             region              = args.region,
             job_name            = args.job_name,
             bkt_dataflow        = args.bkt_dataflow,
-            project             = args.project,
             dataset             = args.dataset,
+            table               = args.table,
             subscription        = args.subscription
         )

@@ -2,7 +2,7 @@
 #                                                     DataSets                                                 #
 #   ********************************************************************************************************   #
 resource "google_bigquery_dataset" "bq_dataset" {
-    project                     = var.project[terraform.workspace]
+    project                     = local.project
     location                    = var.region
     count                       = length(var.bq_dataset)
     dataset_id                  = var.bq_dataset[count.index]
@@ -212,16 +212,64 @@ resource "google_bigquery_table" "tb_delivery_status_stage" {
     clustering = ["purchase_id", "delivery_id", "vehicle_id", "status"]
 }
 
-# resource "google_bigquery_table" "tb_processing_times" {
-#     dataset_id            = local.bq_dataset_ls_customers
-#     table_id              = var.tb_processing_times
-#     schema                = file("${path.module}/schemas/tb_processing_times.json")
-#     deletion_protection   = false
 
-#     time_partitioning {
-#         type          = "DAY"
-#         field         = "created_at"
-#     }
+resource "google_bigquery_routine" "sp_merge_delivery_status" {
+    project         = local.project
+    dataset_id      = local.bq_dataset_ls_customers
+    routine_id      = var.sp_merge_delivery_status
+    routine_type    = "PROCEDURE"
+    language        = "SQL"
+    definition_body = <<-EOT
+        BEGIN
+            BEGIN TRANSACTION;
 
-#     clustering = ["processing_id", "product_id", "location_id", "last_updated"]
-# }
+            CREATE TEMP TABLE RecentData AS (
+                SELECT
+                    *
+                FROM
+                    `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage`
+                WHERE
+                    DATETIME(updated_at) >= TIMESTAMP_SUB(DATETIME(CURRENT_TIMESTAMP(), 'Europe/Dublin'), INTERVAL 45 MINUTE)
+            );
+
+            MERGE `${local.project}.${local.bq_dataset_ls_customers}.${var.tb_delivery_status}` AS T
+            USING RecentData AS S
+            ON T.delivery_id = S.delivery_id
+            WHEN MATCHED THEN
+                UPDATE SET
+                T.remaining_distance_km = COALESCE(S.remaining_distance_km, T.remaining_distance_km),
+                T.estimated_time_min = COALESCE(S.estimated_time_min, T.estimated_time_min),
+                T.delivery_difficulty = COALESCE(S.delivery_difficulty, T.delivery_difficulty),
+                T.status = COALESCE(S.status, T.status),
+                T.updated_at = COALESCE(S.updated_at, T.updated_at)
+            WHEN NOT MATCHED BY TARGET THEN
+                INSERT (
+                    delivery_id,
+                    vehicle_id,
+                    purchase_id,
+                    remaining_distance_km,
+                    estimated_time_min,
+                    delivery_difficulty,
+                    status,
+                    created_at,
+                    updated_at
+                )
+                VALUES (
+                    S.delivery_id,
+                    S.vehicle_id,
+                    S.purchase_id,
+                    S.remaining_distance_km,
+                    S.estimated_time_min,
+                    S.delivery_difficulty,
+                    S.status,
+                    COALESCE(S.created_at, CURRENT_TIMESTAMP()),
+                    COALESCE(S.updated_at, CURRENT_TIMESTAMP())
+                );
+
+            DELETE FROM `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage`
+            WHERE delivery_id IN (SELECT delivery_id FROM RecentData);
+
+            COMMIT TRANSACTION;
+        END;
+    EOT
+}

@@ -3,13 +3,13 @@
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_customers_files" {
     type        = "zip"
-    source_dir  = "../../src/cloud_function/cf_customers/"
-    output_path = "../../src/cloud_function/cf_customers/index.zip"
+    source_dir  = "../../src/cloud_function/${var.cf_customers}/"
+    output_path = "../../src/cloud_function/${var.cf_customers}/index.zip"
 }
 
 
 resource "google_cloudfunctions2_function" "cf_customers" {
-    project       = var.project[terraform.workspace]
+    project       = local.project
     location      = var.region
     name          = var.cf_customers
     description   = "It will be triggered via airflow and will send data to the bigquery table"
@@ -34,7 +34,7 @@ resource "google_cloudfunctions2_function" "cf_customers" {
         max_instance_count              = 1
         min_instance_count              = 1
         available_memory                = "2Gi"
-        timeout_seconds                 = 3000
+        timeout_seconds                 = 600
         service_account_email           = local.sa_cf_default
         ingress_settings                = "ALLOW_ALL"
     }
@@ -53,13 +53,13 @@ resource "google_cloudfunctions2_function" "cf_customers" {
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_products_inventory_files" {
   type        = "zip"
-  source_dir  = "../../src/cloud_function/cf_products_inventory/"
-  output_path = "../../src/cloud_function/cf_products_inventory/index.zip"
+  source_dir  = "../../src/cloud_function/${var.cf_products_inventory}/"
+  output_path = "../../src/cloud_function/${var.cf_products_inventory}/index.zip"
 }
 
 
 resource "google_cloudfunctions2_function" "cf_products_inventory" {
-  project       = var.project[terraform.workspace]
+  project       = local.project
   location      = var.region
   name          = var.cf_products_inventory
   description   = "It will be triggered via airflow and will send data to the bigquery table"
@@ -84,7 +84,7 @@ resource "google_cloudfunctions2_function" "cf_products_inventory" {
     max_instance_count    = 1
     min_instance_count    = 1
     available_memory      = "512M"
-    timeout_seconds       = 3000
+    timeout_seconds       = 300
     service_account_email = local.sa_cf_default
     ingress_settings      = "ALLOW_ALL"
   }
@@ -103,13 +103,13 @@ resource "google_cloudfunctions2_function" "cf_products_inventory" {
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_wh_sensor_files" {
   type        = "zip"
-  source_dir  = "../../src/cloud_function/cf_wh_sensor/"
-  output_path = "../../src/cloud_function/cf_wh_sensor/index.zip"
+  source_dir  = "../../src/cloud_function/${var.cf_wh_sensor}/"
+  output_path = "../../src/cloud_function/${var.cf_wh_sensor}/index.zip"
 }
 
 
 resource "google_cloudfunctions2_function" "cf_wh_sensor" {
-  project       = var.project[terraform.workspace]
+  project       = local.project
   location      = var.region
   name          = var.cf_wh_sensor
   description   = "It will be triggered via airflow and will send data to the pub/sub"
@@ -134,7 +134,7 @@ resource "google_cloudfunctions2_function" "cf_wh_sensor" {
     max_instance_count    = 1
     min_instance_count    = 1
     available_memory      = "512M"
-    timeout_seconds       = 3000
+    timeout_seconds       = 650
     service_account_email = local.sa_cf_pb_sensor
     ingress_settings      = "ALLOW_ALL"
   }
@@ -153,13 +153,13 @@ resource "google_cloudfunctions2_function" "cf_wh_sensor" {
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_cf_delivery_sensor_files" {
     type        = "zip"
-    source_dir  = "../../src/cloud_function/cf_delivery_sensor/"
-    output_path = "../../src/cloud_function/cf_delivery_sensor/index.zip"
+    source_dir  = "../../src/cloud_function/${var.cf_delivery_sensor}/"
+    output_path = "../../src/cloud_function/${var.cf_delivery_sensor}/index.zip"
 }
 
 
 resource "google_cloudfunctions2_function" "cf_delivery_sensor" {
-  project       = var.project[terraform.workspace]
+  project       = local.project
   location      = var.region
   name          = var.cf_delivery_sensor
   description   = "It will be triggered via airflow and will send data to the pub/sub"

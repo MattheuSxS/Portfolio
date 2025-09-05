@@ -19,13 +19,13 @@
     },
     {
         "name": "remaining_distance_km",
-        "type": "STRING",
+        "type": "INTEGER",
         "mode": "NULLABLE",
         "description": "Remaining distance to the delivery location in kilometers"
     },
     {
         "name": "estimated_time_min",
-        "type": "STRING",
+        "type": "INTEGER",
         "mode": "NULLABLE",
         "description": "Estimated time to delivery in minutes"
     },
