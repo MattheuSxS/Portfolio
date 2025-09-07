@@ -20,6 +20,7 @@ resource "google_bigquery_dataset" "bq_dataset" {
 #                                                    Table Raw                                                 #
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_raw_wh_sensor" {
+    project               = local.project
     dataset_id            = local.bq_dataset_raw
     table_id              = var.tb_raw_wh_sensor
     schema                = file("${path.module}/schemas/${var.tb_raw_wh_sensor}.json")
@@ -35,6 +36,7 @@ resource "google_bigquery_table" "tb_raw_wh_sensor" {
 }
 
 resource "google_bigquery_table" "tb_raw_delivery_sensor" {
+    project               = local.project
     dataset_id            = local.bq_dataset_raw
     table_id              = var.tb_raw_delivery_sensor
     schema                = file("${path.module}/schemas/${var.tb_raw_delivery_sensor}.json")
@@ -54,6 +56,7 @@ resource "google_bigquery_table" "tb_raw_delivery_sensor" {
 #                                             DataSet production |  Table production                           #
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_wh_sensor" {
+    project               = local.project
     dataset_id            = local.bq_dataset_production
     table_id              = var.tb_wh_sensor
     schema                = file("${path.module}/schemas/tb_trusted_dw_messages.json")
@@ -69,6 +72,7 @@ resource "google_bigquery_table" "tb_wh_sensor" {
 }
 
 resource "google_bigquery_table" "tb_feedback" {
+    project               = local.project
     dataset_id            = local.bq_dataset_production
     table_id              = var.tb_feedback
     schema                = file("${path.module}/schemas/${var.tb_feedback}.json")
@@ -87,6 +91,7 @@ resource "google_bigquery_table" "tb_feedback" {
 #                                                   DataSet ls_customers                                       #
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_customers" {
+    project               = local.project
     dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_customers
     schema                = file("${path.module}/schemas/${var.tb_customers}.json")
@@ -101,6 +106,7 @@ resource "google_bigquery_table" "tb_customers" {
 }
 
 resource "google_bigquery_table" "tb_cards" {
+    project               = local.project
     dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_cards
     schema                = file("${path.module}/schemas/${var.tb_cards}.json")
@@ -115,6 +121,7 @@ resource "google_bigquery_table" "tb_cards" {
 }
 
 resource "google_bigquery_table" "tb_address" {
+    project               = local.project
     dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_address
     schema                = file("${path.module}/schemas/${var.tb_address}.json")
@@ -129,6 +136,7 @@ resource "google_bigquery_table" "tb_address" {
 }
 
 resource "google_bigquery_table" "tb_products" {
+    project               = local.project
     dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_products
     schema                = file("${path.module}/schemas/${var.tb_products}.json")
@@ -143,6 +151,7 @@ resource "google_bigquery_table" "tb_products" {
 }
 
 resource "google_bigquery_table" "tb_inventory" {
+    project               = local.project
     dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_inventory
     schema                = file("${path.module}/schemas/${var.tb_inventory}.json")
@@ -157,6 +166,7 @@ resource "google_bigquery_table" "tb_inventory" {
 }
 
 resource "google_bigquery_table" "tb_sales" {
+    project               = local.project
     dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_sales
     schema                = file("${path.module}/schemas/${var.tb_sales}.json")
@@ -171,6 +181,7 @@ resource "google_bigquery_table" "tb_sales" {
 }
 
 resource "google_bigquery_table" "tb_vehicles" {
+    project               = local.project
     dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_vehicles
     schema                = file("${path.module}/schemas/${var.tb_vehicles}.json")
@@ -185,6 +196,7 @@ resource "google_bigquery_table" "tb_vehicles" {
 }
 
 resource "google_bigquery_table" "tb_delivery_status" {
+    project               = local.project
     dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_delivery_status
     schema                = file("${path.module}/schemas/${var.tb_delivery_status}.json")
@@ -199,6 +211,7 @@ resource "google_bigquery_table" "tb_delivery_status" {
 }
 
 resource "google_bigquery_table" "tb_delivery_status_stage" {
+    project               = local.project
     dataset_id            = local.bq_dataset_staging
     table_id              = "${var.tb_delivery_status}_stage"
     schema                = file("${path.module}/schemas/${var.tb_delivery_status}.json")

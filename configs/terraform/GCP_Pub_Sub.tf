@@ -20,6 +20,7 @@ resource "google_pubsub_topic" "pub_sub_topics" {
 }
 
 resource "google_pubsub_subscription" "pub_sub_wh_sensor_subs" {
+    project               = local.project
     topic                 = local.pb_wh_sensor_topic
     name                  = var.pub_sub_wh_sensor_subs
     ack_deadline_seconds  = 30
@@ -57,6 +58,7 @@ resource "google_pubsub_subscription" "pub_sub_wh_sensor_subs_bq" {
 }
 
 resource "google_pubsub_subscription" "pub_sub_delivery_sensor_subs" {
+    project               = local.project
     topic                 = local.pb_delivery_sensor_topic
     name                  = var.pub_sub_delivery_sensor_subs
     ack_deadline_seconds  = 30

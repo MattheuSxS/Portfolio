@@ -25,8 +25,3 @@ provider "google" {
   region      = var.region
   alias       = "default_project"
 }
-
-provider "google" {
-  project = local.project_data_tools
-  alias   = "data_tools_project"
-}

@@ -4,7 +4,7 @@ import argparse
 import apache_beam as beam
 from apache_beam.transforms import ParDo
 from modules.bigquery import get_schema_from_bigquery
-from modules.helpers import ParseMessage, SelectFields
+from modules.helpers import MessageParser, SelectFields
 from apache_beam.transforms.window import FixedWindows
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.transforms.trigger import AfterCount, AfterProcessingTime, Repeatedly, AfterAny
@@ -29,13 +29,11 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,
                     bkt_dataflow:str, project:str, dataset:str,
                         table:str, subscription:str) -> None:
 
-    BATCH_SIZE = 3000
-    BATCH_DURATION = 10
-
     PROJECT_ID      = project
     DATASET_ID      = dataset
     TABLES_ID       = table
     SUBSCRIPTION_ID = f"projects/{PROJECT_ID}/subscriptions/{subscription}"
+    BQ_SCHEMA       = get_schema_from_bigquery(PROJECT_ID, DATASET_ID, TABLES_ID)
 
     options = \
         PipelineOptions(
@@ -60,7 +58,7 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,
                 subscription    = SUBSCRIPTION_ID,
                 with_attributes = False
             )
-            | 'ParseMessage' >> ParDo(ParseMessage())
+            | 'Efficient Parse Message' >> ParDo(MessageParser())
         )
 
         treat_the_data = (
@@ -69,27 +67,15 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,
             | 'Filter the datas' >> beam.Filter(lambda x: x['status'] != 'in_route')
         )
 
-        # windowed_messages = (
-        #     treat_the_data
-        #     | 'Window into fixed intervals' >> beam.WindowInto(
-        #         FixedWindows(BATCH_DURATION),
-        #         trigger=Repeatedly(AfterAny(
-        #             AfterCount(BATCH_SIZE),
-        #             AfterProcessingTime(BATCH_DURATION)
-        #         )),
-        #         accumulation_mode=beam.transforms.trigger.AccumulationMode.ACCUMULATING
-        #     )
-        # )
-
-        lastly = (
+        whitelisted = (
             treat_the_data
-                # | 'print' >> beam.Map(print)
                 | 'Write to BigQuery' >> beam.io.WriteToBigQuery(
                     table                   = f"{PROJECT_ID}.{DATASET_ID}.{TABLES_ID}",
-                    schema                  = get_schema_from_bigquery(PROJECT_ID, DATASET_ID, TABLES_ID),
-                    create_disposition      = beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+                    schema                  = BQ_SCHEMA,
+                    create_disposition      = beam.io.BigQueryDisposition.CREATE_NEVER,
                     write_disposition       = beam.io.BigQueryDisposition.WRITE_APPEND,
-                    method                  = "STREAMING_INSERTS",
+                    method                  = beam.io.WriteToBigQuery.Method.STORAGE_WRITE_API,
+                    triggering_frequency    = 20
                 )
         )
 

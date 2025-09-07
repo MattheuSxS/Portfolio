@@ -41,10 +41,10 @@ variable "bkt_names" {
     type        = list(string)
 }
 
-variable "bkt_data_tools_names" {
-    description = "The names of the data tools buckets"
-    type        = list(string)
-}
+# variable "bkt_data_tools_names" {
+#     description = "The names of the data tools buckets"
+#     type        = list(string)
+# }
 
 variable "bkt_class_standard" {
     description = "The class of the bucket"

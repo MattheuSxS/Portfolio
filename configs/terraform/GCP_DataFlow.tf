@@ -60,7 +60,7 @@
 #  ********************************************************************************************************    #
 #                                            Dataflow Delivery Sensor                                          #
 #  ********************************************************************************************************    #
-resource "null_resource" "run_dataflow_delivery_job" {
+resource "null_resource" "dfl_run_delivery_job" {
     provisioner "local-exec" {
         command = <<EOT
         python "${var.dfl_delivery_sensor_script_path}/${var.dfl_delivery_sensor_template}.py" \
@@ -79,10 +79,10 @@ resource "null_resource" "run_dataflow_delivery_job" {
 }
 
 
-resource "google_dataflow_job" "dataflow_delivery_job" {
+resource "google_dataflow_job" "dfl_delivery_job" {
 
     depends_on              = [
-                                null_resource.run_dataflow_delivery_job,
+                                null_resource.dfl_run_delivery_job,
                                 google_project_iam_member.roles_sa_dataflow
                             ]
 
