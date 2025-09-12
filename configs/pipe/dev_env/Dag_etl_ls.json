@@ -6,6 +6,18 @@
         "dagrun_timeout": 30,
         "project_vars": "mts-default-portofolio",
         "project_number": "42887123198",
+        "region": "us-east1",
+        "bigquery_sql": {
+            "merge_delivery": {
+                "query": {
+                    "query": "CALL `{VAR_PRJ_NAME}.ls_customers.sp_merge_delivery_status`();",
+                    "priority": "BATCH",
+                    "useLegacySql": false,
+                    "dependOnPast": false
+                }
+
+            }
+        },
         "cloud_functions": {
             "cf-customers": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
@@ -19,6 +31,20 @@
                 "cloud_function_dict": {
                     "project_id": "mts-default-portofolio",
                     "secret_id": "bq_products_access_authorization"
+                }
+            },
+            "cf-delivery-sensor": {
+                "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
+                "cloud_function_dict": {
+                    "project_id": "mts-default-portofolio",
+                    "secret_id": "ps_delivery_sensor_access_authorization"
+                }
+            },
+            "cf-wh-sensor": {
+                "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
+                "cloud_function_dict": {
+                    "project_id": "mts-default-portofolio",
+                    "secret_id": "ps_wh_sensor_access_authorization"
                 }
             }
         },
@@ -45,7 +71,7 @@
         },
         "dataproc_config": {
             "region": "us-east1",
-            "project_id": "mts-data-tools",
+            "project_id": "mts-default-portofolio",
             "cluster_name": "mts-cluster-dataproc",
             "secret_id": "dataproc_access_authorization",
             "cluster_config": {

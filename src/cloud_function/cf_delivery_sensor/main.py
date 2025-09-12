@@ -1,4 +1,5 @@
 import logging
+from zoneinfo import ZoneInfo
 from datetime import datetime
 from typing import Dict, Any, Union
 from modules.bigquery import BigQuery
@@ -39,7 +40,7 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         'success': 0,
         'fail': 0,
         'total_messages_sent': 0,
-        'start_time': datetime.now().isoformat()
+        'start_time': datetime.now(ZoneInfo('Europe/Dublin')).isoformat()
     }
 
 

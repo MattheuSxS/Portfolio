@@ -4,6 +4,7 @@ import math
 import random
 import logging
 from typing import List
+from zoneinfo import ZoneInfo
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -196,7 +197,7 @@ class DeliverySystem():
             status="in_route",
             vehicle=vehicle,
             difficulty=random.choices(self.DELIVERY_DIFFICULTY, weights=self.DELIVERY_DIFFICULTY_PROBABILITIES, k=1)[0],
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(ZoneInfo('Europe/Dublin')).isoformat(),
             remaining_distance=self.calculate_distance(
                 vehicle.latitude, vehicle.longitude,
                 client.latitude, client.longitude
@@ -246,7 +247,7 @@ class DeliverySystem():
 
             if delivery.remaining_distance <= 0.1:  # 100m tolerance
                 delivery.status = random.choices(self.STATUS, weights=self.STATUS_PROBABILITIES, k=1)[0]
-                delivery.timestamp = datetime.now().isoformat()
+                delivery.timestamp = datetime.now(ZoneInfo('Europe/Dublin')).isoformat()
 
                 entry = {
                     "delivery_id":           delivery.id,
@@ -293,7 +294,7 @@ class DeliverySystem():
                 - Logs an info message with processing timestamp and delivery count
                 - Publishes bulk messages to self.publisher with delivery status data
         """
-        timestamp = datetime.now()
+        timestamp = datetime.now(ZoneInfo('Europe/Dublin'))
         logging.info(f"⏰ {timestamp.strftime('%H:%M:%S')} - Processing {len(self.deliveries):,} deliveries")
 
         if not self.deliveries:

@@ -1,4 +1,5 @@
 from faker import Faker
+from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta
 
 
@@ -56,5 +57,5 @@ class GeneratorDate:
 
             case 'datetime_v1':
                 return self.fake.date_time_between_dates(
-                    datetime_start=(datetime.now() - timedelta(days=90)),
-                    datetime_end=datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+                    datetime_start=(datetime.now(ZoneInfo('Europe/Dublin')) - timedelta(days=90)),
+                    datetime_end=datetime.now(ZoneInfo('Europe/Dublin'))).strftime('%Y-%m-%d %H:%M:%S')

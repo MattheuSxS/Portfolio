@@ -41,11 +41,6 @@ variable "bkt_names" {
     type        = list(string)
 }
 
-# variable "bkt_data_tools_names" {
-#     description = "The names of the data tools buckets"
-#     type        = list(string)
-# }
-
 variable "bkt_class_standard" {
     description = "The class of the bucket"
     type        = string
@@ -140,10 +135,6 @@ variable "roles_sa_cf_pb_sensor" {
     type        = list(string)
 }
 
-# variable "roles_sa_dataproc" {
-#     description = "The roles to assign to the service account"
-#     type        = list(string)
-# }
 #   ********************************************************************************************************    #
 #                                              Google Cloud Function                                            #
 #   ********************************************************************************************************    #

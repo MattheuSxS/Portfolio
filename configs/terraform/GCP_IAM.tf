@@ -10,7 +10,7 @@ resource "google_service_account" "creating_sa" {
 }
 
 
-resource "google_project_iam_member" "pubsub_bq_role" {
+resource "google_project_iam_member" "roles_sa_pubsub" {
     project = local.project
     count   = length(var.roles_sa_pub_sub)
     role    = var.roles_sa_pub_sub[count.index]
@@ -24,14 +24,6 @@ resource "google_project_iam_member" "roles_sa_composer" {
     role    = var.roles_sa_composer[count.index]
     member  = "serviceAccount:${local.sa_composer}"
 }
-
-
-# resource "google_project_iam_member" "data_tools_roles_sa_composer" {
-#     project = local.project_data_tools
-#     count   = length(var.roles_sa_composer)
-#     role    = var.roles_sa_composer[count.index]
-#     member  = "serviceAccount:${local.sa_composer}"
-# }
 
 
 resource "google_project_iam_member" "roles_sa_dataflow" {
@@ -64,11 +56,3 @@ resource "google_project_iam_member" "roles_sa_default_compute" {
     role    = var.roles_sa_default_compute[count.index]
     member  = "serviceAccount:${local.project_id}-compute@developer.gserviceaccount.com"
 }
-
-
-# resource "google_project_iam_member" "data_tools_roles_sa_default_compute" {
-#     project = local.project_data_tools
-#     count   = length(var.roles_sa_default_compute)
-#     role    = var.roles_sa_default_compute[count.index]
-#     member  = "serviceAccount:${local.project_data_tools_id}-compute@developer.gserviceaccount.com"
-# }

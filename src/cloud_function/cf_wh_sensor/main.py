@@ -3,6 +3,7 @@ import time
 import logging
 from time import sleep
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from modules.pub_sub import PubSub
 from typing import Dict, Any, Union
 from modules.fk_sensor import FakeWhSensorData
@@ -76,7 +77,7 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         'success': 0,
         'fail': 0,
         'total_messages_sent': 0,
-        'start_time': datetime.now().isoformat()
+        'start_time': datetime.now(ZoneInfo('Europe/Dublin')).isoformat()
     }
 
     try:
@@ -132,7 +133,7 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         }
 
     # Prepare final result
-    metrics['end_time'] = datetime.now().isoformat()
+    metrics['end_time'] = datetime.now(ZoneInfo('Europe/Dublin')).isoformat()
     metrics['duration_seconds'] = round(time.time() - start_time, 2)
 
     result = {

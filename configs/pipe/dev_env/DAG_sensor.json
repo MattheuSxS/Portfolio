@@ -18,7 +18,7 @@
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
                     "project_id": "mts-default-portofolio",
-                    "secret_id": "ps_wh_sensor_access_authorization"
+                    "secret_id": "ps_delivery_sensor_access_authorization"
                 }
             }
         }

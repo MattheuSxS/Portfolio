@@ -1,11 +1,11 @@
 resource "google_storage_bucket" "bucket" {
-  project                     = local.project
-  count                       = length(var.bkt_names)
-  name                        = "bkt-mts-${var.bkt_names[count.index]}"
-  location                    = var.region
-  storage_class               = var.bkt_class_standard
-  force_destroy               = true
-  uniform_bucket_level_access = true
+    project                     = local.project
+    count                       = length(var.bkt_names)
+    name                        = "bkt-mts-${var.bkt_names[count.index]}"
+    location                    = var.region
+    storage_class               = var.bkt_class_standard
+    force_destroy               = true
+    uniform_bucket_level_access = true
 
     versioning {
         enabled = true
@@ -56,63 +56,6 @@ resource "google_storage_bucket" "bucket" {
     }
 }
 
-# resource "google_storage_bucket" "data_tools_bucket" {
-#   project                     = local.project_data_tools
-#   count                       = length(var.bkt_data_tools_names)
-#   name                        = "bkt-mts-${var.bkt_data_tools_names[count.index]}"
-#   location                    = var.region
-#   storage_class               = var.bkt_class_standard
-#   force_destroy               = true
-#   uniform_bucket_level_access = true
-
-#     versioning {
-#         enabled = true
-#     }
-
-#     lifecycle_rule {
-#         condition {
-#             age = 90
-#         }
-#         action {
-#             type = "SetStorageClass"
-#             storage_class = var.bkt_class_nearline
-#         }
-#     }
-
-#     lifecycle_rule {
-#         condition {
-#             age = 150
-#         }
-#         action {
-#             type = "SetStorageClass"
-#             storage_class = var.bkt_class_coldline
-#         }
-#     }
-
-#     lifecycle_rule {
-#         condition {
-#             age = 180
-#         }
-#         action {
-#             type = "SetStorageClass"
-#             storage_class = var.bkt_class_archive
-#         }
-#     }
-
-#     lifecycle_rule {
-#         condition {
-#             num_newer_versions = 3
-#         }
-#         action {
-#             type = "Delete"
-#         }
-#     }
-
-#     labels = {
-#         "created_by": "terraform",
-#         "env": var.environment
-#     }
-# }
 
 resource "google_storage_bucket_object" "cf_wh_sensor_files" {
     name            = "${var.cf_wh_sensor}/index.zip"
@@ -127,6 +70,7 @@ resource "google_storage_bucket_object" "cf_wh_sensor_files" {
     }
 }
 
+
 resource "google_storage_bucket_object" "cf_delivery_sensor_files" {
     name            = "${var.cf_delivery_sensor}/index.zip"
     bucket          = "${local.bkt_cf_portfolio}"
@@ -139,6 +83,7 @@ resource "google_storage_bucket_object" "cf_delivery_sensor_files" {
         ]
     }
 }
+
 
 resource "google_storage_bucket_object" "cf_customers_files" {
     name            = "${var.cf_customers}/index.zip"
@@ -166,23 +111,23 @@ resource "google_storage_bucket_object" "cf_products_inventory_files" {
     }
 }
 
-# resource "google_storage_bucket_object" "airflow_dags" {
 
-#     for_each        = fileset("../pipe/", "**.py")
-#     name            = "dags/${each.value}"
-#     bucket          = local.bkt_airflow
-#     content_type    = "text/x-python"
-#     source          = "../pipe/${each.value}"
-# }
+resource "google_storage_bucket_object" "airflow_dags" {
+    for_each        = fileset("../pipe/", "**.py")
+    name            = "dags/${each.value}"
+    bucket          = local.bkt_airflow
+    content_type    = "text/x-python"
+    source          = "../pipe/${each.value}"
+}
 
-# resource "google_storage_bucket_object" "airflow_variables" {
 
-#     for_each        = fileset("../pipe/${var.environment}_env", "**.json")
-#     name            = "variables/${each.value}"
-#     bucket          = local.bkt_airflow
-#     content_type    = "application/json"
-#     source          = "../pipe/${var.environment}_env/${each.value}"
-# }
+resource "google_storage_bucket_object" "airflow_variables" {
+    for_each        = fileset("../pipe/${var.environment}_env", "**.json")
+    name            = "variables/${each.value}"
+    bucket          = local.bkt_airflow
+    content_type    = "application/json"
+    source          = "../pipe/${var.environment}_env/${each.value}"
+}
 
 
 resource "google_storage_bucket_object" "spark_job_tb_order" {
@@ -220,17 +165,16 @@ resource "google_storage_bucket_object" "spark_path_tb_feedback" {
 }
 
 
-
 resource "null_resource" "bkt_compose_delete" {
+    depends_on = [google_composer_environment.portfolio-composer]
+    triggers = {
+        bucket_name = local.bkt_airflow
+    }
 
-  triggers = {
-    bucket_name = local.bkt_airflow
-  }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = <<-EOT
-      gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
-    EOT
-  }
+    provisioner "local-exec" {
+        when    = destroy
+        command = <<-EOT
+        gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
+        EOT
+    }
 }

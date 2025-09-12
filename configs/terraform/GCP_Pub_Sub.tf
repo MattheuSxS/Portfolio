@@ -36,7 +36,7 @@ resource "google_pubsub_subscription" "pub_sub_wh_sensor_subs" {
 
 resource "google_pubsub_subscription" "pub_sub_wh_sensor_subs_bq" {
     depends_on                  =   [
-                                        google_project_iam_member.pubsub_bq_role,
+                                        google_project_iam_member.roles_sa_pubsub,
                                         google_bigquery_table.tb_raw_wh_sensor
                                     ]
     project                     = local.project
@@ -74,7 +74,7 @@ resource "google_pubsub_subscription" "pub_sub_delivery_sensor_subs" {
 
 resource "google_pubsub_subscription" "pub_sub_delivery_sensor_subs_bq" {
     depends_on                  =   [
-                                        google_project_iam_member.pubsub_bq_role,
+                                        google_project_iam_member.roles_sa_pubsub,
                                         google_bigquery_table.tb_raw_delivery_sensor
                                     ]
     project                     = local.project

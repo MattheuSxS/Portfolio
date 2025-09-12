@@ -242,7 +242,8 @@ resource "google_bigquery_routine" "sp_merge_delivery_status" {
                 FROM
                     `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage`
                 WHERE
-                    DATETIME(updated_at) >= TIMESTAMP_SUB(DATETIME(CURRENT_TIMESTAMP(), 'Europe/Dublin'), INTERVAL 45 MINUTE)
+                    DATETIME(updated_at) BETWEEN TIMESTAMP_SUB(DATETIME(CURRENT_TIMESTAMP(), 'Europe/Dublin'), INTERVAL 80 MINUTE)
+                    AND TIMESTAMP_SUB(DATETIME(CURRENT_TIMESTAMP(), 'Europe/Dublin'), INTERVAL 20 MINUTE)
             );
 
             MERGE `${local.project}.${local.bq_dataset_ls_customers}.${var.tb_delivery_status}` AS T
@@ -279,8 +280,10 @@ resource "google_bigquery_routine" "sp_merge_delivery_status" {
                     COALESCE(S.updated_at, CURRENT_TIMESTAMP())
                 );
 
-            DELETE FROM `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage`
-            WHERE delivery_id IN (SELECT delivery_id FROM RecentData);
+            DELETE FROM
+                `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage`
+            WHERE
+                delivery_id IN (SELECT delivery_id FROM RecentData);
 
             COMMIT TRANSACTION;
         END;

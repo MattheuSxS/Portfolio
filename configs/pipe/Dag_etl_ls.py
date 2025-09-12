@@ -22,6 +22,7 @@ from google.protobuf.duration_pb2 import Duration
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.trigger_rule import TriggerRule
 from airflow.operators.python import PythonOperator
+from airflow.providers.google.cloud.operators import bigquery
 from airflow.providers.google.cloud.operators.dataproc import (
     DataprocCreateClusterOperator,
     DataprocSubmitJobOperator,
@@ -95,7 +96,7 @@ def dummy(name:str) -> EmptyOperator:
     )
 
 
-def _call_cloud_function(data_dict:dict, cf_name:str) -> str:
+def _call_cf(data_dict:dict, cf_name:str) -> str:
     """
     Calls a Google Cloud Function using a POST request with curl.
 
@@ -134,7 +135,7 @@ def _call_cloud_function(data_dict:dict, cf_name:str) -> str:
     return f"Status: {result['status']} {result['body']}"
 
 
-def call_cloud_function(cf_name:str) -> PythonOperator:
+def call_cf(cf_name:str) -> PythonOperator:
     """
         Creates and returns a PythonOperator to call a specified Cloud Function.
 
@@ -149,7 +150,7 @@ def call_cloud_function(cf_name:str) -> PythonOperator:
     """
 
     return PythonOperator(
-        python_callable=_call_cloud_function,
+        python_callable=_call_cf,
         task_id=cf_name,
         op_kwargs={
             'data_dict': VAR_CLOUD_FUNCTION[cf_name],
@@ -157,7 +158,16 @@ def call_cloud_function(cf_name:str) -> PythonOperator:
         }
     )
 
-
+def bq_merge_delivery() -> bigquery.BigQueryInsertJobOperator:
+        __env_var__['bigquery_sql']['merge_delivery']['query']['query'] = \
+            __env_var__['bigquery_sql']['merge_delivery']['query']['query'].format(
+                VAR_PRJ_NAME=VAR_PRJ_NAME)
+        return bigquery.BigQueryInsertJobOperator(
+            task_id="bq_merge_delivery",
+            configuration=__env_var__['bigquery_sql']['merge_delivery'],
+            location=__env_var__['region'],
+            project_id=VAR_PRJ_NAME,
+        )
 
 # ====================================================================================================================================
 #                                                       ~~~~> Funções Utils <~~~~                                                    #
@@ -367,8 +377,21 @@ def delete_dataproc_cluster() -> DataprocDeleteClusterOperator:
 # ====================================================================================================================================
 with DAG(dag_id=__artefact__, start_date=default_args['start_date'], **dag_kwargs):
 
-    dummy("Start") >> [
-        call_cloud_function("cf-customers"),
-        call_cloud_function("cf-products-inventory")
-            ] >> create_dataproc_cluster() >> spark_submit_job("tb_order") \
-                >> spark_submit_job("tb_feedback") >> delete_dataproc_cluster() >> dummy("End")
+    # ************************************************************************************************** #
+    #                                    ~~~~> Pipe Definition <~~~~                                     #
+    # ************************************************************************************************** #
+
+
+    # ************************************************************************************************** #
+    #                                    ~~~~> Start Pipeline <~~~~                                      #
+    # ************************************************************************************************** #
+    dummy('Start') >> [
+        call_cf("cf-customers"),
+        call_cf("cf-products-inventory")
+        ] >> create_dataproc_cluster() >> \
+            spark_submit_job("tb_order") >> \
+                call_cf("cf-delivery-sensor") >> \
+                    bq_merge_delivery() >> \
+                        spark_submit_job("tb_feedback") >> \
+                            delete_dataproc_cluster() >> \
+                                dummy('End')

@@ -6,9 +6,7 @@ resource "google_composer_environment" "portfolio-composer" {
     name        = var.composer_name
 
     config {
-
-        # environment_size = "ENVIRONMENT_SIZE_MEDIUM"
-        environment_size = "ENVIRONMENT_SIZE_SMALL"
+        environment_size = "ENVIRONMENT_SIZE_MEDIUM"
 
         software_config {
             image_version = var.composer_image_version
@@ -16,31 +14,31 @@ resource "google_composer_environment" "portfolio-composer" {
 
         workloads_config {
             scheduler {
-                cpu        = 0.5
-                memory_gb  = 2
-                storage_gb = 1
-                count      = 1
+                cpu        = 1
+                memory_gb  = 4
+                storage_gb = 5
+                count      = 2
             }
             triggerer {
                 cpu        = 0.5
                 memory_gb  = 1
-                count      = 1
+                count      = 2
             }
             dag_processor {
-                cpu        = 1
-                memory_gb  = 2
-                storage_gb = 1
-                count      = 1
+                cpu        = 2
+                memory_gb  = 7.5
+                storage_gb = 5
+                count      = 2
             }
             web_server {
-                cpu        = 0.5
-                memory_gb  = 2
-                storage_gb = 1
+                cpu        = 2
+                memory_gb  = 7.5
+                storage_gb = 5
             }
             worker {
-                cpu = 0.5
-                memory_gb  = 2
-                storage_gb = 2
+                cpu = 2
+                memory_gb  = 7.5
+                storage_gb = 20
                 min_count  = 1
                 max_count  = 2
             }

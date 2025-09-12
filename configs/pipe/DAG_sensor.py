@@ -147,9 +147,8 @@ def call_cloud_function(cf_name:str) -> str:
 # ====================================================================================================================================
 with DAG(dag_id=__artefact__, start_date=default_args['start_date'], **dag_kwargs):
 
-    # dummy("Start") >> [
-    #     call_cloud_function("cf-wh-sensor"),
-    #     call_cloud_function("cf-delivery-sensor")
-    # ] >> dummy("End")
-
-    dummy("Start") >> call_cloud_function("cf-wh-sensor") >> dummy("End")
+    dummy("Start") >> \
+        [
+            call_cloud_function("cf-wh-sensor"),
+            call_cloud_function("cf-delivery-sensor")
+        ] >> dummy("End")

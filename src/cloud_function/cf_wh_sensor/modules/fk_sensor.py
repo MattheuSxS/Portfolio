@@ -2,6 +2,7 @@ import time
 import random
 import datetime
 from faker import Faker
+from zoneinfo import ZoneInfo
 
 
 class FakeWhSensorData:
@@ -42,7 +43,7 @@ class FakeWhSensorData:
 
         return {
             "sensor_id": self.fake.unique.uuid4(),
-            "time_stamp": datetime.datetime.now().isoformat(),
+            "time_stamp": datetime.now(ZoneInfo('Europe/Dublin')).isoformat(),
             "temperature": round(random.uniform(5.0, 30.0), 2),
             "humidity": round(random.uniform(30.0, 70.0), 2),
             "pressure": round(random.uniform(1000.0, 1020.0), 2)

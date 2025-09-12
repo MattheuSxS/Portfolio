@@ -1,15 +1,11 @@
-#TODO: I must finish it later
+#TODO: I must finish it later [0]
 import logging
 import argparse
 import apache_beam as beam
 from apache_beam.transforms import ParDo
 from modules.bigquery import get_schema_from_bigquery
 from modules.helpers import MessageParser, SelectFields
-from apache_beam.transforms.window import FixedWindows
 from apache_beam.options.pipeline_options import PipelineOptions
-from apache_beam.transforms.trigger import AfterCount, AfterProcessingTime, Repeatedly, AfterAny
-
-
 
 
 # ******************************************************************************************************************** #
@@ -74,8 +70,7 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,
                     schema                  = BQ_SCHEMA,
                     create_disposition      = beam.io.BigQueryDisposition.CREATE_NEVER,
                     write_disposition       = beam.io.BigQueryDisposition.WRITE_APPEND,
-                    method                  = beam.io.WriteToBigQuery.Method.STORAGE_WRITE_API,
-                    triggering_frequency    = 20
+                    method                  = beam.io.WriteToBigQuery.Method.STREAMING_INSERTS
                 )
         )
 

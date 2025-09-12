@@ -2,6 +2,7 @@ import json
 import logging
 import apache_beam as beam
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 class MessageParser(beam.DoFn):
@@ -16,7 +17,7 @@ class MessageParser(beam.DoFn):
                 logging.debug("Message missing delivery_id, skipping")
                 return
 
-            message['updated_at'] = datetime.utcnow().isoformat()
+            message['updated_at'] = datetime.now(ZoneInfo('Europe/Dublin')).isoformat()
             yield message
 
         except Exception as e:

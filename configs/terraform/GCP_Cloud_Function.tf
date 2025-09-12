@@ -31,8 +31,8 @@ resource "google_cloudfunctions2_function" "cf_customers" {
   }
 
     service_config {
-        max_instance_count              = 1
         min_instance_count              = 1
+        max_instance_count              = 2
         available_memory                = "2Gi"
         timeout_seconds                 = 600
         service_account_email           = local.sa_cf_default
@@ -81,8 +81,8 @@ resource "google_cloudfunctions2_function" "cf_products_inventory" {
   }
 
   service_config {
-    max_instance_count    = 1
     min_instance_count    = 1
+    max_instance_count    = 2
     available_memory      = "512M"
     timeout_seconds       = 300
     service_account_email = local.sa_cf_default
@@ -131,8 +131,8 @@ resource "google_cloudfunctions2_function" "cf_wh_sensor" {
   }
 
   service_config {
-    max_instance_count    = 1
     min_instance_count    = 1
+    max_instance_count    = 2
     available_memory      = "512M"
     timeout_seconds       = 650
     service_account_email = local.sa_cf_pb_sensor
@@ -181,8 +181,8 @@ resource "google_cloudfunctions2_function" "cf_delivery_sensor" {
   }
 
   service_config {
-    max_instance_count    = 1
     min_instance_count    = 1
+    max_instance_count    = 2
     available_memory      = "3Gi"
     timeout_seconds       = 3000
     service_account_email = local.sa_cf_pb_sensor

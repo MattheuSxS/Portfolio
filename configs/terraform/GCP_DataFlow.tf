@@ -80,7 +80,6 @@ resource "null_resource" "dfl_run_delivery_job" {
 
 
 resource "google_dataflow_job" "dfl_delivery_job" {
-
     depends_on              = [
                                 null_resource.dfl_run_delivery_job,
                                 google_project_iam_member.roles_sa_dataflow
