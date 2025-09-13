@@ -3,8 +3,8 @@ import logging
 import argparse
 import apache_beam as beam
 from apache_beam.transforms import ParDo
-from modules.bigquery import get_schema_from_bigquery
-from modules.helpers import MessageParser, SelectFields
+from utils.bigquery import get_schema_from_bigquery
+from utils.helpers import MessageParser, SelectFields
 from apache_beam.options.pipeline_options import PipelineOptions
 
 

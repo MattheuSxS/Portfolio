@@ -2,10 +2,10 @@ import random
 from faker import Faker
 from typing import Dict, List
 from faker.providers import DynamicProvider
-from modules.fk_vehicle import GeneratorDeliveryVehicle
+from utils.fk_vehicle import GeneratorDeliveryVehicle
 
 try:
-    from modules.fk_dates import GeneratorDate
+    from utils.fk_dates import GeneratorDate
 except ImportError:
     from fk_dates import GeneratorDate
 

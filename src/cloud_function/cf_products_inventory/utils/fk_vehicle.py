@@ -5,7 +5,7 @@ from datetime import timedelta
 from faker_vehicle import VehicleProvider
 
 try:
-    from modules.fk_dates import GeneratorDate
+    from utils.fk_dates import GeneratorDate
 except ImportError:
     from fk_dates import GeneratorDate
 

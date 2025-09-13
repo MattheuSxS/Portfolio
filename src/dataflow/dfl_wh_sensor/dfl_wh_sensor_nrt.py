@@ -7,7 +7,7 @@ from apache_beam.options.pipeline_options import PipelineOptions
 def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
                  bkt_dataflow:str, project:str, dataset:str, subscription:str) -> None:
 
-    from modules.functions import parse_pubsub_message, split_dict, ConvertToTableRowFn, \
+    from utils.functions import parse_pubsub_message, split_dict, ConvertToTableRowFn, \
                                     get_schema, write_to_bigquery
 
     project_id      = project

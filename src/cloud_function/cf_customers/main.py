@@ -1,11 +1,11 @@
 #TODO: I must get back here tomorrow
 import logging
 from typing import List, Dict
-from modules.bigquery import BigQuery
-from modules.fk_ids import FakeDataPerson
-from modules.fk_address import FakeDataAddress
-from modules.secret_manager import get_request_data
-from modules.transformation import hide_data, add_columns, split_data
+from utils.bigquery import BigQuery
+from utils.fk_ids import FakeDataPerson
+from utils.fk_address import FakeDataAddress
+from utils.secret_manager import get_request_data
+from utils.transformation import hide_data, add_columns, split_data
 
 
 # ******************************************************************************************************************** #

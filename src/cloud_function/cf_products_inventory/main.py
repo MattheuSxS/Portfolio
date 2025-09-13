@@ -1,8 +1,8 @@
 import logging
 from typing import Dict, Any, Union
-from modules.bigquery import BigQuery
-from modules.fk_products import FkCommerce
-from modules.secret_manager import get_request_data
+from utils.bigquery import BigQuery
+from utils.fk_products import FkCommerce
+from utils.secret_manager import get_request_data
 
 
 # ******************************************************************************************************************** #

@@ -9,7 +9,7 @@ from datetime import datetime
 from dataclasses import dataclass
 
 try:
-    from modules.pub_sub import HighThroughputPublisher
+    from utils.pub_sub import HighThroughputPublisher
 except ImportError:
     from pub_sub import HighThroughputPublisher
 

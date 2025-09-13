@@ -2,9 +2,9 @@ import logging
 from zoneinfo import ZoneInfo
 from datetime import datetime
 from typing import Dict, Any, Union
-from modules.bigquery import BigQuery
-from modules.delivery_sensor import DeliverySystem
-from modules.secret_manager import get_request_data
+from utils.bigquery import BigQuery
+from utils.delivery_sensor import DeliverySystem
+from utils.secret_manager import get_request_data
 
 
 # ******************************************************************************************************************** #

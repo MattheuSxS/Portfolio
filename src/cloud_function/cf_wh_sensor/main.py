@@ -4,10 +4,10 @@ import logging
 from time import sleep
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from modules.pub_sub import PubSub
+from utils.pub_sub import PubSub
 from typing import Dict, Any, Union
-from modules.fk_sensor import FakeWhSensorData
-from modules.secret_manager import get_request_data
+from utils.fk_sensor import FakeWhSensorData
+from utils.secret_manager import get_request_data
 
 
 # ******************************************************************************************************************** #
