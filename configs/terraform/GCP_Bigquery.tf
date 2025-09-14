@@ -236,55 +236,72 @@ resource "google_bigquery_routine" "sp_merge_delivery_status" {
         BEGIN
             BEGIN TRANSACTION;
 
-            CREATE TEMP TABLE RecentData AS (
-                SELECT
-                    *
-                FROM
-                    `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage`
-                WHERE
-                    DATETIME(updated_at) BETWEEN TIMESTAMP_SUB(DATETIME(CURRENT_TIMESTAMP(), 'Europe/Dublin'), INTERVAL 80 MINUTE)
-                    AND TIMESTAMP_SUB(DATETIME(CURRENT_TIMESTAMP(), 'Europe/Dublin'), INTERVAL 20 MINUTE)
-            );
-
-            MERGE `${local.project}.${local.bq_dataset_ls_customers}.${var.tb_delivery_status}` AS T
-            USING RecentData AS S
-            ON T.delivery_id = S.delivery_id
-            WHEN MATCHED THEN
-                UPDATE SET
-                T.remaining_distance_km = COALESCE(S.remaining_distance_km, T.remaining_distance_km),
-                T.estimated_time_min = COALESCE(S.estimated_time_min, T.estimated_time_min),
-                T.delivery_difficulty = COALESCE(S.delivery_difficulty, T.delivery_difficulty),
-                T.status = COALESCE(S.status, T.status),
-                T.updated_at = COALESCE(S.updated_at, T.updated_at)
-            WHEN NOT MATCHED BY TARGET THEN
-                INSERT (
-                    delivery_id,
-                    vehicle_id,
-                    purchase_id,
-                    remaining_distance_km,
-                    estimated_time_min,
-                    delivery_difficulty,
-                    status,
-                    created_at,
-                    updated_at
-                )
-                VALUES (
-                    S.delivery_id,
-                    S.vehicle_id,
-                    S.purchase_id,
-                    S.remaining_distance_km,
-                    S.estimated_time_min,
-                    S.delivery_difficulty,
-                    S.status,
-                    COALESCE(S.created_at, CURRENT_TIMESTAMP()),
-                    COALESCE(S.updated_at, CURRENT_TIMESTAMP())
+                CREATE TEMP TABLE AdditionalData AS (
+                    SELECT
+                        JSON_VALUE(attributes, '$.delivery_id') AS delivery_id,
+                        CAST(JSON_VALUE(data, '$.remaining_distance_km') AS INT64) AS remaining_distance_km,
+                        CAST(JSON_VALUE(data, '$.estimated_time_min') AS INT64) AS estimated_time_min,
+                    FROM
+                        `${local.project}.${local.bq_dataset_raw}.tb_raw_delivery_sensor`
+                    WHERE
+                        DATE(publish_time, 'Europe/Dublin') = CURRENT_DATE('Europe/Dublin')
+                    QUALIFY
+                        ROW_NUMBER() OVER (PARTITION BY delivery_id ORDER BY remaining_distance_km DESC) = 1
                 );
 
-            DELETE FROM
-                `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage`
-            WHERE
-                delivery_id IN (SELECT delivery_id FROM RecentData);
+                CREATE TEMP TABLE RecentData AS (
+                    SELECT
+                        TBDS.delivery_id,
+                        TBDS.vehicle_id,
+                        TBDS.purchase_id,
+                        ADDA.remaining_distance_km,
+                        ADDA.estimated_time_min,
+                        TBDS.delivery_difficulty,
+                        TBDS.status,
+                        TBDS.created_at,
+                        TBDS.updated_at,
+                    FROM
+                        `${local.project}.${local.bq_dataset_staging}.tb_delivery_status_stage` AS TBDS
+                    LEFT JOIN
+                        AdditionalData AS ADDA
+                    ON
+                        TBDS.delivery_id = ADDA.delivery_id
+                );
 
+
+                MERGE `${local.project}.${local.bq_dataset_ls_customers}.tb_delivery_status` AS T
+                USING RecentData AS S
+                ON T.delivery_id = S.delivery_id
+                WHEN MATCHED THEN
+                    UPDATE SET
+                    T.remaining_distance_km     = COALESCE(S.remaining_distance_km, T.remaining_distance_km),
+                    T.estimated_time_min        = COALESCE(S.estimated_time_min, T.estimated_time_min),
+                    T.delivery_difficulty       = COALESCE(S.delivery_difficulty, T.delivery_difficulty),
+                    T.status                    = COALESCE(S.status, T.status),
+                    T.updated_at                = COALESCE(S.updated_at, T.updated_at)
+                WHEN NOT MATCHED BY TARGET THEN
+                    INSERT (
+                        delivery_id,
+                        vehicle_id,
+                        purchase_id,
+                        remaining_distance_km,
+                        estimated_time_min,
+                        delivery_difficulty,
+                        status,
+                        created_at,
+                        updated_at
+                    )
+                    VALUES (
+                        S.delivery_id,
+                        S.vehicle_id,
+                        S.purchase_id,
+                        S.remaining_distance_km,
+                        S.estimated_time_min,
+                        S.delivery_difficulty,
+                        S.status,
+                        COALESCE(S.created_at, CURRENT_TIMESTAMP()),
+                        COALESCE(S.updated_at, CURRENT_TIMESTAMP())
+                    );
             COMMIT TRANSACTION;
         END;
     EOT

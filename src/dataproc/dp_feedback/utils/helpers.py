@@ -1,10 +1,6 @@
-import uuid
-import random
 from utils.fk_data import FkFeedback
-from datetime import datetime, timedelta
-from pyspark.sql.window import Window
-from pyspark.sql.functions import expr, rand, udf, row_number, floor, when, udf, col, explode
-from pyspark.sql.types import ArrayType, StructType, StructField, StringType, IntegerType, BooleanType, TimestampType
+from pyspark.sql.functions import udf, udf, col
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, BooleanType, TimestampType
 
 
 
@@ -23,6 +19,20 @@ def sql_query(project_id:str, dataset_id:str, row_limit:int) -> dict:
     """
     return {
         "tb_sales": f"""
+            WITH SelectData AS (
+                SELECT purchase_id FROM `{project_id}.production.tb_feedback`
+            ),
+            FilteredDeliveryStatus AS (
+                SELECT
+                    purchase_id,
+                    updated_at
+                FROM
+                    `{project_id}.ls_customers.tb_delivery_status`
+                WHERE
+                    status = "delivered"
+                    AND DATE(updated_at, 'Europe/Dublin') = CURRENT_DATE('Europe/Dublin')
+            )
+
             SELECT
                 TBSA.purchase_id,
                 CONCAT(TBCU.name, ' ', TBCU.last_name) AS customers_name,
@@ -33,17 +43,22 @@ def sql_query(project_id:str, dataset_id:str, row_limit:int) -> dict:
                 TBPR.brand,
                 TBSA.purchase_date
             FROM
-                `{project_id}.{dataset_id}.tb_sales` AS TBSA
+                `{project_id}.ls_customers.tb_sales` AS TBSA
             INNER JOIN
-                `{project_id}.{dataset_id}.tb_customers` AS TBCU
+                FilteredDeliveryStatus AS TBDS
+            ON
+                TBSA.purchase_id = TBDS.purchase_id
+            LEFT JOIN
+                `{project_id}.ls_customers.tb_customers` AS TBCU
             ON
                 TBSA.associate_id = TBCU.associate_id
-            INNER JOIN
-                `{project_id}.{dataset_id}.tb_products` AS TBPR
+            LEFT JOIN
+                `{project_id}.ls_customers.tb_products` AS TBPR
             ON
                 TBSA.product_id = TBPR.product_id
             WHERE
                 TBSA.order_status = "completed"
+                AND TBSA.purchase_id NOT IN (SELECT purchase_id FROM SelectData)
             ORDER BY
                 RAND()
             LIMIT {row_limit};

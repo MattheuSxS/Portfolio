@@ -102,7 +102,7 @@
                 },
                 "worker_config": {
                     "num_instances": 2,
-                    "machine_type_uri": "n2-standard-4",
+                    "machine_type_uri": "n2-standard-2",
                     "disk_config": {
                         "boot_disk_type": "pd-ssd",
                         "boot_disk_size_gb": 90,
@@ -114,24 +114,17 @@
                     "properties": {
                         "dataproc:dataproc.conscrypt.provider.enable": "false",
                         "dataproc:pip.packages": "pytz==2025.2, Faker==37.1.0",
-                        "spark:spark.sql.debug.maxToStringFields": "300",
-                        "spark:spark.sql.legacy.parquet.datetimeRebaseModeInWrite": "CORRECTED",
                         "spark:spark.dynamicAllocation.enabled": "true",
                         "spark:spark.dynamicAllocation.minExecutors": "1",
                         "spark:spark.dynamicAllocation.maxExecutors": "2",
-                        "spark:spark.memory.fraction": "0.8",
-                        "spark:spark.executor.cores": "3",
-                        "spark:spark.executor.memory": "12g",
-                        "spark:spark.driver.memory": "8g",
+                        "spark:spark.executor.cores": "1",
+                        "spark:spark.executor.memory": "5g",
                         "spark:spark.driver.cores": "2",
-                        "spark:spark.default.parallelism": "6",
-                        "hive:hive.optimize.sort.dynamic.partition": "true",
-                        "spark-env:SPARK_DAEMON_MEMORY": "1024m",
-                        "yarn-env:YARN_NODEMANAGER_HEAPSIZE": "1024",
-                        "yarn:yarn.nodemanager.resource.memory-mb": "14336",
-                        "yarn:yarn.scheduler.maximum-allocation-mb": "14336",
-                        "yarn:yarn.scheduler.minimum-allocation-mb": "2048",
-                        "yarn:yarn.timeline-service.enabled": "false"
+                        "spark:spark.driver.memory": "5g",
+                        "spark:spark.default.parallelism": "2",
+                        "spark:spark.sql.debug.maxToStringFields": "300",
+                        "spark:spark.sql.legacy.parquet.datetimeRebaseModeInWrite": "CORRECTED",
+                        "hive:hive.optimize.sort.dynamic.partition": "true"
                     },
                     "optional_components": [
                         "JUPYTER",

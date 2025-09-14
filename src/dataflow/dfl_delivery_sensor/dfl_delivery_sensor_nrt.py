@@ -21,15 +21,14 @@ logging.basicConfig(
 # ******************************************************************************************************************** #
 #                                              Dataflow Pipeline                                                       #
 # ******************************************************************************************************************** #
-def pipeline_run(exec_mode:str, region:str, job_name:str,
-                    bkt_dataflow:str, project:str, dataset:str,
-                        table:str, subscription:str) -> None:
+def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, project:str, dataset:str,
+                 table:str, topics:str) -> None:
 
     PROJECT_ID      = project
     DATASET_ID      = dataset
-    TABLES_ID       = table
-    SUBSCRIPTION_ID = f"projects/{PROJECT_ID}/subscriptions/{subscription}"
-    BQ_SCHEMA       = get_schema_from_bigquery(PROJECT_ID, DATASET_ID, TABLES_ID)
+    TABLE_ID       = table
+    TOPIC_ID = f"projects/{PROJECT_ID}/topics/{topics}"
+    BQ_SCHEMA       = get_schema_from_bigquery(PROJECT_ID, DATASET_ID, TABLE_ID)
 
     options = \
         PipelineOptions(
@@ -39,11 +38,16 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,
             job_name                    = job_name,
             num_workers                 = 1,
             max_num_workers             = 2,
-            machine_type                = 'n2-standard-4',
-            worker_machine_type         = 'n2-standard-4',
+            machine_type                = 'n1-standard-2',
+            worker_machine_type         = 'n1-standard-2',
             staging_location            = f"gs://{bkt_dataflow}/staging",
             temp_location               = f"gs://{bkt_dataflow}/temp",
-            streaming                   = True
+            streaming                   = True,
+            experiments                 = [
+                                            'use_runner_v2',
+                                            'max_batch_size=10000'
+                                          ],
+            save_main_session           = True
         )
 
 
@@ -51,7 +55,7 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,
         get_messages = (
             p
             | 'Read from Pub/Sub' >> beam.io.ReadFromPubSub(
-                subscription    = SUBSCRIPTION_ID,
+                topic           = TOPIC_ID,
                 with_attributes = False
             )
             | 'Efficient Parse Message' >> ParDo(MessageParser())
@@ -60,18 +64,15 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,
         treat_the_data = (
             get_messages
             | 'Select the fields' >> ParDo(SelectFields())
-            | 'Filter the datas' >> beam.Filter(lambda x: x['status'] != 'in_route')
+            | 'Filter the datas' >> beam.Filter(lambda x: x.get('status') != 'in_route')
         )
 
-        whitelisted = (
-            treat_the_data
-                | 'Write to BigQuery' >> beam.io.WriteToBigQuery(
-                    table                   = f"{PROJECT_ID}.{DATASET_ID}.{TABLES_ID}",
-                    schema                  = BQ_SCHEMA,
-                    create_disposition      = beam.io.BigQueryDisposition.CREATE_NEVER,
-                    write_disposition       = beam.io.BigQueryDisposition.WRITE_APPEND,
-                    method                  = beam.io.WriteToBigQuery.Method.STREAMING_INSERTS
-                )
+        treat_the_data | 'Write to BigQuery' >> beam.io.WriteToBigQuery(
+            table                   = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}",
+            schema                  = BQ_SCHEMA,
+            create_disposition      = beam.io.BigQueryDisposition.CREATE_NEVER,
+            write_disposition       = beam.io.BigQueryDisposition.WRITE_APPEND,
+            method                  = beam.io.WriteToBigQuery.Method.STREAMING_INSERTS,
         )
 
 
@@ -126,10 +127,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--subscription",
+        "--topics",
         type=str,
         required=True,
-        help="Choose which subscription apache-beam will used!"
+        help="Choose which topics apache-beam will used!"
     )
 
     parser.add_argument(
@@ -163,5 +164,5 @@ if __name__ == "__main__":
             bkt_dataflow        = args.bkt_dataflow,
             dataset             = args.dataset,
             table               = args.table,
-            subscription        = args.subscription
+            topics              = args.topics
         )

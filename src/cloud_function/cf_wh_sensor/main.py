@@ -153,4 +153,3 @@ if __name__ == "__main__":
         "project_id": "mts-default-portofolio",
         "secret_id" : "ps_wh_sensor_access_authorization"
     })
-

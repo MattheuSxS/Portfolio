@@ -166,7 +166,6 @@ resource "google_storage_bucket_object" "spark_path_tb_feedback" {
 
 
 resource "null_resource" "bkt_compose_delete" {
-    depends_on = [google_composer_environment.portfolio-composer]
     triggers = {
         bucket_name = local.bkt_airflow
     }

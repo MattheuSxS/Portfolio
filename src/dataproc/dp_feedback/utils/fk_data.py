@@ -1,7 +1,7 @@
 import json
 import random
 from faker import Faker
-from datetime import datetime, timedelta
+from datetime import timedelta
 from faker.providers import DynamicProvider
 
 
@@ -75,7 +75,6 @@ class FkFeedback:
             rating = random.randint(1, 5)
             sentiment = random.choice(self.sentiment_words[rating])
             feedback = self.schema_feedback.copy()
-            fake_name = self.fake.name()
             feedback.update({
                 "feedback_id"       : f"FB##{self.fake.uuid4()}",
                 "type"              : random.choice(self.feedback_types),

@@ -1,8 +1,8 @@
 import time
 import random
-import datetime
 from faker import Faker
 from zoneinfo import ZoneInfo
+from datetime import datetime
 
 
 class FakeWhSensorData:

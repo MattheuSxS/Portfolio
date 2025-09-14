@@ -71,7 +71,7 @@ resource "null_resource" "dfl_run_delivery_job" {
             --project "${local.project}" \
             --dataset "${local.bq_dataset_staging}" \
             --table "${var.tb_delivery_status}_stage" \
-            --subscription "${var.pub_sub_wh_sensor_subs}" \
+            --topics "${local.pb_delivery_sensor_topic}" \
             --setup_file ${var.dfl_delivery_sensor_script_path}/setup.py \
             --template_location "gs://${local.bkt_dataflow}/template/${var.dfl_delivery_sensor_template}"
         EOT
@@ -101,7 +101,7 @@ resource "google_dataflow_job" "dfl_delivery_job" {
         bkt_dataflow     = local.bkt_dataflow
         dataset          = local.bq_dataset_staging
         table            = "${var.tb_delivery_status}_stage"
-        subscription     = local.pb_sub_delivery_sensor
+        topics           = local.pb_delivery_sensor_topic
     }
 
     on_delete = "cancel"
