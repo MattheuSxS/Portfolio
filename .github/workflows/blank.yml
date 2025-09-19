@@ -97,6 +97,36 @@ jobs:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
+      - name: 👨🏾‍🔧 Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            zip \
+            unzip
+
+      - name: 🐍 Install pyenv and Python
+        run: |
+            # Install pyenv
+            curl https://pyenv.run | bash
+
+            # Add pyenv to PATH and initialize it
+            echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+            echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+            echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+
+            # Source bashrc and install Python
+            source ~/.bashrc
+            pyenv install 3.11 -v
+            pyenv global 3.11
+
+            # Verify Python installation
+            python --version
+            pip --version
+
+      - name: 📦 Install Python dependencies
+        run: |
+            pip install -r ./src/requirements.txt
+
       - name: Terraform Deploy
         run: |
           cd ./configs/terraform

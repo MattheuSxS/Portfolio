@@ -5,14 +5,15 @@ LABEL mail="mattheusxs@gmail.com"
 LABEL description="This is a Docker image for Infrastructure as Code (IaC) tools."
 LABEL version="1.0"
 LABEL license="MIT"
-LABEL name="mattheusxs/tf_1.12.2-gcp_535.0.0"
-LABEL imagetag="1.0 ~~> linux/arm64 | 2.0 ~~> linux/amd64"
+LABEL name="mattheusxs/portfolio-iac"
+LABEL imagetag="1.0 ~~> linux/arm64 | latest ~~> linux/amd64"
 
 
 # Install dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     wget \
+    zip \
     unzip \
     curl \
     openssh-client \
@@ -23,8 +24,8 @@ RUN apt-get update && \
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-ENV TERRAFORM_VERSION=1.12.2
-ENV GOOGLE_CLOUD_SDK_VERSION=534.0.0
+ENV TERRAFORM_VERSION=1.13.3
+ENV GOOGLE_CLOUD_SDK_VERSION=539.0.0
 
 # Download and install Terraform
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
