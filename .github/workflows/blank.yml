@@ -99,20 +99,21 @@ jobs:
 
       - name: 🐍 Setup Python and Install Python dependencies
         run: |
-          . /opt/venv/bin/activate
-          pip install --upgrade pip
-          pip install -r ./src/requirements.txt
+            python3 -m venv /opt/venv
+            . /opt/venv/bin/activate
+            pip install --upgrade pip
+            pip install -r ./src/requirements.txt
 
 
       - name: Terraform Deploy
         run: |
-          cd ./configs/terraform
-          echo '🚧 Creating credentials file... 🚧'
-          echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
-          terraform init
-          terraform workspace select dev || terraform workspace new dev
-          terraform apply -auto-approve
-          echo "Whole Terraform configuration is applied successfully ✅"
+            cd ./configs/terraform
+            echo '🚧 Creating credentials file... 🚧'
+            echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
+            terraform init
+            terraform workspace select dev || terraform workspace new dev
+            terraform apply -auto-approve
+            echo "Whole Terraform configuration is applied successfully ✅"
 
       - name: 💁🏾‍♂️ Clean up
         run: rm -f ./configs/terraform/*.json
