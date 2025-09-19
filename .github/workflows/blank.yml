@@ -97,35 +97,12 @@ jobs:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
-      - name: 👨🏾‍🔧 Install dependencies
+      - name: 🐍 Setup Python and Install Python dependencies
         run: |
-            apt-get update
-            apt-get install -y \
-                zip \
-                unzip \
-                python3 \
-                python3-pip \
-                python3-venv
+          . /opt/venv/bin/activate
+          pip install --upgrade pip
+          pip install -r ./src/requirements.txt
 
-      - name: 🐍 Setup Python and create virtual environment
-        run: |
-            # Create symbolic links
-            ln -sf /usr/bin/python3 /usr/local/bin/python
-            ln -sf /usr/bin/pip3 /usr/local/bin/pip
-
-            # Verify Python installation
-            echo "Python version:"
-            python --version
-            echo "Pip version:"
-            pip --version
-
-            # Create virtual environment
-            python -m venv /opt/venv
-            . /opt/venv/bin/activate
-
-      - name: 📦 Install Python dependencies
-        run: |
-            pip install -r ./src/requirements.txt
 
       - name: Terraform Deploy
         run: |
