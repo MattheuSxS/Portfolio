@@ -103,6 +103,7 @@ jobs:
             . /opt/venv/bin/activate
             pip install --upgrade pip
             pip install -r ./src/requirements.txt
+            ln -sf /opt/venv/bin/python /usr/local/bin/python
 
 
       - name: Terraform Deploy
