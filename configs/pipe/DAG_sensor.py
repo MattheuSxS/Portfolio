@@ -80,7 +80,7 @@ def dummy(name:str) -> None:
         task_id=name,
     )
 
-def _call_cloud_function(data_dict:dict, cf_name:str) -> str:
+def _call_cf(data_dict:dict, cf_name:str) -> str:
     """
     Calls a Google Cloud Function using a POST request with curl.
 
@@ -119,7 +119,7 @@ def _call_cloud_function(data_dict:dict, cf_name:str) -> str:
     return f"Status: {result['status']} {result['body']}"
 
 
-def call_cloud_function(cf_name:str) -> str:
+def call_cf(cf_name:str) -> PythonOperator:
     """
         Creates and returns a PythonOperator to call a specified Cloud Function.
 
@@ -134,7 +134,7 @@ def call_cloud_function(cf_name:str) -> str:
     """
 
     return PythonOperator(
-        python_callable=_call_cloud_function,
+        python_callable=_call_cf,
         task_id=cf_name,
         op_kwargs={
             'data_dict': VAR_CLOUD_FUNCTION[cf_name],
@@ -149,6 +149,6 @@ with DAG(dag_id=__artefact__, start_date=default_args['start_date'], **dag_kwarg
 
     dummy("Start") >> \
         [
-            call_cloud_function("cf-wh-sensor"),
-            call_cloud_function("cf-delivery-sensor")
+            call_cf("cf-wh-sensor"),
+            call_cf("cf-delivery-sensor")
         ] >> dummy("End")

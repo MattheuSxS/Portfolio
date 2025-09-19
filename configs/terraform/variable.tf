@@ -11,16 +11,6 @@ variable "project_id" {
     type    = map(string)
 }
 
-variable "project_data_tools" {
-    description = "Project name for data tools"
-    type        = map(string)
-}
-
-variable "project_data_tools_id" {
-    description = "Project id number for data tools"
-    type    = map(string)
-}
-
 variable "region" {
     description = "where the resources will be created"
     type        = string
@@ -279,7 +269,10 @@ variable "sp_merge_delivery_status" {
     type        = string
 }
 
-
+variable "sp_delete_delivery_status" {
+    description = "Stored procedure for deleting old delivery status"
+    type        = string
+}
 #   ********************************************************************************************************    #
 #                                                   Pub/Sub                                                     #
 #   ********************************************************************************************************    #

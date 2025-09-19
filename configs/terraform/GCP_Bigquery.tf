@@ -244,7 +244,7 @@ resource "google_bigquery_routine" "sp_merge_delivery_status" {
                     FROM
                         `${local.project}.${local.bq_dataset_raw}.tb_raw_delivery_sensor`
                     WHERE
-                        DATE(publish_time, 'Europe/Dublin') = CURRENT_DATE('Europe/Dublin')
+                        DATE(publish_time) = CURRENT_DATE()
                     QUALIFY
                         ROW_NUMBER() OVER (PARTITION BY delivery_id ORDER BY remaining_distance_km DESC) = 1
                 );
@@ -302,6 +302,23 @@ resource "google_bigquery_routine" "sp_merge_delivery_status" {
                         COALESCE(S.created_at, CURRENT_TIMESTAMP()),
                         COALESCE(S.updated_at, CURRENT_TIMESTAMP())
                     );
+            COMMIT TRANSACTION;
+        END;
+    EOT
+}
+
+
+resource "google_bigquery_routine" "sp_delete_delivery_status" {
+    project         = local.project
+    dataset_id      = local.bq_dataset_ls_customers
+    routine_id      = var.sp_delete_delivery_status
+    routine_type    = "PROCEDURE"
+    language        = "SQL"
+    definition_body = <<-EOT
+        BEGIN
+            BEGIN TRANSACTION;
+                DELETE FROM `${local.project}.${local.bq_dataset_staging}.tb_delivery_status_stage`
+                WHERE DATE(created_at) < DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);
             COMMIT TRANSACTION;
         END;
     EOT

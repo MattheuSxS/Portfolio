@@ -1,7 +1,7 @@
 #TODO: I must finished it between the days 19/20
 import uuid
 import random
-from zoneinfo import ZoneInfo
+
 from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 from datetime import datetime, timedelta
@@ -79,7 +79,7 @@ def _generate_random_date() -> datetime:
             datetime: A randomly generated datetime object between now and 180 days ago.
     """
     days_ago = random.randint(0, 180)
-    return datetime.now(ZoneInfo('Europe/Dublin')) - timedelta(days=days_ago)
+    return datetime.now() - timedelta(days=days_ago)
 
 
 def _generate_peak_season_multiplier() -> float:

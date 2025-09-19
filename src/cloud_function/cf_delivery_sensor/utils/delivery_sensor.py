@@ -4,7 +4,6 @@ import math
 import random
 import logging
 from typing import List
-from zoneinfo import ZoneInfo
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -82,8 +81,8 @@ class DeliverySystem():
         """
     def __init__(self, project_id: str, topic_id: str, client_list: List[List] = None, vehicle_list: List[List] = None):
         self.publisher = HighThroughputPublisher(project_id, topic_id)
-        self.clients = self._generate_clients(client_list)
-        self.vehicles = self._generate_fleet(vehicle_list)
+        self.clients = [Client(*client_data) for client_data in client_list]
+        self.vehicles = [Vehicle(*vehicle_data) for vehicle_data in vehicle_list]
         self.deliveries = []
         self.history = []
         self.STATUS = ['delivered', 'not_delivered', 'wrong_address', 'other_problems']
@@ -91,43 +90,6 @@ class DeliverySystem():
 
         self.DELIVERY_DIFFICULTY = ['easy', 'medium', 'hard']
         self.DELIVERY_DIFFICULTY_PROBABILITIES = [0.70, 0.20, 0.10]
-
-
-    def _generate_clients(self, client_list: List[List] = None) -> List[Client]:
-        """
-            Generate a list of Client objects from client data.
-
-            Args:
-                client_list (List[List], optional): A list of lists where each inner list
-                    contains the data needed to instantiate a Client object. Defaults to None.
-
-            Returns:
-                List[Client]: A list of Client objects created from the provided client data.
-
-            Raises:
-                TypeError: If client_list contains data that cannot be unpacked for Client instantiation.
-        """
-        return [Client(*client_data) for client_data in client_list]
-
-
-    def _generate_fleet(self, vehicle_list: List[List] = None) -> List[Vehicle]:
-        """
-        Generate a fleet of Vehicle objects from a list of vehicle data.
-
-        Args:
-            vehicle_list (List[List], optional): A list containing vehicle data where each
-                inner list contains the parameters needed to initialize a Vehicle object.
-                Defaults to None.
-
-        Returns:
-            List[Vehicle]: A list of Vehicle objects created from the provided vehicle data.
-
-        Raises:
-            TypeError: If vehicle_list contains invalid data types for Vehicle initialization.
-            ValueError: If vehicle_data doesn't contain the required parameters for Vehicle.
-        """
-        return [Vehicle(*vehicle_data) for vehicle_data in vehicle_list]
-
 
     def calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """
@@ -197,7 +159,7 @@ class DeliverySystem():
             status="in_route",
             vehicle=vehicle,
             difficulty=random.choices(self.DELIVERY_DIFFICULTY, weights=self.DELIVERY_DIFFICULTY_PROBABILITIES, k=1)[0],
-            timestamp=datetime.now(ZoneInfo('Europe/Dublin')).isoformat(),
+            timestamp=datetime.now().isoformat(),
             remaining_distance=self.calculate_distance(
                 vehicle.latitude, vehicle.longitude,
                 client.latitude, client.longitude
@@ -247,7 +209,7 @@ class DeliverySystem():
 
             if delivery.remaining_distance <= 0.1:  # 100m tolerance
                 delivery.status = random.choices(self.STATUS, weights=self.STATUS_PROBABILITIES, k=1)[0]
-                delivery.timestamp = datetime.now(ZoneInfo('Europe/Dublin')).isoformat()
+                delivery.timestamp = datetime.now().isoformat()
 
                 entry = {
                     "delivery_id":           delivery.id,
@@ -294,7 +256,7 @@ class DeliverySystem():
                 - Logs an info message with processing timestamp and delivery count
                 - Publishes bulk messages to self.publisher with delivery status data
         """
-        timestamp = datetime.now(ZoneInfo('Europe/Dublin'))
+        timestamp = datetime.now()
         logging.info(f"⏰ {timestamp.strftime('%H:%M:%S')} - Processing {len(self.deliveries):,} deliveries")
 
         if not self.deliveries:

@@ -1,6 +1,6 @@
 import re
 import logging
-from zoneinfo import ZoneInfo
+
 from datetime import datetime
 
 
@@ -96,7 +96,7 @@ def add_columns(data_list: list) -> list[dict[str, dict]]:
             list[dict[str, dict]]: The modified list with updated and additional columns for each item.
     """
 
-    current_time = datetime.now(ZoneInfo('Europe/Dublin')).strftime('%Y-%m-%d %H:%M:%S')
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     def process_item(item):
         customer = item['customers']

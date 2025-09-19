@@ -45,8 +45,8 @@ logging.basicConfig(
 # ====================================================================================================================================
 __artefact__    = "DAG_etl_ls"
 __start_job__   = datetime.now() - timedelta(days=1)
-__description__ = "This DAG is responsible for extracting data from a source, processing \
-                    it with PySpark, and loading it into a destination."
+__description__ = "This DAG is responsible for extracting data from a feature source, processing \
+                    it with PySpark/Cloud Dataflow/Cloud Function/Bigquery, and loading it into a destination."
 
 
 # ====================================================================================================================================
@@ -82,7 +82,7 @@ dag_kwargs = dict(
     description         = __description__,
     schedule_interval   = __env_var__['schedule_interval'],
     catchup             = False,
-    concurrency         = 2,
+    concurrency         = 3,
     tags                = ["MTS - Pipeline"],
 )
 
@@ -158,13 +158,13 @@ def call_cf(cf_name:str) -> PythonOperator:
         }
     )
 
-def bq_merge_delivery() -> bigquery.BigQueryInsertJobOperator:
-        __env_var__['bigquery_sql']['merge_delivery']['query']['query'] = \
-            __env_var__['bigquery_sql']['merge_delivery']['query']['query'].format(
+def bq_procedure_exec(table:str) -> bigquery.BigQueryInsertJobOperator:
+        __env_var__['bigquery_sql'][table]['query']['query'] = \
+            __env_var__['bigquery_sql'][table]['query']['query'].format(
                 VAR_PRJ_NAME=VAR_PRJ_NAME)
         return bigquery.BigQueryInsertJobOperator(
-            task_id="bq_merge_delivery",
-            configuration=__env_var__['bigquery_sql']['merge_delivery'],
+            task_id=f"bq_{table}",
+            configuration=__env_var__['bigquery_sql'][table],
             location=__env_var__['region'],
             project_id=VAR_PRJ_NAME,
         )
@@ -197,7 +197,7 @@ def get_pyspark_job_config(cfg, task_id) -> dict:
 # ====================================================================================================================================
 #                                                    ~~~~> Variaveis DataProc <~~~~                                                  #
 # ====================================================================================================================================
-def select_dataproc_job(job_name: str, data_dict:dict = {}) -> dict:
+def select_dataproc_job(job_name: str, **kwargs: dict) -> dict:
     """
         Selects and returns the necessary variables for configuring a Dataproc cluster and job.
 
@@ -212,25 +212,13 @@ def select_dataproc_job(job_name: str, data_dict:dict = {}) -> dict:
                 - "secret_id" (str): The secret ID for accessing sensitive data.
     """
 
-    select_var = {
-        "tb_order":\
-            {
-                "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/spark_job_{job_name}.py",
-                "args": __env_var__['dataproc_tables'][job_name]['args'],
-                "jar_file_uris": [],
-                "python_file_uris": [f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/utils.zip"],
-            },
-
-        "tb_feedback": {
+    return \
+        {
             "main_python_file_uri": f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/spark_job_{job_name}.py",
             "args": __env_var__['dataproc_tables'][job_name]['args'],
             "jar_file_uris": [],
             "python_file_uris": [f"gs://{VAR_DP_BUCKET}/spark_job_{job_name}/utils.zip"],
         }
-    }
-
-
-    return select_var[job_name]
 
 
 def cluster_config(job_name: str = None) -> dict:
@@ -332,7 +320,6 @@ def spark_submit_job(job_name: str) -> DataprocSubmitJobOperator:
             - Uses global variables `VAR_DP_PRJ_REGION` and `VAR_DP_PROJECT_ID` for region and project ID.
     """
 
-    # data_dict = cluster_config()
     return \
         DataprocSubmitJobOperator(
             task_id             = f"spark_submit_{job_name}_job",
@@ -377,21 +364,14 @@ def delete_dataproc_cluster() -> DataprocDeleteClusterOperator:
 # ====================================================================================================================================
 with DAG(dag_id=__artefact__, start_date=default_args['start_date'], **dag_kwargs):
 
-    # ************************************************************************************************** #
-    #                                    ~~~~> Pipe Definition <~~~~                                     #
-    # ************************************************************************************************** #
-
-
-    # ************************************************************************************************** #
-    #                                    ~~~~> Start Pipeline <~~~~                                      #
-    # ************************************************************************************************** #
     dummy('Start') >> [
         call_cf("cf-customers"),
         call_cf("cf-products-inventory")
         ] >> create_dataproc_cluster() >> \
             spark_submit_job("tb_order") >> \
                 call_cf("cf-delivery-sensor") >> \
-                    bq_merge_delivery() >> \
-                        spark_submit_job("tb_feedback") >> \
-                            delete_dataproc_cluster() >> \
-                                dummy('End')
+                    bq_procedure_exec("delete_delivery_status") >> \
+                        bq_procedure_exec("merge_delivery") >> \
+                            spark_submit_job("tb_feedback") >> \
+                                delete_dataproc_cluster() >> \
+                                    dummy('End')
