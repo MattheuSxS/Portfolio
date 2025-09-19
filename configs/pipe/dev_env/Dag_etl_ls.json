@@ -18,7 +18,7 @@
             },
             "delete_delivery_status": {
                 "query": {
-                    "query": "CALL `{VAR_PRJ_NAME}.staging.sp_delete_delivery_status`();",
+                    "query": "CALL `{VAR_PRJ_NAME}.ls_customers.sp_delete_delivery_status`();",
                     "priority": "BATCH",
                     "useLegacySql": false,
                     "dependOnPast": false

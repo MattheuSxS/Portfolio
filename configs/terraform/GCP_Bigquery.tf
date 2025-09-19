@@ -317,8 +317,20 @@ resource "google_bigquery_routine" "sp_delete_delivery_status" {
     definition_body = <<-EOT
         BEGIN
             BEGIN TRANSACTION;
-                DELETE FROM `${local.project}.${local.bq_dataset_staging}.tb_delivery_status_stage`
-                WHERE DATE(created_at) < DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY);
+
+                DELETE FROM
+                    `${local.project}.${local.bq_dataset_staging}.tb_delivery_status_stage`
+                WHERE
+                    DATE(created_at) <= DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+                AND delivery_id IN (
+                    SELECT
+                        delivery_id
+                    FROM
+                        `${local.project}.${local.bq_dataset_ls_customers}.tb_delivery_status`
+                    WHERE
+                        DATE(created_at) <= DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+                );
+
             COMMIT TRANSACTION;
         END;
     EOT
