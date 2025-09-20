@@ -196,3 +196,54 @@ resource "google_cloudfunctions2_function" "cf_delivery_sensor" {
     ]
   }
 }
+
+
+#   ********************************************************************************************************    #
+#                                          Cloud Function Sentiment Analysis                                      #
+#   ********************************************************************************************************    #
+data "archive_file" "cf_path_sentiment_analysis_files" {
+  type        = "zip"
+  source_dir  = "../../src/cloud_function/${var.cf_sentiment_analysis}/"
+  output_path = "../../src/cloud_function/${var.cf_sentiment_analysis}/index.zip"
+}
+
+
+resource "google_cloudfunctions2_function" "cf_sentiment_analysis" {
+  project       = local.project
+  location      = var.region
+  name          = var.cf_sentiment_analysis
+  description   = "It will be triggered via airflow and will send data to the pub/sub"
+
+  build_config {
+    runtime     = "python311"
+    entry_point = "main"
+    source {
+      storage_source {
+        bucket = local.bkt_cf_portfolio
+        object = google_storage_bucket_object.cf_sentiment_analysis_files.name
+      }
+    }
+  }
+
+  labels = {
+    "created_by": "terraform",
+    "env": var.environment
+  }
+
+  service_config {
+    min_instance_count    = 1
+    max_instance_count    = 2
+    available_cpu         = 3
+    available_memory      = "512M"
+    timeout_seconds       = 3000
+    service_account_email = local.sa_cf_default
+    ingress_settings      = "ALLOW_ALL"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      build_config,
+      service_config,
+    ]
+  }
+}

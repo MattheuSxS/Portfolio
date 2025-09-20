@@ -112,6 +112,20 @@ resource "google_storage_bucket_object" "cf_products_inventory_files" {
 }
 
 
+resource "google_storage_bucket_object" "cf_sentiment_analysis_files" {
+    name            = "${var.cf_sentiment_analysis}/index.zip"
+    bucket          = "${local.bkt_cf_portfolio}"
+    source          = data.archive_file.cf_path_sentiment_analysis_files.output_path
+    content_type    = "application/zip"
+
+    lifecycle {
+        ignore_changes = [
+        source_md5hash,
+        ]
+    }
+}
+
+
 resource "google_storage_bucket_object" "airflow_dags" {
     for_each        = fileset("../pipe/", "**.py")
     name            = "dags/${each.value}"
@@ -140,7 +154,7 @@ resource "google_storage_bucket_object" "spark_job_tb_order" {
 
 
 resource "google_storage_bucket_object" "spark_path_tb_order" {
-    depends_on = [null_resource.spark_path_tb_order1]
+    depends_on = [null_resource.spark_path_tb_order]
     name            = "${var.spark_job_tb_order}/utils.zip"
     bucket          = local.bkt_dataproc
     content_type    = "application/zip"

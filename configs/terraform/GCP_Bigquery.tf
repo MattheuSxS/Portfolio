@@ -226,6 +226,50 @@ resource "google_bigquery_table" "tb_delivery_status_stage" {
 }
 
 
+#   ********************************************************************************************************   #
+#                                                 BigQuery  Connections                                        #
+#   ********************************************************************************************************   #
+resource "google_bigquery_connection" "cf_sentiment_analysis" {
+    connection_id = var.cf_sentiment_analysis
+    project       = local.project
+    location      = "us-east1"
+    description   =  "Connection for the Cloud Function to access BigQuery"
+    friendly_name = "cf_sentiment_analysis_connection"
+    cloud_resource {}
+}
+
+
+#   ********************************************************************************************************   #
+#                                                 BigQuery Functions                                           #
+#   ********************************************************************************************************   #
+resource "google_bigquery_routine" "sentiment_analysis" {
+    project      = local.project
+    dataset_id   = local.bq_dataset_production
+    routine_id   = "sentiment_analysis"
+    routine_type = "SCALAR_FUNCTION"
+    language     = "SQL"
+    definition_body = ""
+
+  arguments {
+        name      = "text"
+        data_type = "{\"typeKind\" :  \"STRING\"}"
+  }
+
+  return_type = "{\"typeKind\" :  \"JSON\"}"
+
+  remote_function_options {
+    connection    = google_bigquery_connection.cf_sentiment_analysis.id
+    endpoint      = google_cloudfunctions2_function.cf_sentiment_analysis.service_config[0].uri
+    max_batching_rows = 100
+  }
+
+  description = "Function to perform sentiment analysis using Cloud Function"
+}
+
+
+#   ********************************************************************************************************   #
+#                                                 BigQuery  Procedures                                         #
+#   ********************************************************************************************************   #
 resource "google_bigquery_routine" "sp_merge_delivery_status" {
     project         = local.project
     dataset_id      = local.bq_dataset_ls_customers
@@ -335,3 +379,4 @@ resource "google_bigquery_routine" "sp_delete_delivery_status" {
         END;
     EOT
 }
+

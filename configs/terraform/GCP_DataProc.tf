@@ -1,4 +1,4 @@
-resource "null_resource" "spark_path_tb_order1" {
+resource "null_resource" "spark_path_tb_order" {
   provisioner "local-exec" {
     command = <<EOT
       cd ../../src/dataproc/dp_order/

@@ -1,6 +1,6 @@
 {
     "DAG_etl_ls": {
-        "schedule_interval": "30 7 * * *",
+        "schedule_interval": "0 */1 * * *",
         "retries": 2,
         "retry_delay": 15,
         "dagrun_timeout": 30,

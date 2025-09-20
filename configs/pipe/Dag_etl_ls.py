@@ -17,7 +17,7 @@ import logging
 import subprocess
 from airflow import DAG
 from airflow.models import Variable
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 from google.protobuf.duration_pb2 import Duration
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.trigger_rule import TriggerRule
@@ -364,14 +364,18 @@ def delete_dataproc_cluster() -> DataprocDeleteClusterOperator:
 # ====================================================================================================================================
 with DAG(dag_id=__artefact__, start_date=default_args['start_date'], **dag_kwargs):
 
+    bq_merge_delivery = bq_procedure_exec("merge_delivery")
+
     dummy('Start') >> [
         call_cf("cf-customers"),
         call_cf("cf-products-inventory")
         ] >> create_dataproc_cluster() >> \
             spark_submit_job("tb_order") >> \
                 call_cf("cf-delivery-sensor") >> \
-                    bq_procedure_exec("delete_delivery_status") >> \
-                        bq_procedure_exec("merge_delivery") >> \
-                            spark_submit_job("tb_feedback") >> \
-                                delete_dataproc_cluster() >> \
-                                    dummy('End')
+                    bq_merge_delivery >> \
+                        spark_submit_job("tb_feedback") >> \
+                            delete_dataproc_cluster() >> \
+                                dummy('End')
+
+    if datetime.now().time() >= time(7, 0):
+        bq_procedure_exec("delete_delivery_status") >> bq_merge_delivery

@@ -56,3 +56,14 @@ resource "google_project_iam_member" "roles_sa_default_compute" {
     role    = var.roles_sa_default_compute[count.index]
     member  = "serviceAccount:${local.project_id}-compute@developer.gserviceaccount.com"
 }
+
+resource "google_cloud_run_service_iam_binding" "cf_invoker" {
+  project  = local.project
+  service  = replace(google_cloudfunctions2_function.cf_sentiment_analysis.name, "_", "-")
+  location = var.region
+  role     = "roles/run.invoker"
+
+  members = [
+    "serviceAccount:${local.sa_bq_connect}",
+  ]
+}

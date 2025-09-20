@@ -5,18 +5,14 @@ locals {
     bkt_cf_portfolio    = google_storage_bucket.bucket[0].name
     bkt_dataflow        = google_storage_bucket.bucket[1].name
     bkt_dataproc        = google_storage_bucket.bucket[2].name
-    # bkt_airflow         = replace(replace(google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix, "gs://", ""), "/dags", "")
-    #TODO: I must test it
-    bkt_airflow = regex("gs://([^/]+)/dags", google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix)[0]
-    # bkt_airflow = replace(google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix, "gs://|/dags", "")
-
-
+    bkt_airflow         = regex("gs://([^/]+)/dags", google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix)[0]
 
     sa_composer                 = google_service_account.creating_sa[0].email
     sa_pubsub                   = google_service_account.creating_sa[1].email
     sa_dataflow                 = google_service_account.creating_sa[2].email
     sa_cf_default               = google_service_account.creating_sa[3].email
     sa_cf_pb_sensor             = google_service_account.creating_sa[4].email
+    sa_bq_connect               = google_bigquery_connection.cf_sentiment_analysis.cloud_resource[0].service_account_id
 
     bq_dataset_raw              = google_bigquery_dataset.bq_dataset[0].dataset_id
     bq_dataset_staging          = google_bigquery_dataset.bq_dataset[1].dataset_id
