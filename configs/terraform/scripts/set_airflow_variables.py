@@ -92,7 +92,7 @@ def set_airflow_variables(bucket_name, prefix):
       logging.error(f"Error setting variables from file '{file_name}' - {e}")
 
 
-bucket_name = "us-east1-mts-portfolio-airf-7867230a-bucket"
+bucket_name = "us-east1-mts-portfolio-airf-7dc07bcc-bucket"
 prefix = "variables/"
 
 set_airflow_variables(bucket_name, prefix)

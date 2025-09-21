@@ -226,6 +226,11 @@ variable "tb_feedback" {
     type        = string
 }
 
+variable "tb_feedback_sentiment" {
+    description = "Table with feedback sentiment analysis"
+    type        = string
+}
+
 variable "tb_customers" {
     description = "Table with customer information"
     type        = string
@@ -276,6 +281,11 @@ variable "sp_merge_delivery_status" {
 
 variable "sp_delete_delivery_status" {
     description = "Stored procedure for deleting old delivery status"
+    type        = string
+}
+
+variable "sp_feedback_sentiment" {
+    description = "Stored procedure for sentiment analysis on feedback"
     type        = string
 }
 #   ********************************************************************************************************    #

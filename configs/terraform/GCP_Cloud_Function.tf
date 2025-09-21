@@ -233,8 +233,7 @@ resource "google_cloudfunctions2_function" "cf_sentiment_analysis" {
   service_config {
     min_instance_count    = 1
     max_instance_count    = 2
-    available_cpu         = 3
-    available_memory      = "512M"
+    available_memory      = "3Gi"
     timeout_seconds       = 3000
     service_account_email = local.sa_cf_default
     ingress_settings      = "ALLOW_ALL"

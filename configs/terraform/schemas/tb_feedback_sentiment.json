@@ -1,0 +1,32 @@
+[
+    {
+        "name": "feedback_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the feedback entry."
+    },
+    {
+        "name": "feeling_score",
+        "type": "FLOAT64",
+        "mode": "REQUIRED",
+        "description": "Sentiment score of the feedback."
+    },
+    {
+        "name": "feeling_magnitude",
+        "type": "FLOAT64",
+        "mode": "REQUIRED",
+        "description": "Magnitude of the sentiment expressed in the feedback."
+    },
+    {
+        "name": "created_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the feedback Sentiment was created."
+    },
+    {
+        "name": "updated_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the feedback Sentiment was last updated."
+    }
+]

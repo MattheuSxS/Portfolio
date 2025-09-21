@@ -179,15 +179,15 @@ resource "google_storage_bucket_object" "spark_path_tb_feedback" {
 }
 
 
-resource "null_resource" "bkt_compose_delete" {
-    triggers = {
-        bucket_name = local.bkt_airflow
-    }
+# resource "null_resource" "bkt_compose_delete" {
+#     triggers = {
+#         bucket_name = local.bkt_airflow
+#     }
 
-    provisioner "local-exec" {
-        when    = destroy
-        command = <<-EOT
-        gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
-        EOT
-    }
-}
+#     provisioner "local-exec" {
+#         when    = destroy
+#         command = <<-EOT
+#         gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
+#         EOT
+#     }
+# }

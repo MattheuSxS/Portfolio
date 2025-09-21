@@ -1,3 +1,4 @@
+import json
 import logging
 from flask import jsonify
 import functions_framework
@@ -16,40 +17,31 @@ logging.basicConfig(
 
 
 # ******************************************************************************************************************** #
-#                                               Auxiliary Function                                                     #
-# ******************************************************************************************************************** #
-
-
-# ******************************************************************************************************************** #
 #                                               Main function                                                          #
 # ******************************************************************************************************************** #
 @functions_framework.http
-def main(request: dict) -> dict:
-
+def main(request):
     try:
-
-        if type(request) != dict:
+        if not isinstance(request, dict):
             request_json = request.get_json(silent=True)
         else:
             request_json = request
 
-        if not request_json or 'calls' not in request_json:
+        if not request_json or "calls" not in request_json:
             raise ValueError('Request must contain "calls".')
 
         logging.info(f"Received request with {len(request_json['calls'])} calls")
 
         replies = analyze_sentiment(request_json)
 
-
     except Exception as e:
-        logging.exception("Error processing request")
-        return jsonify( { "errorMessage": str(e) } ), 400
+        logging.error("Error processing request")
+        return jsonify({"replies": [{"error": str(e)}]}), 500
 
-    return jsonify( { "replies" :  replies } )
+    return replies
 
 
 if __name__ == "__main__":
 
-    print(
-        main({"calls": [["I love it so much!"], ["I hate this product!"]]})
-    )
+    test_req = {"calls": [["I love it so much!"], ["I hate this product!"]]}
+    print(main(test_req))
