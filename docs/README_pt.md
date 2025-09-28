@@ -3,8 +3,6 @@
 
 ## Objetivo 💁🏾‍♂️ --> 🇧🇷
 
-O objetivo do projeto prático é avaliar sua capacidade de descrever a solução para um determinado problema.
-
 
 ## Instruções a seguir ‼️
 
@@ -85,4 +83,4 @@ Descreva o que voçê faria para integrar todos os dados da empresa para fazer p
 
 | Versão Do Document |        Editor      |    Data    |  Percentage Complete  |
 |        :---:       |        :---:       |    :---:   |         :---:         |
-|        0.1.0       | Matheus S. Silva   | 2024-04-15 |          85%          |
+|        0.2.0       | Matheus S. Silva   | 2025-09-28 |          85%          |
