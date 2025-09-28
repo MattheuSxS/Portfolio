@@ -26,14 +26,31 @@ class BigQuery:
 
     def batch_load_from_memory(self, data: list[dict], dataset: str, table: str) -> None:
         """
-        Versão otimizada para carga de grandes volumes no BigQuery.
+            Loads a list of dictionaries into a BigQuery table in a single batch.
+
+            This method converts the provided data into a newline-delimited JSON (NDJSON)
+            format, creates an in-memory file-like object, and then uses the BigQuery
+            `load_table_from_file` method for an efficient batch insertion. The job is
+            configured to append data to an existing table and will not create the table
+            if it doesn't exist. It polls the job's status until completion and logs
+            the outcome.
+
+            Args:
+                data (list[dict]): A list of dictionaries, where each dictionary
+                    represents a row to be inserted into the BigQuery table.
+                dataset (str): The ID of the BigQuery dataset.
+                table (str): The ID of the BigQuery table to which data will be loaded.
+
+            Raises:
+                Exception: If there is an error converting the data to NDJSON format
+                    or if the BigQuery load job fails for any reason.
         """
         table_id = f"{self.project}.{dataset}.{table}"
         logging.info(f"Starting optimized batch load to {table_id}...")
 
-        # Otimização 1: Geração eficiente de NDJSON
+        
         try:
-            # Usando join + generator expression (mais eficiente em memória)
+            
             ndjson_content = '\n'.join(json.dumps(row) for row in data)
             memory_file = io.BytesIO(ndjson_content.encode('utf-8'))
 
@@ -41,28 +58,27 @@ class BigQuery:
             logging.error(f"Error converting data to NDJSON: {e}")
             raise
 
-        # Otimização 2: Configuração otimizada para performance
+
         job_config = bigquery.LoadJobConfig(
             source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
             write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
             create_disposition=bigquery.CreateDisposition.CREATE_NEVER,
             autodetect=False,
-            max_bad_records=10,  # Permite alguns registros inválidos sem falhar
+            max_bad_records=10,
         )
 
         try:
-            # Otimização 3: Timeout configurável e retry policy
+
             load_job = self.client.load_table_from_file(
                 memory_file,
                 table_id,
                 job_config=job_config,
-                timeout=300  # 5 minutos timeout
+                timeout=300
             )
 
-            # Otimização 4: Não usar result() que é bloqueante para jobs muito grandes
-            # Em vez disso, verifica periodicamente
+
             while load_job.state != 'DONE':
-                time.sleep(3)  # Verifica a cada 3 segundos
+                time.sleep(3)
                 load_job.reload()
 
                 if load_job.errors:

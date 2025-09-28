@@ -255,29 +255,29 @@ resource "google_bigquery_connection" "cf_sentiment_analysis" {
 #   ********************************************************************************************************   #
 #                                                 BigQuery Functions                                           #
 #   ********************************************************************************************************   #
-resource "google_bigquery_routine" "sentiment_analysis" {
-    project      = local.project
-    dataset_id   = local.bq_dataset_production
-    routine_id   = "sentiment_analysis"
-    routine_type = "SCALAR_FUNCTION"
-    language     = "SQL"
-    definition_body = ""
+# resource "google_bigquery_routine" "sentiment_analysis" {
+#     project      = local.project
+#     dataset_id   = local.bq_dataset_production
+#     routine_id   = "sentiment_analysis"
+#     routine_type = "SCALAR_FUNCTION"
+#     language     = "SQL"
+#     definition_body = ""
 
-  arguments {
-        name      = "text"
-        data_type = "{\"typeKind\" :  \"STRING\"}"
-  }
+#   arguments {
+#         name      = "text"
+#         data_type = "{\"typeKind\" :  \"STRING\"}"
+#   }
 
-  return_type = "{\"typeKind\" :  \"JSON\"}"
+#   return_type = "{\"typeKind\" :  \"JSON\"}"
 
-  remote_function_options {
-    connection          = google_bigquery_connection.cf_sentiment_analysis.id
-    endpoint            = google_cloudfunctions2_function.cf_sentiment_analysis.service_config[0].uri
-    max_batching_rows   = 2000
-  }
+#   remote_function_options {
+#     connection          = google_bigquery_connection.cf_sentiment_analysis.id
+#     endpoint            = google_cloudfunctions2_function.cf_sentiment_analysis.service_config[0].uri
+#     max_batching_rows   = 2000
+#   }
 
-  description = "Function to perform sentiment analysis using Cloud Function"
-}
+#   description = "Function to perform sentiment analysis using Cloud Function"
+# }
 
 
 #   ********************************************************************************************************   #
@@ -393,49 +393,49 @@ resource "google_bigquery_routine" "sp_delete_delivery_status" {
     EOT
 }
 
-resource "google_bigquery_routine" "sp_feedback_sentiment" {
-    project         = local.project
-    dataset_id      = local.bq_dataset_production
-    routine_id      = var.sp_feedback_sentiment
-    routine_type    = "PROCEDURE"
-    language        = "SQL"
-    definition_body = <<-EOT
-        BEGIN
-            INSERT INTO `${local.project}.${local.bq_dataset_production}.tb_feedback_sentiment` (
-                feedback_id,
-                feeling_score,
-                feeling_magnitude,
-                created_at,
-                updated_at
-            )
-            WITH feedback_with_analysis AS (
-                SELECT
-                    f.feedback_id,
-                    f.created_at,
-                    sa.score AS feeling_score,
-                    sa.magnitude AS feeling_magnitude,
-                    -- Gera um ID para manter a ordem antes e depois da chamada da API
-                    ROW_NUMBER() OVER (ORDER BY f.feedback_id) AS rn
-                FROM
-                    `${local.project}.${local.bq_dataset_production}.tb_feedback` AS f,
-                    -- Chama a função UMA VEZ com um array de todos os comentários
-                    UNNEST(
-                        `${local.project}.${local.bq_dataset_production}.sentiment_analysis`(
-                            (SELECT ARRAY_AGG(comment) FROM `${local.project}.${local.bq_dataset_production}.tb_feedback`)
-                        )
-                    ) WITH OFFSET AS sa_offset -- Pega o resultado da API e seu índice
-                -- Junta o feedback original com o resultado da análise pelo índice
-                WHERE
-                    ROW_NUMBER() OVER (ORDER BY f.feedback_id) = sa_offset + 1
-            )
-            SELECT
-                feedback_id,
-                CAST(feeling_score AS FLOAT64),
-                CAST(feeling_magnitude AS FLOAT64),
-                created_at,
-                CURRENT_TIMESTAMP() AS updated_at
-            FROM
-                feedback_with_analysis;
-        END;
-    EOT
-}
+# resource "google_bigquery_routine" "sp_feedback_sentiment" {
+#     project         = local.project
+#     dataset_id      = local.bq_dataset_production
+#     routine_id      = var.sp_feedback_sentiment
+#     routine_type    = "PROCEDURE"
+#     language        = "SQL"
+#     definition_body = <<-EOT
+#         BEGIN
+#             INSERT INTO `${local.project}.${local.bq_dataset_production}.tb_feedback_sentiment` (
+#                 feedback_id,
+#                 feeling_score,
+#                 feeling_magnitude,
+#                 created_at,
+#                 updated_at
+#             )
+#             WITH feedback_with_analysis AS (
+#                 SELECT
+#                     f.feedback_id,
+#                     f.created_at,
+#                     sa.score AS feeling_score,
+#                     sa.magnitude AS feeling_magnitude,
+#                     -- Gera um ID para manter a ordem antes e depois da chamada da API
+#                     ROW_NUMBER() OVER (ORDER BY f.feedback_id) AS rn
+#                 FROM
+#                     `${local.project}.${local.bq_dataset_production}.tb_feedback` AS f,
+#                     -- Chama a função UMA VEZ com um array de todos os comentários
+#                     UNNEST(
+#                         `${local.project}.${local.bq_dataset_production}.sentiment_analysis`(
+#                             (SELECT ARRAY_AGG(comment) FROM `${local.project}.${local.bq_dataset_production}.tb_feedback`)
+#                         )
+#                     ) WITH OFFSET AS sa_offset -- Pega o resultado da API e seu índice
+#                 -- Junta o feedback original com o resultado da análise pelo índice
+#                 WHERE
+#                     ROW_NUMBER() OVER (ORDER BY f.feedback_id) = sa_offset + 1
+#             )
+#             SELECT
+#                 feedback_id,
+#                 CAST(feeling_score AS FLOAT64),
+#                 CAST(feeling_magnitude AS FLOAT64),
+#                 created_at,
+#                 CURRENT_TIMESTAMP() AS updated_at
+#             FROM
+#                 feedback_with_analysis;
+#         END;
+#     EOT
+# }

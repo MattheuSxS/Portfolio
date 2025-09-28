@@ -208,41 +208,43 @@ data "archive_file" "cf_path_sentiment_analysis_files" {
 }
 
 
-resource "google_cloudfunctions2_function" "cf_sentiment_analysis" {
-  project       = local.project
-  location      = var.region
-  name          = var.cf_sentiment_analysis
-  description   = "It will be triggered via airflow and will send data to the pub/sub"
+# resource "google_cloudfunctions2_function" "cf_sentiment_analysis" {
+#   project       = local.project
+#   location      = var.region
+#   name          = var.cf_sentiment_analysis
+#   description   = "It will be triggered via airflow and will send data to the pub/sub"
 
-  build_config {
-    runtime     = "python311"
-    entry_point = "main"
-    source {
-      storage_source {
-        bucket = local.bkt_cf_portfolio
-        object = google_storage_bucket_object.cf_sentiment_analysis_files.name
-      }
-    }
-  }
+#   build_config {
+#     runtime     = "python311"
+#     entry_point = "main"
+#     source {
+#       storage_source {
+#         bucket = local.bkt_cf_portfolio
+#         object = google_storage_bucket_object.cf_sentiment_analysis_files.name
+#       }
+#     }
+#   }
 
-  labels = {
-    "created_by": "terraform",
-    "env": var.environment
-  }
+#   labels = {
+#     "created_by": "terraform",
+#     "env": var.environment
+#   }
 
-  service_config {
-    min_instance_count    = 1
-    max_instance_count    = 2
-    available_memory      = "3Gi"
-    timeout_seconds       = 3000
-    service_account_email = local.sa_cf_default
-    ingress_settings      = "ALLOW_ALL"
-  }
+#   service_config {
+#     min_instance_count    = 1
+#     max_instance_count    = 3
+#     available_memory      = "5Gi"
 
-  lifecycle {
-    ignore_changes = [
-      build_config,
-      service_config,
-    ]
-  }
-}
+#     timeout_seconds       = 3000
+#     available_cpu          = 4
+#     service_account_email = local.sa_cf_default
+#     ingress_settings      = "ALLOW_ALL"
+#   }
+
+#   lifecycle {
+#     ignore_changes = [
+#       build_config,
+#       service_config,
+#     ]
+#   }
+# }

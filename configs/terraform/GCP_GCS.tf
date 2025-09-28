@@ -183,10 +183,13 @@ resource "google_storage_bucket_object" "spark_path_tb_feedback" {
 #     triggers = {
 #         bucket_name = local.bkt_airflow
 #     }
+#     depends_on = [null_resource.pause_all_dags]
 
 #     provisioner "local-exec" {
 #         when    = destroy
 #         command = <<-EOT
+#         sleep 30
+#         echo "Deleting all objects in GCS bucket ${self.triggers.bucket_name}..."
 #         gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
 #         EOT
 #     }

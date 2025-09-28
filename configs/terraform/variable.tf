@@ -378,3 +378,12 @@ variable "api_enabled" {
     description = "Enable API"
     type        = list(string)
 }
+
+
+#   ********************************************************************************************************    #
+#                                                  Artifact Registry                                            #
+#   ********************************************************************************************************    #
+variable "artifact_repo_name" {
+    description = "The name of the Artifact Registry repository"
+    type        = string
+}

@@ -72,6 +72,7 @@ class BigQuery:
                 timeout=300
             )
 
+
             while load_job.state != 'DONE':
                 time.sleep(3)
                 load_job.reload()

@@ -172,3 +172,23 @@ resource "local_file" "create_airflow_variable_script" {
 #     EOT
 #   }
 # }
+
+# resource "null_resource" "pause_all_dags" {
+#     triggers = {
+#         bucket_name     = local.bkt_airflow
+#         composer_name   = var.composer_name
+#         region_name     = var.region
+#     }
+#   provisioner "local-exec" {
+#     when    = destroy
+#     command = <<EOT
+#         echo "Pausing all DAGs in Composer environment ${self.triggers.composer_name}..."
+#         gcloud composer environments run ${self.triggers.composer_name} \
+#             --location ${self.triggers.region_name} \
+#             dags pause \
+#             -- \
+#             -y --treat-dag-id-as-regex ".*"
+#     EOT
+#   }
+# }
+

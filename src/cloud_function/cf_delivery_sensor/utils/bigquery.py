@@ -7,9 +7,18 @@ from google.cloud.bigquery import QueryJobConfig
 
 class BigQuery:
     """
-        ....
-    """
+        BigQuery utility class for loading data into Google BigQuery tables.
 
+            project (str): The Google Cloud project ID.
+
+        Attributes:
+            project (str): The Google Cloud project ID.
+            client (bigquery.Client): The BigQuery client instance.
+
+        Methods:
+            batch_load_from_memory(data: list[dict], dataset: str, table: str) -> None:
+                Loads a batch of data from memory into a specified BigQuery table using NDJSON format.
+    """
     def __init__(self, project: str) -> None:
         self.project = project
         self.client = bigquery.Client(self.project)
