@@ -387,3 +387,12 @@ variable "artifact_repo_name" {
     description = "The name of the Artifact Registry repository"
     type        = string
 }
+
+
+#   ********************************************************************************************************    #
+#                                                   Cloud Run                                                   #
+#   ********************************************************************************************************    #
+variable "sentiment_analysis" {
+    description = "The name of the Cloud Run service"
+    type        = string
+}

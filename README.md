@@ -16,7 +16,7 @@
 
 - Terraform:
     - [Document Terraform](https://developer.hashicorp.com/terraform/intro)
-    - [Document Terraform Google](registry.terraform.io/providers/hashicorp/google/6.29.0)
+    - [Document Terraform Google](registry.terraform.io/providers/hashicorp/google/7.1.0)
 
 - Python:
     - [Document Python](https://docs.python.org/3.11/)
@@ -26,11 +26,11 @@
     - [Document Coverage](https://coverage.readthedocs.io/en/7.6.12/)
 
 - Apache-Spark
-    - [Document API-SPARK](https://spark.apache.org/docs/3.5.4/index.html)
+    - [Document API-SPARK](https://spark.apache.org/docs/3.5.6/index.html)
     - [Document PySpark Auxiliary](https://sparkbyexamples.com/pyspark)
 
 - Airflow:
-    - [Document Airflow](https://airflow.apache.org/docs/apache-airflow/2.10.2/index.html)
+    - [Document Airflow](https://airflow.apache.org/docs/apache-airflow/2.10.5/index.html)
 
 - Google Cloud (Google Cloud Platform):
     - [Document Composer](https://cloud.google.com/composer/docs/composer-3/composer-overview)
@@ -44,6 +44,8 @@
     - [Document IAM](https://cloud.google.com/iam/docs)
     - [Document Cloud Run Functions](https://cloud.google.com/functions/docs)
     - [Document Pub/Sub](https://cloud.google.com/pubsub/docs)
+    - [Document Cloud Run](https://cloud.google.com/run/docs)
+    - [Document Artifact Registry](https://cloud.google.com/artifact-registry/docs)
 
 - Docker:
     - [Document Docker](https://docs.docker.com)

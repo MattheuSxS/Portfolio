@@ -85,21 +85,21 @@ resource "google_bigquery_table" "tb_feedback" {
 
     clustering = ["feedback_id", "category", "brand", "rating"]
 }
+#TODO: I must modify this table to add/remove fields
+# resource "google_bigquery_table" "tb_feedback_sentiment" {
+#     project               = local.project
+#     dataset_id            = local.bq_dataset_production
+#     table_id              = var.tb_feedback_sentiment
+#     schema                = file("${path.module}/schemas/${var.tb_feedback_sentiment}.json")
+#     deletion_protection   = false
 
-resource "google_bigquery_table" "tb_feedback_sentiment" {
-    project               = local.project
-    dataset_id            = local.bq_dataset_production
-    table_id              = var.tb_feedback_sentiment
-    schema                = file("${path.module}/schemas/${var.tb_feedback_sentiment}.json")
-    deletion_protection   = false
+#     time_partitioning {
+#         type          = "DAY"
+#         field         = "created_at"
+#     }
 
-    time_partitioning {
-        type          = "DAY"
-        field         = "created_at"
-    }
-
-    clustering = ["updated_at", "feedback_id"]
-}
+#     clustering = ["updated_at", "feedback_id"]
+# }
 #   ********************************************************************************************************   #
 #                                                   DataSet ls_customers                                       #
 #   ********************************************************************************************************   #
@@ -242,8 +242,9 @@ resource "google_bigquery_table" "tb_delivery_status_stage" {
 #   ********************************************************************************************************   #
 #                                                 BigQuery  Connections                                        #
 #   ********************************************************************************************************   #
-resource "google_bigquery_connection" "cf_sentiment_analysis" {
-    connection_id = var.cf_sentiment_analysis
+#TODO: Remove this connection and implement the logic in Cloud Run
+resource "google_bigquery_connection" "cr_sentiment_analysis" {
+    connection_id = var.sentiment_analysis
     project       = local.project
     location      = "us-east1"
     description   =  "Connection for the Cloud Function to access BigQuery"
@@ -255,6 +256,7 @@ resource "google_bigquery_connection" "cf_sentiment_analysis" {
 #   ********************************************************************************************************   #
 #                                                 BigQuery Functions                                           #
 #   ********************************************************************************************************   #
+#TODO: Remove this function and implement the logic in Cloud Run
 # resource "google_bigquery_routine" "sentiment_analysis" {
 #     project      = local.project
 #     dataset_id   = local.bq_dataset_production
@@ -271,9 +273,8 @@ resource "google_bigquery_connection" "cf_sentiment_analysis" {
 #   return_type = "{\"typeKind\" :  \"JSON\"}"
 
 #   remote_function_options {
-#     connection          = google_bigquery_connection.cf_sentiment_analysis.id
-#     endpoint            = google_cloudfunctions2_function.cf_sentiment_analysis.service_config[0].uri
-#     max_batching_rows   = 2000
+#     connection          = google_bigquery_connection.cr_sentiment_analysis.id
+#     endpoint            = google_cloud_run_v2_service.sentiment-analysis.uri
 #   }
 
 #   description = "Function to perform sentiment analysis using Cloud Function"
@@ -393,6 +394,7 @@ resource "google_bigquery_routine" "sp_delete_delivery_status" {
     EOT
 }
 
+#TODO: Remove this procedure and implement the logic in Cloud Run
 # resource "google_bigquery_routine" "sp_feedback_sentiment" {
 #     project         = local.project
 #     dataset_id      = local.bq_dataset_production

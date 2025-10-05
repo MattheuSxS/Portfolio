@@ -15,10 +15,10 @@ resource "null_resource" "push_docker_image" {
     provisioner "local-exec" {
         command = <<EOT
             cd ../../src/cloud_run && \
-            docker build -t sentiment-api . && \
-            docker tag sentiment-api ${local.artifact_registry_url}/sentiment-api:latest && \
+            docker build --platform linux/amd64 -t sentiment-analysis . && \
+            docker tag sentiment-analysis ${local.artifact_registry_url}/sentiment-analysis:latest && \
             gcloud auth configure-docker ${var.region}-docker.pkg.dev --quiet && \
-            docker push ${local.artifact_registry_url}/sentiment-api:latest
+            docker push ${local.artifact_registry_url}/sentiment-analysis:latest
         EOT
     }
 }

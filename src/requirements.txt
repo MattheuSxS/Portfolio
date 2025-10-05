@@ -1,15 +1,19 @@
+Flask==2.2.5
 Faker==37.1.0
-Flask==2.2.5 # I must check out if this version is compatible..
+numpy==1.24.0
 pyspark==3.5.6
+fastapi==0.95.0
+uvicorn==0.21.0
 streamlit==1.49.1
 setuptools==78.1.1
+transformers==4.30.0
 apache-airflow==2.10.5
 apache-beam[gcp]==2.66.0
 functions-framework==3.9.2
 google-cloud-pubsub==2.29.0
 google-cloud-storage==2.19.0
 google-cloud-language==2.17.2
-google-cloud-bigquery==3.31.0
+google-cloud-bigquery==3.36.0
 google-cloud-functions==1.20.3
 google-cloud-aiplatform==1.91.0
 google-cloud-secret-manager==2.23.3

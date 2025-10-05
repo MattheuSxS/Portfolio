@@ -12,7 +12,8 @@ locals {
     sa_dataflow                 = google_service_account.creating_sa[2].email
     sa_cf_default               = google_service_account.creating_sa[3].email
     sa_cf_pb_sensor             = google_service_account.creating_sa[4].email
-    sa_bq_connect               = google_bigquery_connection.cf_sentiment_analysis.cloud_resource[0].service_account_id
+    sa_bq_connect               = google_bigquery_connection.cr_sentiment_analysis.cloud_resource[0].service_account_id
+    sa_cloud_run                = google_service_account.creating_sa[5].email
 
     bq_dataset_raw              = google_bigquery_dataset.bq_dataset[0].dataset_id
     bq_dataset_staging          = google_bigquery_dataset.bq_dataset[1].dataset_id
