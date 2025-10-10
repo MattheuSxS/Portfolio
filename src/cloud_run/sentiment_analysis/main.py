@@ -2,7 +2,9 @@ import time
 import json
 import logging
 import argparse
-from utils.helpers import sentiment_analysis
+import polars as pl
+from utils.bigquery import BigQuery
+from utils.helpers import sentiment_analysis, df_columns_add
 
 
 # ******************************************************************************************************************** #
@@ -28,21 +30,38 @@ def main(args=None):
             with open(args.comments, 'r') as f:
                 comments = [json.loads(line)['comment'] for line in f]
 
-        if not comments:
-            logging.error("❌ The comments list is empty.")
-            return
+        # if not comments:
+        #     logging.error("❌ The comments list is empty.")
+        #     return
 
         if args.batch_size <= 0:
             logging.error("❌ Batch size must be a positive integer.")
             return
 
-        #TODO: Get data on bigquery!
+
+        bq = BigQuery(project="mts-default-portofolio")
+        result = bq.read_bq(
+            query=bq.get_query()
+        )
+
+        df = pl.DataFrame(
+            data    = result,
+            orient  = "row",
+            schema  = ['feedback_id', 'comment', 'created_at']
+        )
+
+        comments = df['comment'].to_list()
+        logging.info(f"Total comments fetched from BigQuery: {len(comments)}")
+
         response = sentiment_analysis(args, comments, start_time)
+        df = df_columns_add(df, response)
 
-        # with open(args.output, 'w') as f:
-        #     json.dump(response.model_dump(), f, indent=2, default=str)
+        bq.batch_load_from_memory(
+            data=df.to_dicts(),
+            dataset="ls_customers",
+            table="tb_feedback_sentiment",
+        )
 
-        # logging.info(f"✅ Results saved to {args.output}")
     except Exception as e:
         logging.error(f"❌ Error: {str(e)}")
         raise

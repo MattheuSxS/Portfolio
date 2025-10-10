@@ -1,7 +1,9 @@
 import time
 import logging
+import polars as pl
 from typing import List
 from pydantic import BaseModel
+from datetime import datetime
 from transformers import pipeline
 
 
@@ -104,7 +106,25 @@ def sentiment_analysis(args, comments, start_time) -> BatchResponse:
         logging.info(f" ✅ POSITIVE        ~~> {positive_count} ({positive_count/total_comments*100:.1f}%)")
         logging.info(f" ➖ NEUTRAL         ~~> {neutral_count} ({neutral_count/total_comments*100:.1f}%)")
         logging.info(f" ❌ NEGATIVE        ~~> {negative_count} ({negative_count/total_comments*100:.1f}%)")
-        logging.info(f" ⏱️ Processing time  ~~> {response.processing_time}s")
+        logging.info(f" ⏱️ Processing time ~~> {response.processing_time}s")
         logging.info(f" -- ---------------------------- --")
 
         return response
+
+
+# ******************************************************************************************************************** #
+#                                              DataFrame Column Addition                                               #
+# ******************************************************************************************************************** #
+def df_columns_add(df: pl.DataFrame, response: BatchResponse) -> pl.DataFrame:
+    updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    return \
+        df.select([
+            pl.col("feedback_id"),
+            pl.Series(name="sentiment", values=[res.sentiment for res in response.predictions]),
+            pl.Series(name="confidence", values=[res.confidence for res in response.predictions]),
+            pl.Series(name="is_positive", values=[res.is_positive for res in response.predictions]),
+            pl.Series(name="is_neutral", values=[res.is_neutral for res in response.predictions]),
+            pl.col("created_at").cast(pl.String).str.slice(0, 19),
+            pl.lit(updated_at).alias("updated_at")
+        ])

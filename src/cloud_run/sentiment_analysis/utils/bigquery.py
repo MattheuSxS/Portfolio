@@ -81,31 +81,27 @@ class BigQuery:
             raise
 
 
-    def get_query(self, table: str) -> str:
+    def get_query(self) -> str:
         """
-            Generates and returns a predefined SQL query string based on the specified table key.
-
-            Args:
-                table (str): The key indicating which SQL query to return.
-                    Accepted values are:
-                        - "purchase_query": Returns a query joining sales, inventory, customers, and address tables.
-                        - "delivery_query": Returns a query joining vehicles and inventory tables.
-
-            Returns:
-                str: The corresponding SQL query string.
-
-            Raises:
-                KeyError: If the provided table key does not exist in the predefined queries.
         """
-
 
         return \
-            """
+            f"""
+                WITH SelectData AS (
+                    SELECT feedback_id FROM `{self.project}.ls_customers.tb_feedback_sentiment`
+                )
+
                 SELECT
                     feedback_id,
                     comment,
+                    fb_date AS created_at
                 FROM
                     `{self.project}.production.tb_feedback`
+                WHERE
+                    feedback_id NOT IN (SELECT feedback_id FROM SelectData)
+                ORDER BY
+                    RAND()
+                LIMIT 10000;
             """
 
 
@@ -136,19 +132,40 @@ class BigQuery:
             This method submits the query using self.client, waits for the query job to finish
             (synchronous/blocking), and converts each returned Row to a plain list via list(row).
         """
-        job_config = QueryJobConfig()
-        job_config.use_legacy_sql = False
+        if not isinstance(query, str) or not query.strip():
+            raise ValueError("The 'query' parameter must be a non-empty string.")
 
-        query_job = self.client.query(query, job_config=job_config)
-        rows = query_job.result()  # espera o término do job
+        try:
+            logging.info("Executing BigQuery query...")
+            job_config = QueryJobConfig()
+            job_config.use_legacy_sql = False
+
+            query_job = self.client.query(query, job_config=job_config)
+            rows = query_job.result()
+            logging.info("Query executed successfully.")
+
+        except Exception as e:
+            logging.error(f"Error executing query: {e}")
+            raise
 
         return [list(row) for row in rows]
 
 
 if __name__ == '__main__':
     bq = BigQuery(project="mts-default-portofolio")
-    for query in ['purchase_query', 'delivery_query']:
-        result = bq.read_bq(
-            query=bq.get_query(query)
-        )
-        print(result[0])
+    result = bq.read_bq(
+        query=bq.get_query('purchase_query')
+    )
+
+    # list_id         = list
+    # list_comment    = list
+
+    # list_id, list_comment = zip(*result[0:25])
+
+    # print(list_id)
+    # print(list_comment)]
+    import polars as pl
+
+
+    df = pl.DataFrame(result, schema=['feedback_id', 'comment'])
+    print(df)
