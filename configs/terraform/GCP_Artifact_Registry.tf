@@ -1,8 +1,8 @@
-resource "google_artifact_registry_repository" "repo" {
+resource "google_artifact_registry_repository" "docker_repository" {
     provider      = google-beta
     project       = local.project
     location      = var.region
-    repository_id = var.artifact_repo_name
+    repository_id = var.docker_repository
     description   = "Docker repository for Cloud Run images"
     format        = "DOCKER"
 }
@@ -10,7 +10,7 @@ resource "google_artifact_registry_repository" "repo" {
 
 
 resource "null_resource" "push_docker_image" {
-    depends_on = [google_artifact_registry_repository.repo]
+    depends_on = [google_artifact_registry_repository.docker_repository]
 
     provisioner "local-exec" {
         command = <<EOT

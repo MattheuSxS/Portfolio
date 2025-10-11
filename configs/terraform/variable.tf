@@ -383,7 +383,7 @@ variable "api_enabled" {
 #   ********************************************************************************************************    #
 #                                                  Artifact Registry                                            #
 #   ********************************************************************************************************    #
-variable "artifact_repo_name" {
+variable "docker_repository" {
     description = "The name of the Artifact Registry repository"
     type        = string
 }
