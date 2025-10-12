@@ -132,7 +132,7 @@ if __name__ == "__main__":
     # request_dict = \
     #     {
     #         "number_customers"    : 200_000,
-    #         'project_id'    : 'mts-default-portofolio',
+    #         'project_id'    : 'mts-default-portfolio',
     #         'dataset_id'    : 'ls_customers',
     #         'table_id'      : ['tb_customers', 'tb_cards', 'tb_address'],
     #         'secret_id'     : 'bq_customers_access_authorization'
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     # main(request_dict)
     main({
-            "project_id": "mts-default-portofolio",
+            "project_id": "mts-default-portfolio",
             "secret_id": "bq_customers_access_authorization"
         })
 

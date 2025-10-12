@@ -4,8 +4,8 @@
         "retries": 2,
         "retry_delay": 15,
         "dagrun_timeout": 30,
-        "project_vars": "mts-default-portofolio",
-        "project_number": "42887123198",
+        "project_vars": "mts-default-portfolio",
+        "project_number": "380502645515",
         "region": "us-east1",
         "bigquery_sql": {
             "merge_delivery": {
@@ -30,28 +30,28 @@
             "cf-customers": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
-                    "project_id": "mts-default-portofolio",
+                    "project_id": "mts-default-portfolio",
                     "secret_id": "bq_customers_access_authorization"
                 }
             },
             "cf-products-inventory": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
-                    "project_id": "mts-default-portofolio",
+                    "project_id": "mts-default-portfolio",
                     "secret_id": "bq_products_access_authorization"
                 }
             },
             "cf-delivery-sensor": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
-                    "project_id": "mts-default-portofolio",
+                    "project_id": "mts-default-portfolio",
                     "secret_id": "ps_delivery_sensor_access_authorization"
                 }
             },
             "cf-wh-sensor": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
-                    "project_id": "mts-default-portofolio",
+                    "project_id": "mts-default-portfolio",
                     "secret_id": "ps_wh_sensor_access_authorization"
                 }
             }
@@ -59,7 +59,7 @@
         "dataproc_tables": {
             "tb_order": {
                 "spark_job_name": "spark_job_tb_order",
-                "args": ["--project_id", "mts-default-portofolio",
+                "args": ["--project_id", "mts-default-portfolio",
                           "--dataset_id", "ls_customers",
                           "--num_purchases", "200000",
                           "--job_id"
@@ -68,7 +68,7 @@
             },
             "tb_feedback": {
                 "spark_job_name": "spark_job_tb_feedback",
-                "args": ["--project_id", "mts-default-portofolio",
+                "args": ["--project_id", "mts-default-portfolio",
                       "--dataset_id", "ls_customers",
                       "--dataset_write_id", "production",
                       "--num_feedbacks", "75000",
@@ -79,7 +79,7 @@
         },
         "dataproc_config": {
             "region": "us-east1",
-            "project_id": "mts-default-portofolio",
+            "project_id": "mts-default-portfolio",
             "cluster_name": "mts-cluster-dataproc",
             "secret_id": "dataproc_access_authorization",
             "cluster_config": {
@@ -144,6 +144,14 @@
                     "auto_delete_ttl": 0
                 }
             }
+        },
+        "Artifact_registry": {
+            "project_id": "mts-default-portfolio",
+            "region": "us-east1",
+            "repository": "docker-repository",
+            "image": "sentiment-analysis",
+            "tag": "latest",
+            "startup_timeout_seconds": 1200
         }
     }
 }

@@ -189,10 +189,10 @@ terraform.tfvars
 # Terraform plan files
 *.tfplan
 # Terraform variable files
-*.DS_Store
+.DS_Store
 
 # GCP
-mts-default-portofolio.json
+mts-default-portfolio.json
 Solve.md
 backup/*
 .editorconfig

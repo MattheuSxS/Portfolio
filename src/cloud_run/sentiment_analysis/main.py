@@ -25,24 +25,20 @@ def main(args=None):
 
     try:
         if args.comments.startswith('['):
-            comments = json.loads(args.comments)
-        else:
+            result = json.loads(args.comments)
+        elif args.comments:
             with open(args.comments, 'r') as f:
-                comments = [json.loads(line)['comment'] for line in f]
-
-        # if not comments:
-        #     logging.error("❌ The comments list is empty.")
-        #     return
+                result = [json.loads(line)['comment'] for line in f]
+        else:
+            logging.warning("No comments provided. Exiting in comment analysis mode.")
 
         if args.batch_size <= 0:
             logging.error("❌ Batch size must be a positive integer.")
-            return
+            raise ValueError("Invalid batch size.")
 
-
-        bq = BigQuery(project="mts-default-portofolio")
-        result = bq.read_bq(
-            query=bq.get_query()
-        )
+        if args.project:
+            bq = BigQuery(project=args.project)
+            result = bq.read_bq(query=bq.get_query())
 
         df = pl.DataFrame(
             data    = result,
@@ -51,16 +47,20 @@ def main(args=None):
         )
 
         comments = df['comment'].to_list()
-        logging.info(f"Total comments fetched from BigQuery: {len(comments)}")
 
-        response = sentiment_analysis(args, comments, start_time)
-        df = df_columns_add(df, response)
+        if comments:
+            logging.info(f"Total comments fetched from BigQuery: {len(comments)}")
 
-        bq.batch_load_from_memory(
-            data=df.to_dicts(),
-            dataset="ls_customers",
-            table="tb_feedback_sentiment",
-        )
+            response = sentiment_analysis(args, comments, start_time)
+            df = df_columns_add(df, response)
+
+            bq.batch_load_from_memory(
+                data=df.to_dicts(),
+                dataset="ls_customers",
+                table="tb_feedback_sentiment",
+            )
+        else:
+            logging.info("No new comments to process.")
 
     except Exception as e:
         logging.error(f"❌ Error: {str(e)}")
@@ -85,6 +85,11 @@ if __name__ == "__main__":
     parser.add_argument(
         '--model', type=str, default='cardiffnlp/twitter-roberta-base-sentiment-latest',
         help='HuggingFace model for sentiment analysis'
+    )
+
+    parser.add_argument(
+        '--project', type=str, default='mts-default-portfolio',
+        help='GCP project ID for BigQuery operations'
     )
 
     args = parser.parse_args()

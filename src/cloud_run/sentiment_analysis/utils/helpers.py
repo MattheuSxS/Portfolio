@@ -95,21 +95,36 @@ def sentiment_analysis(args, comments, start_time) -> BatchResponse:
             total_processed = total_comments
         )
 
-        positive_count = sum(1 for p in all_predictions if p.is_positive)
-        neutral_count  = sum(1 for p in all_predictions if p.is_neutral)
-        negative_count = total_comments - positive_count - neutral_count
-
-        logging.info(f" -- ---------------------------- --")
-        logging.info(f" |       📊 DETAILED SUMMARY:     |")
-        logging.info(f" -- ---------------------------- --")
-        logging.info(f" 📈 Total comments  ~~> {total_comments}")
-        logging.info(f" ✅ POSITIVE        ~~> {positive_count} ({positive_count/total_comments*100:.1f}%)")
-        logging.info(f" ➖ NEUTRAL         ~~> {neutral_count} ({neutral_count/total_comments*100:.1f}%)")
-        logging.info(f" ❌ NEGATIVE        ~~> {negative_count} ({negative_count/total_comments*100:.1f}%)")
-        logging.info(f" ⏱️ Processing time ~~> {response.processing_time}s")
-        logging.info(f" -- ---------------------------- --")
-
+        log_detailed_summary(all_predictions, total_comments, processing_time)
+    
         return response
+
+
+def log_detailed_summary(all_predictions, total_comments, processing_time) -> logging.Logger:
+    if not all_predictions:
+        logging.warning("📊 No predictions to summarize")
+
+    positive_count = sum(1 for p in all_predictions if getattr(p, 'is_positive', False))
+    neutral_count = sum(1 for p in all_predictions if getattr(p, 'is_neutral', False))
+    negative_count = total_comments - positive_count - neutral_count
+
+    if total_comments == 0:
+        positive_pct = neutral_pct = negative_pct = 0
+
+    else:
+        positive_pct = positive_count/total_comments*100
+        neutral_pct = neutral_count/total_comments*100
+        negative_pct = negative_count/total_comments*100
+
+    logging.info(f" -- ---------------------------- --")
+    logging.info(f" |       📊 DETAILED SUMMARY:     |")
+    logging.info(f" -- ---------------------------- --")
+    logging.info(f" 📈 Total comments  ~~> {total_comments}")
+    logging.info(f" ✅ POSITIVE        ~~> {positive_count} ({positive_pct:.1f}%)")
+    logging.info(f" ➖ NEUTRAL         ~~> {neutral_count} ({neutral_pct:.1f}%)")
+    logging.info(f" ❌ NEGATIVE        ~~> {negative_count} ({negative_pct:.1f}%)")
+    logging.info(f" ⏱️ Processing time ~~> {processing_time}s")
+    logging.info(f" -- ---------------------------- --")
 
 
 # ******************************************************************************************************************** #

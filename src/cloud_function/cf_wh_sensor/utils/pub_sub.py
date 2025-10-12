@@ -65,5 +65,5 @@ class PubSub:
 
 
 if __name__ == "__main__":
-    t = PubSub("mts-default-portofolio", "wh_sensor_topic")
+    t = PubSub("mts-default-portfolio", "wh_sensor_topic")
     t.publisher('{"hello": "2131"}')

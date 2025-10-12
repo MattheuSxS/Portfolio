@@ -40,7 +40,7 @@ scripts = [
 
 #spark-submit
 # spark_scripts = [
-#     'src/dataproc/dp_order/spark_job_tb_order.py --project_id mts-default-portofolio --dataset_id ls_customers --num_purchases 200000 --job_id job_23112741288',
+#     'src/dataproc/dp_order/spark_job_tb_order.py --project_id mts-default-portfolio --dataset_id ls_customers --num_purchases 200000 --job_id job_23112741288',
 # ]
 
 for script in scripts:

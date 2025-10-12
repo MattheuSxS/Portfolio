@@ -28,7 +28,8 @@ from airflow.providers.google.cloud.operators.dataproc import (
     DataprocSubmitJobOperator,
     DataprocDeleteClusterOperator,
 )
-
+from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from kubernetes.client import models as k8s_models
 
 # ====================================================================================================================================
 #                                                  ~~~~> Loggin Globais <~~~~                                                        #
@@ -54,15 +55,22 @@ __description__ = "This DAG is responsible for extracting data from a feature so
 # ====================================================================================================================================
 __env_var__         = Variable.get(__artefact__, deserialize_json=True)
 
-VAR_PRJ_NAME        = __env_var__['project_vars']
-VAR_PRJ_NUMBER      = __env_var__['project_number']
-VAR_CLOUD_FUNCTION  = __env_var__['cloud_functions']
+VAR_PRJ_NAME        = __env_var__["project_vars"]
+VAR_PRJ_NUMBER      = __env_var__["project_number"]
+VAR_CLOUD_FUNCTION  = __env_var__["cloud_functions"]
 
-VAR_DP_PROJECT_ID   = __env_var__['dataproc_config']['project_id']
-VAR_DP_PRJ_REGION   = __env_var__['dataproc_config']['region']
-VAR_DP_BUCKET       = __env_var__['dataproc_config']['cluster_config']['config_bucket']
-VAR_DP_CLUSTER_NAME = __env_var__['dataproc_config']['cluster_name']
-VAR_DP_SECRET_ID    = __env_var__['dataproc_config']['secret_id']
+VAR_DP_PROJECT_ID   = __env_var__["dataproc_config"]["project_id"]
+VAR_DP_PRJ_REGION   = __env_var__["dataproc_config"]["region"]
+VAR_DP_BUCKET       = __env_var__["dataproc_config"]["cluster_config"]["config_bucket"]
+VAR_DP_CLUSTER_NAME = __env_var__["dataproc_config"]["cluster_name"]
+VAR_DP_SECRET_ID    = __env_var__["dataproc_config"]["secret_id"]
+
+VAR_AR_PROJECT_ID       = __env_var__["Artifact_registry"]["project_id"]
+VAR_AR_REGION           = __env_var__["Artifact_registry"]["region"]
+VAR_AR_REPOSITORY       = __env_var__["Artifact_registry"]["repository"]
+VAR_AR_IMAGE            = __env_var__["Artifact_registry"]["image"]
+VAR_AR_TAG              = __env_var__["Artifact_registry"]["tag"]
+VAR_AR_STARTUP_TIMEOUT  = __env_var__["Artifact_registry"]["startup_timeout_seconds"]
 
 
 # ====================================================================================================================================
@@ -73,14 +81,14 @@ default_args = dict(
     start_date      =  __start_job__,
     depends_on_past = False,
     retries         = 3,
-    retry_delay     = timedelta(minutes=__env_var__['retry_delay']),
-    dagrun_timeout  = timedelta(minutes=__env_var__['dagrun_timeout']),
+    retry_delay     = timedelta(minutes=__env_var__["retry_delay"]),
+    dagrun_timeout  = timedelta(minutes=__env_var__["dagrun_timeout"]),
 )
 
 dag_kwargs = dict(
     default_args        = default_args,
     description         = __description__,
-    schedule_interval   = __env_var__['schedule_interval'],
+    schedule_interval   = __env_var__["schedule_interval"],
     catchup             = False,
     concurrency         = 3,
     tags                = ["MTS - Pipeline"],
@@ -110,7 +118,7 @@ def _call_cf(data_dict:dict, cf_name:str) -> str:
     Raises:
         Exception: If the cloud function response status is not "success", an exception is raised with the response message.
     """
-    function_url = data_dict['cloud_function_url'].format(
+    function_url = data_dict["cloud_function_url"].format(
         VAR_CF_NAME=cf_name,
         VAR_PRJ_NUMBER=VAR_PRJ_NUMBER
     )
@@ -130,7 +138,7 @@ def _call_cf(data_dict:dict, cf_name:str) -> str:
     result = json.loads(response)
     if result["status"] != 200:
         logging.error(f"Cloud Function call failed, please check the logs.....")
-        raise Exception(result['body'])
+        raise Exception(result["body"])
 
     return f"Status: {result['status']} {result['body']}"
 
@@ -153,19 +161,19 @@ def call_cf(cf_name:str) -> PythonOperator:
         python_callable=_call_cf,
         task_id=cf_name,
         op_kwargs={
-            'data_dict': VAR_CLOUD_FUNCTION[cf_name],
-            'cf_name': cf_name
+            "data_dict": VAR_CLOUD_FUNCTION[cf_name],
+            "cf_name": cf_name
         }
     )
 
 def bq_procedure_exec(table:str) -> bigquery.BigQueryInsertJobOperator:
-        __env_var__['bigquery_sql'][table]['query']['query'] = \
-            __env_var__['bigquery_sql'][table]['query']['query'].format(
+        __env_var__["bigquery_sql"][table]["query"]["query"] = \
+            __env_var__["bigquery_sql"][table]["query"]["query"].format(
                 VAR_PRJ_NAME=VAR_PRJ_NAME)
         return bigquery.BigQueryInsertJobOperator(
             task_id=f"bq_{table}",
-            configuration=__env_var__['bigquery_sql'][table],
-            location=__env_var__['region'],
+            configuration=__env_var__["bigquery_sql"][table],
+            location=__env_var__["region"],
             project_id=VAR_PRJ_NAME,
         )
 
@@ -247,8 +255,8 @@ def cluster_config(job_name: str = None) -> dict:
     durationAuto = Duration()
     durationAuto.seconds = 3600 * (12 * 2 + 1)
 
-    CLUSTER_NAME = __env_var__['dataproc_config']['cluster_name']
-    CLUSTER_CONFIG = __env_var__['dataproc_config']['cluster_config']
+    CLUSTER_NAME = __env_var__["dataproc_config"]["cluster_name"]
+    CLUSTER_CONFIG = __env_var__["dataproc_config"]["cluster_config"]
     CLUSTER_CONFIG["gce_cluster_config"]["zone_uri"] = f"https://www.googleapis.com/compute/v1/projects/{VAR_DP_PROJECT_ID}/zones/us-east1-c" # In creating...
     # CLUSTER_CONFIG["gce_cluster_config"]["subnetwork_uri"] = "projects/shared-services-268518/regions/us-east1/subnetworks/shared" # In creating...
     # CLUSTER_CONFIG["gce_cluster_config"]["tags"] = CLUSTER_CONFIG["gce_cluster_config"]["tags"].extend('Test') # In creating...
@@ -358,24 +366,56 @@ def delete_dataproc_cluster() -> DataprocDeleteClusterOperator:
             retries         = 2
         )
 
+# ====================================================================================================================================
+#                                             ~~~~> Functions Cloud Kubernetes <~~~~                                                 #
+# ====================================================================================================================================
+def run_kubernetes_pod() -> KubernetesPodOperator:
+    return KubernetesPodOperator(
+        task_id                 = f"run_{VAR_AR_IMAGE}",
+        image                   = f"{VAR_AR_REGION}-docker.pkg.dev/{VAR_AR_PROJECT_ID}/{VAR_AR_REPOSITORY}/{VAR_AR_IMAGE}:{VAR_AR_TAG}",
+        name                    = f"python_{VAR_AR_IMAGE}",
+        namespace               = "composer-user-workloads",
+        cmds                    = ["python", "main.py"],
+        arguments               = ["--project", VAR_AR_PROJECT_ID],
+        env_vars                = {},
+        container_resources     = k8s_models.V1ResourceRequirements(
+                                    requests={"cpu": "3000m", "memory": "12G", "ephemeral-storage": "12G"},
+                                    limits={"cpu": "3000m", "memory": "12G", "ephemeral-storage": "12G"},
+                                ),
+        image_pull_policy       = "Always",  # Ou "IfNotPresent"
+        startup_timeout_seconds = VAR_AR_STARTUP_TIMEOUT,
+        get_logs                = True,
+        log_events_on_failure   = True,
+        service_account_name    = "default",  # Service account padrão do Composer
+        is_delete_operator_pod  = True,
+        in_cluster              = False,
+        config_file             = "/home/airflow/composer_kube_config",
+        kubernetes_conn_id      = "kubernetes_default",
+    )
+
 
 # ====================================================================================================================================
 #                                                 ~~~~> Airflow Pipeline <~~~~                                                       #
 # ====================================================================================================================================
-with DAG(dag_id=__artefact__, start_date=default_args['start_date'], **dag_kwargs):
+with DAG(dag_id=__artefact__, start_date=default_args["start_date"], **dag_kwargs):
 
-    bq_merge_delivery = bq_procedure_exec("merge_delivery")
+    dummy_end          = dummy("End")
+    bq_merge_delivery   = bq_procedure_exec("merge_delivery")
+    spark_feedback      = spark_submit_job("tb_feedback")
 
-    dummy('Start') >> [
+
+    dummy("Start") >> [
         call_cf("cf-customers"),
         call_cf("cf-products-inventory")
         ] >> create_dataproc_cluster() >> \
             spark_submit_job("tb_order") >> \
                 call_cf("cf-delivery-sensor") >> \
                     bq_merge_delivery >> \
-                        spark_submit_job("tb_feedback") >> \
+                        spark_feedback >> \
                             delete_dataproc_cluster() >> \
-                                dummy('End')
+                                dummy_end
 
     if datetime.now().time() >= time(7, 0):
-        bq_procedure_exec("delete_delivery_status") >> bq_merge_delivery
+       bq_procedure_exec("delete_delivery_status") >> bq_merge_delivery
+
+    spark_feedback >> run_kubernetes_pod() >> dummy_end

@@ -152,7 +152,7 @@ class BigQuery:
 
 
 if __name__ == '__main__':
-    bq = BigQuery(project="mts-default-portofolio")
+    bq = BigQuery(project="mts-default-portfolio")
     result = bq.read_bq(
         query=bq.get_query('purchase_query')
     )
