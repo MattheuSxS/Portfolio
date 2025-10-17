@@ -118,10 +118,14 @@ def generate_fake_feedbacks(df_sales) -> None:
     """
         Generates a DataFrame of fake feedbacks based on the provided sales DataFrame.
 
-        This function applies a user-defined function (UDF) to the 'category' column of the input DataFrame to generate synthetic feedback data for each sale. The resulting DataFrame includes feedback-related fields along with relevant sales and customer information.
+        This function applies a user-defined function (UDF) to the 'category' column of the input DataFrame to generate
+        synthetic feedback data for each sale. The resulting DataFrame includes feedback-related fields along with relevant
+        sales and customer information.
 
         Args:
-            df_sales (DataFrame): Input Spark DataFrame containing sales data. Must include columns such as 'category', 'purchase_id', 'product_id', 'product_name', 'brand', 'customers_name', 'customers_email', and 'purchase_date'.
+            df_sales (DataFrame): Input Spark DataFrame containing sales data.
+            Must include columns such as 'category', 'purchase_id', 'product_id', 'product_name',
+            'brand', 'customers_name', 'customers_email', and 'purchase_date'.
 
         Returns:
             DataFrame: A Spark DataFrame with generated feedback columns, including:

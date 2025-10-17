@@ -369,7 +369,7 @@ def delete_dataproc_cluster() -> DataprocDeleteClusterOperator:
 # ====================================================================================================================================
 #                                             ~~~~> Functions Cloud Kubernetes <~~~~                                                 #
 # ====================================================================================================================================
-def run_kubernetes_pod() -> KubernetesPodOperator:
+def feedback_sentiment_analysis() -> KubernetesPodOperator:
     return KubernetesPodOperator(
         task_id                 = f"run_{VAR_AR_IMAGE}",
         image                   = f"{VAR_AR_REGION}-docker.pkg.dev/{VAR_AR_PROJECT_ID}/{VAR_AR_REPOSITORY}/{VAR_AR_IMAGE}:{VAR_AR_TAG}",
@@ -418,4 +418,4 @@ with DAG(dag_id=__artefact__, start_date=default_args["start_date"], **dag_kwarg
     if datetime.now().time() >= time(7, 0):
        bq_procedure_exec("delete_delivery_status") >> bq_merge_delivery
 
-    spark_feedback >> run_kubernetes_pod() >> dummy_end
+    spark_feedback >> feedback_sentiment_analysis() >> dummy_end

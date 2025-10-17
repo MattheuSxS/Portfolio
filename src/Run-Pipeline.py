@@ -34,8 +34,8 @@ def main(script_name, is_spark_job=False):
 
 
 scripts = [
-    'src/cloud_function/cf_customers/main.py',
-    'src/cloud_function/cf_products_inventory/main.py',
+    '/cloud_function/cf_customers/main.py',
+    '/cloud_function/cf_products_inventory/main.py',
 ]
 
 #spark-submit
