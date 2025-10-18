@@ -1,35 +1,46 @@
 import streamlit as st
-from feedback import FeedbackDashboard
-from region_sales import RegionSalesDashboard
-
-# Configuração da página
-st.set_page_config(
-    page_title="Dashboard Completo - Vendas & Feedback",
-    page_icon="📊",
-    layout="wide"
-)
-
-st.title("📊 Dashboard Completo - Análise de Negócios")
+from utils.feedback import FeedbackDashboard
+from utils.customer import CustomerDashboard
+from utils.region_sales import RegionSalesDashboard
 
 
-RSD = RegionSalesDashboard('mts-default-portfolio', st)
-FBD = FeedbackDashboard('mts-default-portfolio', st)
 
-tab1, tab2 = st.tabs(["💰 Dashboard de Vendas", "💬 Dashboard de Feedback"])
+class Dashboard:
+    def __init__(self, project: str):
+        self.project = project
 
-with tab1:
-    RSD.render_dashboard()
+    def main_page(self):
+        st.set_page_config(
+            page_title="Complete Dashboard - Sales & Feedback",
+            page_icon="📊",
+            layout="wide"
+        )
 
-with tab2:
-    FBD.feedback_dashboard()
+        st.title("📊 Complete Dashboard - Business Analysis")
 
-st.sidebar.header("🌐 Informações Gerais")
-st.sidebar.info(
-    "Este dashboard combina análises de vendas e feedback para fornecer "
-    "uma visão completa do desempenho do negócio."
-)
 
-# Botão para recarregar todos os dados
-if st.sidebar.button("🔄 Recarregar Todos os Dados"):
-    st.cache_data.clear()
-    st.rerun()
+        RSD = RegionSalesDashboard(self.project, st)
+        FBD = FeedbackDashboard(self.project, st)
+        CD = CustomerDashboard(self.project, st)
+
+        tab1, tab2, tab3 = st.tabs(["💰 Sales Dashboard", "💬 Feedback Dashboard", "👤 Customer Dashboard"])
+
+        with tab1:
+            RSD.render_dashboard()
+
+        with tab2:
+            FBD.feedback_dashboard()
+
+        with tab3:
+            CD.customer_dashboard()
+
+        st.sidebar.header("🌐 General Information")
+        st.sidebar.info(
+            "This dashboard combines sales analytics and feedback"
+            " to provide a complete view of business performance."
+        )
+
+
+        if st.sidebar.button("🔄 Reload All Data"):
+            st.cache_data.clear()
+            st.rerun()

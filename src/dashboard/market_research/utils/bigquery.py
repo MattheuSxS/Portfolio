@@ -117,7 +117,7 @@ class BigQuery:
                                                 """,
                 "customer_query"            : """
                                                 SELECT
-                                                    COUNT(associate_id) AS associate_id,
+                                                    COUNT(associate_id) AS associate_count,
                                                     TBAS.region,
                                                     TBAS.state
                                                 FROM
@@ -126,7 +126,7 @@ class BigQuery:
                                                     `mts-default-portfolio.ls_customers.tb_address` AS TBAS
                                                 ON
                                                     TBCS.associate_id = TBAS.fk_associate_id
-                                                    GROUP BY
+                                                GROUP BY
                                                     TBAS.region,
                                                     TBAS.state
                                                 """,

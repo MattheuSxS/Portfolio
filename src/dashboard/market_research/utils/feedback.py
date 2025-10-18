@@ -1,7 +1,7 @@
 import polars as pl
 import streamlit as st
 import plotly.express as px
-from bigquery import BigQuery
+from utils.bigquery import BigQuery
 
 
 @st.cache_data(ttl=3600)
@@ -17,7 +17,7 @@ def load_data(_bq_client: BigQuery) -> pl.DataFrame:
         )
         return df
     except Exception as e:
-        st.error(f"Erro ao carregar dados de feedback: {e}")
+        st.error(f"Error loading feedback data: {e}")
         return pl.DataFrame()
 
 
@@ -87,7 +87,7 @@ class FeedbackDashboard(BigQuery):
         col1, col2 = self.st.columns([2, 1])
 
         with col1:
-            self.st.subheader("📈 Evolução Temporal de Sentimentos")
+            self.st.subheader("📈 Evolution of Feelings Over Time")
 
             # Agrupar dados por data e sentimento
             daily_sentiment = filtered_df.group_by(['feedback_date', 'sentiment']).agg([
@@ -101,38 +101,38 @@ class FeedbackDashboard(BigQuery):
                     x='feedback_date',
                     y='count',
                     color='sentiment',
-                    title="Evolução dos Sentimentos ao Longo do Tempo",
+                    title="Evolution of Feelings Over Time",
                     labels={
-                        'feedback_date': 'Data do Feedback',
-                        'count': 'Quantidade de Feedbacks'
+                        'feedback_date': 'Feedback Date',
+                        'count': 'Number of Feedbacks'
                     }
                 )
                 fig.update_layout(height=400)
                 self.st.plotly_chart(fig, use_container_width=True)
 
         with col2:
-            self.st.subheader("📋 Métricas de Feedback")
+            self.st.subheader("📋 Feedback Metrics")
 
             total_feedbacks = filtered_df.height
             sentiment_distribution = filtered_df['sentiment'].value_counts()
             avg_rating = filtered_df['rating'].mean()
 
-            self.st.metric("Total de Feedbacks", f"{total_feedbacks:,}")
-            self.st.metric("Rating Médio", f"{avg_rating:.1f} ⭐")
+            self.st.metric("Total Feedbacks", f"{total_feedbacks:,}")
+            self.st.metric("Average Rating", f"{avg_rating:.1f} ⭐")
 
-            self.st.subheader("🎭 Distribuição de Sentimentos")
+            self.st.subheader("🎭 Distribution of Feelings")
             for sentiment, count in sentiment_distribution.sort(by='count', descending=True).rows():
                 percentage = (count / total_feedbacks) * 100
                 self.st.write(f"**{sentiment}:** {count} ({percentage:.1f}%)")
 
         # Gráficos de distribuição
-        self.st.subheader("📊 Análises de Distribuição")
+        self.st.subheader("📊 Distribution Analysis")
 
         col3, col4 = self.st.columns(2)
 
         with col3:
             # GRÁFICO DE PIZZA para sentiment
-            self.st.subheader("🥧 Distribuição de Sentimentos")
+            self.st.subheader("🥧 Distribution of Feelings")
 
             sentiment_counts = filtered_df['sentiment'].value_counts()
 
@@ -141,7 +141,7 @@ class FeedbackDashboard(BigQuery):
                     sentiment_counts.to_pandas(),
                     values='count',
                     names='sentiment',
-                    title="Distribuição de Sentimentos",
+                    title="Distribution of Feelings",
                     hole=0.3,
                     color_discrete_sequence=px.colors.qualitative.Set3
                 )
@@ -159,23 +159,23 @@ class FeedbackDashboard(BigQuery):
 
                 self.st.plotly_chart(fig_pizza, use_container_width=True)
             else:
-                self.st.info("Não há dados para exibir o gráfico de pizza.")
+                self.st.info(" No data available to display the pie chart.")
 
         with col4:
-            # GRÁFICO DE BARRAS para rating
-            self.st.subheader("📊 Distribuição de Ratings")
+            # BAR CHART for rating
+            self.st.subheader("📊 Distribution of Ratings")
 
             rating_counts = filtered_df['rating'].value_counts().sort('rating')
 
             if not rating_counts.is_empty():
                 fig_barras = px.bar(
                     rating_counts.to_pandas(),
-                    x='rating',
                     y='count',
-                    title="Distribuição de Ratings",
+                    x='rating',
+                    title="Distribution of Ratings",
                     labels={
                         'rating': 'Rating',
-                        'count': 'Quantidade de Avaliações'
+                        'count': 'Number of Ratings'
                     },
                     color='count',
                     color_continuous_scale='blues'
@@ -190,7 +190,7 @@ class FeedbackDashboard(BigQuery):
                 fig_barras.update_layout(
                     height=500,
                     xaxis_title="Rating",
-                    yaxis_title="Quantidade de Avaliações",
+                    yaxis_title="Number of Ratings",
                     showlegend=False
                 )
 
@@ -201,11 +201,11 @@ class FeedbackDashboard(BigQuery):
 
                 self.st.plotly_chart(fig_barras, use_container_width=True)
             else:
-                self.st.info("Não há dados para exibir o gráfico de barras.")
+                self.st.info("No data available to display the bar chart.")
 
         # Visualização dos dados filtrados
-        with self.st.expander("🔍 Visualizar Dados Filtrados"):
-            self.st.write(f"**Total de registros após filtros:** {filtered_df.height}")
+        with self.st.expander("🔍 View Filtered Data"):
+            self.st.write(f"**Total records after filters:** {filtered_df.height}")
             self.st.dataframe(
                 filtered_df.select(['sentiment', 'rating', 'feedback_date']).to_pandas(),
                 use_container_width=True,

@@ -1,17 +1,20 @@
 import polars as pl
 import streamlit as st
 import plotly.express as px
-from bigquery import BigQuery
+from utils.bigquery import BigQuery
 
 
 @st.cache_data(ttl=3600)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
-    """Loads and preprocesses data from BigQuery."""
-    df = _bq_client.read_bq("region_sales_query")
-    df = df.with_columns(
-        pl.col("purchase_date").str.strptime(pl.Date, "%Y-%m-%d")
-    )
-    return df
+    try:
+        df = _bq_client.read_bq("region_sales_query")
+        df = df.with_columns(
+            pl.col("purchase_date").str.strptime(pl.Date, "%Y-%m-%d")
+        )
+        return df
+    except Exception as e:
+        st.error(f"Error loading region sales data: {e}")
+        return pl.DataFrame()
 
 
 class RegionSalesDashboard(BigQuery):
@@ -24,22 +27,22 @@ class RegionSalesDashboard(BigQuery):
         self.df = load_data(self)
 
         if self.df.is_empty():
-            self.st.warning("Nenhum dado encontrado ou erro ao carregar dados.")
+            self.st.warning("No data found or error loading data.")
         else:
-            # Filtros
+            # Filters
             regions = self.st.sidebar.multiselect(
-                "Regiões",
+                "Regions",
                 options=self.df['region'].unique().to_list(),
                 default=self.df['region'].unique().to_list()
             )
 
             states = self.st.sidebar.multiselect(
-                "Estados",
+                "States",
                 options=self.df['state'].unique().to_list(),
                 default=self.df['state'].unique().to_list()
             )
 
-            # Aplicar filtros
+            # Apply filters
             filtered_df = self.df.filter(
                 pl.col('region').is_in(regions) &
                 pl.col('state').is_in(states)
@@ -49,13 +52,13 @@ class RegionSalesDashboard(BigQuery):
             col1, col2 = self.st.columns([2, 1])
 
             with col1:
-                self.st.subheader("📈 Evolução Temporal das Vendas")
+                self.st.subheader("📈 Evolution of Sales Over Time")
 
-                # Selecionar métrica para o gráfico
+                # Select metric for the chart
                 metric = self.st.radio(
-                    "Selecione a métrica:",
+                    "Select metric:",
                     ["final_price", "discount_applied"],
-                    format_func=lambda x: "Valor Total" if x == "final_price" else "Desconto Aplicado",
+                    format_func=lambda x: "Total Value" if x == "final_price" else "Discount Applied",
                     horizontal=True
                 )
 
@@ -73,19 +76,19 @@ class RegionSalesDashboard(BigQuery):
                     daily_data_pd,
                     x='purchase_date',
                     y=metric,
-                    title=f"Evolução do {'Valor Total' if metric == 'final_price' else 'Desconto Aplicado'} ao Longo do Tempo",
+                    title=f"Evolution of {'Total Value' if metric == 'final_price' else 'Discount Applied'} Over Time",
                     labels={
-                        'purchase_date': 'Data da Compra',
-                        'final_price': 'Valor Total (R$)',
-                        'discount_applied': 'Desconto Aplicado (R$)'
+                        'purchase_date': 'Purchase Date',
+                        'final_price': 'Total Value (R$)',
+                        'discount_applied': 'Discount Applied (R$)'
                     },
                     color_discrete_sequence=['#1f77b4']
                 )
 
                 # Melhorar layout do gráfico
                 fig.update_layout(
-                    xaxis_title="Data da Compra",
-                    yaxis_title="Valor (R$)",
+                    xaxis_title="Purchase Date",
+                    yaxis_title="Value (R$)",
                     hovermode='x unified',
                     height=500
                 )
@@ -93,28 +96,28 @@ class RegionSalesDashboard(BigQuery):
                 self.st.plotly_chart(fig, use_container_width=True)
 
             with col2:
-                self.st.subheader("📋 Métricas Principais")
+                self.st.subheader("📋 Key Metrics")
 
-                # Calcular métricas com Polars
+                # Calculate metrics with Polars
                 total_sales = filtered_df['final_price'].sum()
                 total_discount = filtered_df['discount_applied'].sum()
                 avg_sale = filtered_df['final_price'].mean()
 
-                self.st.metric("Valor Total de Vendas", f"R$ {total_sales:,.2f}")
-                self.st.metric("Total de Descontos", f"R$ {total_discount:,.2f}")
-                self.st.metric("Ticket Médio", f"R$ {avg_sale:,.2f}")
+                self.st.metric("Total Sales Value", f"R$ {total_sales:,.2f}")
+                self.st.metric("Total Discounts", f"R$ {total_discount:,.2f}")
+                self.st.metric("Average Ticket", f"R$ {avg_sale:,.2f}")
 
                 # Informações adicionais
                 self.st.subheader("ℹ️ Informações")
                 min_date = filtered_df['purchase_date'].min()
                 max_date = filtered_df['purchase_date'].max()
-                self.st.write(f"**Período:** {min_date.strftime('%d/%m/%Y')} - {max_date.strftime('%d/%m/%Y')}")
-                self.st.write(f"**Total de Registros:** {filtered_df.height:,}")
-                self.st.write(f"**Regiões:** {len(regions)}")
-                self.st.write(f"**Estados:** {len(states)}")
+                self.st.write(f"**Period:** {min_date.strftime('%d/%m/%Y')} - {max_date.strftime('%d/%m/%Y')}")
+                self.st.write(f"**Total Records:** {filtered_df.height:,}")
+                self.st.write(f"**Regions:** {len(regions)}")
+                self.st.write(f"**States:** {len(states)}")
 
             # Análises adicionais com Polars
-            self.st.subheader("🔍 Análises Adicionais")
+            self.st.subheader("🔍 Additional Analysis")
 
             col3, col4 = self.st.columns(2)
 
@@ -125,17 +128,17 @@ class RegionSalesDashboard(BigQuery):
                     pl.col('discount_applied').sum().alias('total_discount')
                 ]).sort('total_sales', descending=True)
 
-                self.st.write("**Vendas por Região:**")
+                self.st.write("**Sales by Region:**")
                 self.st.dataframe(sales_by_region.to_pandas(), use_container_width=True)
 
             with col4:
-                # Vendas por estado
+                # Sales by state
                 sales_by_state = filtered_df.group_by('state').agg([
                     pl.col('final_price').sum().alias('total_sales'),
                     pl.col('discount_applied').sum().alias('total_discount')
                 ]).sort('total_sales', descending=True).head(10)
 
-                self.st.write("**Top 10 Estados por Vendas:**")
+                self.st.write("**Top 10 States by Sales:**")
                 self.st.dataframe(sales_by_state.to_pandas(), use_container_width=True)
 
             # Tabela com dados detalhados
@@ -158,8 +161,8 @@ class RegionSalesDashboard(BigQuery):
             # Download dos dados
             csv_data = filtered_df.write_csv()
             self.st.download_button(
-                label="📥 Baixar dados como CSV",
+                label="📥 Download data as CSV",
                 data=csv_data,
-                file_name="dados_vendas.csv",
+                file_name="sales_data.csv",
                 mime="text/csv"
             )

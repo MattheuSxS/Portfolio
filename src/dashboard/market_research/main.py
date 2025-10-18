@@ -1,17 +1,25 @@
-import streamlit as st
 
-st.title("Hello Streamlit-er 👋")
-st.markdown(
-    """
-        This is a playground for you to try Streamlit and have fun.
+import logging
+from utils.helpers import Dashboard
 
-        **There's :rainbow[so much] you can build!**
 
-        We prepared a few examples for you to get started. Just
-        click on the buttons above and discover what you can do
-        with Streamlit.
-    """
+# ******************************************************************************************************************** #
+#                                              System Logging                                                          #
+# ******************************************************************************************************************** #
+logging.basicConfig(
+    format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
+            "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
+    level=logging.INFO
 )
 
-if st.button("Send balloons!"):
-    st.balloons()
+
+# ******************************************************************************************************************** #
+#                                              Main Execution Function                                                 #
+# ******************************************************************************************************************** #
+def main():
+    dashboard = Dashboard("mts-default-portfolio")
+    dashboard.main_page()
+
+
+if __name__ == "__main__":
+    main()
