@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils.bigquery import BigQuery
 
-@st.cache_data(ttl=3601)
+@st.cache_data(ttl=36000)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
         df = _bq_client.read_bq("customer_query")
@@ -30,7 +30,6 @@ class CustomerDashboard(BigQuery):
         }
 
     def get_brazil_geojson(self):
-        """Obtém o GeoJSON do Brasil"""
         geojson_url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson"
         try:
             response = requests.get(geojson_url)
@@ -57,7 +56,7 @@ class CustomerDashboard(BigQuery):
 
         df_map = df.with_columns(
             pl.col('state').map_elements(lambda x: self.state_names.get(x, x)).alias('state_name')
-        ).to_pandas()
+        )
 
         fig = px.choropleth(
             data_frame              = df_map,
@@ -111,7 +110,7 @@ class CustomerDashboard(BigQuery):
 
         df_map = df.with_columns(
             pl.col('state').map_elements(lambda x: self.state_names.get(x, x)).alias('state_name')
-        ).to_pandas()
+        )
 
         fig = go.Figure(go.Choropleth(
             geojson             = geojson_data,
@@ -149,7 +148,7 @@ class CustomerDashboard(BigQuery):
         ]).sort('total_clients', descending=True)
 
         fig = px.bar(
-            data_frame              = region_totals.to_pandas(),
+            data_frame              = region_totals,
             x                       = 'region',
             y                       = 'total_clients',
             title                   = "Total Customers by Region",
@@ -235,7 +234,7 @@ class CustomerDashboard(BigQuery):
             ]).sort('associate_count', descending=True)
 
             self.st.dataframe(
-                display_df.to_pandas(),
+                display_df,
                 use_container_width = True,
                 height              = 300
             )

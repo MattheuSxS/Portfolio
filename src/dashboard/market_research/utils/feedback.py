@@ -36,38 +36,34 @@ class FeedbackDashboard(BigQuery):
 
         self.st.header("💬 Dashboard de Feedback")
 
-        # Filtros para feedback
         col1, col2 = self.st.columns(2)
         with col1:
             sentiments = self.st.multiselect(
                 "Sentimentos",
-                options=self.df['sentiment'].unique().to_list(),
-                default=self.df['sentiment'].unique().to_list(),
-                key="feedback_sentiments"
+                options = self.df['sentiment'].unique().to_list(),
+                default = self.df['sentiment'].unique().to_list(),
+                key     = "feedback_sentiments"
             )
         with col2:
             ratings = self.st.multiselect(
                 "Ratings",
-                options=self.df['rating'].unique().to_list(),
-                default=self.df['rating'].unique().to_list(),
-                key="feedback_ratings"
+                options = self.df['rating'].unique().to_list(),
+                default = self.df['rating'].unique().to_list(),
+                key     = "feedback_ratings"
             )
 
-        # Filtro de data para feedback
         min_date = self.df['feedback_date'].min()
         max_date = self.df['feedback_date'].max()
 
         date_range = self.st.date_input(
             "Período do Feedback",
-            value=[min_date, max_date],
-            min_value=min_date,
-            max_value=max_date,
-            key="feedback_date_range"
+            value       = [min_date, max_date],
+            min_value   = min_date,
+            max_value   = max_date,
+            key         = "feedback_date_range"
         )
 
-        # Aplicar filtros - CORREÇÃO AQUI
         if len(date_range) == 2:
-            # Extrair ano, mês e dia dos objetos date
             start_date = date_range[0]
             end_date = date_range[1]
 
@@ -83,29 +79,27 @@ class FeedbackDashboard(BigQuery):
                 (pl.col('rating').is_in(ratings))
             )
 
-        # Layout principal de feedback
         col1, col2 = self.st.columns([2, 1])
 
         with col1:
             self.st.subheader("📈 Evolution of Feelings Over Time")
 
-            # Agrupar dados por data e sentimento
             daily_sentiment = filtered_df.group_by(['feedback_date', 'sentiment']).agg([
                 pl.count().alias('count')
             ]).sort('feedback_date')
 
             if not daily_sentiment.is_empty():
-                daily_sentiment_pd = daily_sentiment.to_pandas()
+                daily_sentiment_pd = daily_sentiment
                 fig = px.line(
-                    daily_sentiment_pd,
-                    x='feedback_date',
-                    y='count',
-                    color='sentiment',
-                    title="Evolution of Feelings Over Time",
-                    labels={
-                        'feedback_date': 'Feedback Date',
-                        'count': 'Number of Feedbacks'
-                    }
+                    data_frame  = daily_sentiment_pd,
+                    x           = 'feedback_date',
+                    y           = 'count',
+                    color       = 'sentiment',
+                    title       = "Evolution of Feelings Over Time",
+                    labels      = {
+                                    'feedback_date': 'Feedback Date',
+                                    'count': 'Number of Feedbacks'
+                                }
                 )
                 fig.update_layout(height=400)
                 self.st.plotly_chart(fig, use_container_width=True)
@@ -125,36 +119,34 @@ class FeedbackDashboard(BigQuery):
                 percentage = (count / total_feedbacks) * 100
                 self.st.write(f"**{sentiment}:** {count} ({percentage:.1f}%)")
 
-        # Gráficos de distribuição
         self.st.subheader("📊 Distribution Analysis")
 
         col3, col4 = self.st.columns(2)
 
         with col3:
-            # GRÁFICO DE PIZZA para sentiment
             self.st.subheader("🥧 Distribution of Feelings")
 
             sentiment_counts = filtered_df['sentiment'].value_counts()
 
             if not sentiment_counts.is_empty():
                 fig_pizza = px.pie(
-                    sentiment_counts.to_pandas(),
-                    values='count',
-                    names='sentiment',
-                    title="Distribution of Feelings",
-                    hole=0.3,
-                    color_discrete_sequence=px.colors.qualitative.Set3
+                    sentiment_counts,
+                    values                  = 'count',
+                    names                   = 'sentiment',
+                    title                   = "Distribution of Feelings",
+                    hole                    = 0.3,
+                    color_discrete_sequence = px.colors.qualitative.Set3
                 )
 
                 fig_pizza.update_traces(
-                    textposition='inside',
-                    textinfo='percent+label',
-                    hovertemplate='<b>%{label}</b><br>Quantidade: %{value}<br>Percentual: %{percent}'
+                    textposition    = 'inside',
+                    textinfo        = 'percent+label',
+                    hovertemplate   = '<b>%{label}</b><br>Quantidade: %{value}<br>Percentual: %{percent}'
                 )
 
                 fig_pizza.update_layout(
-                    height=500,
-                    showlegend=True
+                    height      = 500,
+                    showlegend  = True
                 )
 
                 self.st.plotly_chart(fig_pizza, use_container_width=True)
@@ -162,14 +154,13 @@ class FeedbackDashboard(BigQuery):
                 self.st.info(" No data available to display the pie chart.")
 
         with col4:
-            # BAR CHART for rating
             self.st.subheader("📊 Distribution of Ratings")
 
             rating_counts = filtered_df['rating'].value_counts().sort('rating')
 
             if not rating_counts.is_empty():
                 fig_barras = px.bar(
-                    rating_counts.to_pandas(),
+                    rating_counts,
                     y='count',
                     x='rating',
                     title="Distribution of Ratings",
@@ -182,32 +173,31 @@ class FeedbackDashboard(BigQuery):
                 )
 
                 fig_barras.update_traces(
-                    hovertemplate='<b>Rating: %{x}</b><br>Quantidade: %{y}',
-                    marker_line_color='black',
-                    marker_line_width=1
+                    hovertemplate       = '<b>Rating: %{x}</b><br>Quantidade: %{y}',
+                    marker_line_color   = 'black',
+                    marker_line_width   = 1
                 )
 
                 fig_barras.update_layout(
-                    height=500,
-                    xaxis_title="Rating",
-                    yaxis_title="Number of Ratings",
-                    showlegend=False
+                    height      = 500,
+                    xaxis_title = "Rating",
+                    yaxis_title = "Number of Ratings",
+                    showlegend  = False
                 )
 
                 fig_barras.update_traces(
-                    texttemplate='%{y}',
-                    textposition='outside'
+                    texttemplate = '%{y}',
+                    textposition = 'outside'
                 )
 
                 self.st.plotly_chart(fig_barras, use_container_width=True)
             else:
                 self.st.info("No data available to display the bar chart.")
 
-        # Visualização dos dados filtrados
         with self.st.expander("🔍 View Filtered Data"):
             self.st.write(f"**Total records after filters:** {filtered_df.height}")
             self.st.dataframe(
-                filtered_df.select(['sentiment', 'rating', 'feedback_date']).to_pandas(),
-                use_container_width=True,
-                height=300
+                filtered_df.select(['sentiment', 'rating', 'feedback_date']),
+                use_container_width = True,
+                height              = 300
             )
