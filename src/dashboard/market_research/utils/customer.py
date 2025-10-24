@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils.bigquery import BigQuery
 
-@st.cache_data(ttl=36000)
+@st.cache_data(ttl=12000)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
         df = _bq_client.read_bq("customer_query")
@@ -98,7 +98,7 @@ class CustomerDashboard(BigQuery):
         )
 
         fig.update_coloraxes(
-            colorbar_title      = "Nº de Clientes",
+            colorbar_title      = "Nº of Customers",
             colorbar_tickformat = ',d'
         )
 
@@ -118,7 +118,7 @@ class CustomerDashboard(BigQuery):
             z                   = df_map['associate_count'],
             featureidkey        = "properties.sigla",
             colorscale          = "Blues",
-            colorbar_title      = "Nº de Clientes",
+            colorbar_title      = "Nº of Customers",
             hoverinfo           = "text",
             hovertext           = df_map.apply(
                                         lambda row: f"<b>{row['state_name']}</b><br>"
@@ -164,7 +164,7 @@ class CustomerDashboard(BigQuery):
 
         return fig
 
-    def customer_dashboard(self):
+    def render_dashboard(self):
         self.df = load_data(self)
 
         if self.df.is_empty():
@@ -176,22 +176,14 @@ class CustomerDashboard(BigQuery):
         col1, col2 = self.st.columns(2)
         with col1:
             regions = self.st.multiselect(
-                "Filter by Region:",
+                label   = "Filter by Region:",
                 options = self.df['region'].unique().to_list(),
                 default = self.df['region'].unique().to_list()
             )
 
-        with col2:
-            min_clients = self.st.slider(
-                "Minimum Clients per State:",
-                min_value   = int(self.df['associate_count'].min()),
-                max_value   = int(self.df['associate_count'].max()),
-                value       = int(self.df['associate_count'].min())
-            )
 
         filtered_df = self.df.filter(
-            (pl.col('region').is_in(regions)) &
-            (pl.col('associate_count') >= min_clients)
+            (pl.col('region').is_in(regions))
         )
 
         col1, col2 = self.st.columns([2, 1])

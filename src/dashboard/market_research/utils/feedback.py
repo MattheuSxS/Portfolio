@@ -4,7 +4,7 @@ import plotly.express as px
 from utils.bigquery import BigQuery
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=1200)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
         df = _bq_client.read_bq("feedback_query")
@@ -27,26 +27,26 @@ class FeedbackDashboard(BigQuery):
         self.st = st
         self.df = None
 
-    def feedback_dashboard(self):
+    def render_dashboard(self):
         self.df = load_data(self)
 
         if self.df.is_empty():
-            self.st.warning("Nenhum dado de feedback encontrado ou erro ao carregar dados.")
+            self.st.warning("No feedback data found or error loading data.")
             return
 
-        self.st.header("💬 Dashboard de Feedback")
+        self.st.header("💬 Customer feedback regarding the product")
 
         col1, col2 = self.st.columns(2)
         with col1:
             sentiments = self.st.multiselect(
-                "Sentimentos",
+                label   = "Sentimentos",
                 options = self.df['sentiment'].unique().to_list(),
                 default = self.df['sentiment'].unique().to_list(),
                 key     = "feedback_sentiments"
             )
         with col2:
             ratings = self.st.multiselect(
-                "Ratings",
+                label   = "Ratings",
                 options = self.df['rating'].unique().to_list(),
                 default = self.df['rating'].unique().to_list(),
                 key     = "feedback_ratings"
@@ -56,7 +56,7 @@ class FeedbackDashboard(BigQuery):
         max_date = self.df['feedback_date'].max()
 
         date_range = self.st.date_input(
-            "Período do Feedback",
+            label       = "Período do Feedback",
             value       = [min_date, max_date],
             min_value   = min_date,
             max_value   = max_date,
@@ -130,7 +130,7 @@ class FeedbackDashboard(BigQuery):
 
             if not sentiment_counts.is_empty():
                 fig_pizza = px.pie(
-                    sentiment_counts,
+                    data_frame              = sentiment_counts,
                     values                  = 'count',
                     names                   = 'sentiment',
                     title                   = "Distribution of Feelings",
@@ -160,16 +160,16 @@ class FeedbackDashboard(BigQuery):
 
             if not rating_counts.is_empty():
                 fig_barras = px.bar(
-                    rating_counts,
-                    y='count',
-                    x='rating',
-                    title="Distribution of Ratings",
-                    labels={
-                        'rating': 'Rating',
-                        'count': 'Number of Ratings'
-                    },
-                    color='count',
-                    color_continuous_scale='blues'
+                    data_frame              = rating_counts,
+                    y                       = 'count',
+                    x                       = 'rating',
+                    title                   = "Distribution of Ratings",
+                    labels                  = {
+                                                'rating': 'Rating',
+                                                'count': 'Number of Ratings'
+                                            },
+                    color                   = 'count',
+                    color_continuous_scale  = 'blues'
                 )
 
                 fig_barras.update_traces(
