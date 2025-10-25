@@ -33,3 +33,7 @@ locals {
 
     artifact_registry_url = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}"
 }
+
+output "service_url" {
+  value = google_cloud_run_v2_service.logistream_dashboard.uri
+}

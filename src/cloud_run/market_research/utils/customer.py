@@ -1,55 +1,25 @@
-import requests
 import polars as pl
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 from utils.bigquery import BigQuery
+from utils.brazil_map import MapOfBrazil
 
 @st.cache_data(ttl=12000)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
-        df = _bq_client.read_bq("customer_query")
+        df = _bq_client.read_bq("sql_customer")
         return df
     except Exception as e:
         st.error(f"Error loading customer data: {e}")
         return pl.DataFrame()
 
-class CustomerDashboard(BigQuery):
+class CustomerDashboard(BigQuery, MapOfBrazil):
     def __init__(self, project: str, st: any):
-        super().__init__(project)
+        BigQuery.__init__(self, project)
+        MapOfBrazil.__init__(self)  # I can remove it!
         self.st = st
         self.df = None
-        self.state_names = {
-            'AC': 'Acre', 'AL': 'Alagoas', 'AP': 'Amapá', 'AM': 'Amazonas',
-            'BA': 'Bahia', 'CE': 'Ceará', 'DF': 'Distrito Federal', 'ES': 'Espírito Santo',
-            'GO': 'Goiás', 'MA': 'Maranhão', 'MT': 'Mato Grosso', 'MS': 'Mato Grosso do Sul',
-            'MG': 'Minas Gerais', 'PA': 'Pará', 'PB': 'Paraíba', 'PR': 'Paraná',
-            'PE': 'Pernambuco', 'PI': 'Piauí', 'RJ': 'Rio de Janeiro', 'RN': 'Rio Grande do Norte',
-            'RS': 'Rio Grande do Sul', 'RO': 'Rondônia', 'RR': 'Roraima', 'SC': 'Santa Catarina',
-            'SP': 'São Paulo', 'SE': 'Sergipe', 'TO': 'Tocantins'
-        }
-
-    def get_brazil_geojson(self):
-        geojson_url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson"
-        try:
-            response = requests.get(geojson_url)
-            return response.json()
-        except:
-            return self._get_fallback_geojson()
-
-    def _get_fallback_geojson(self):
-        return {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "id": "SP",
-                    "properties": {"name": "São Paulo"},
-                    "geometry": {"type": "Polygon", "coordinates": [[[]]]}
-                },
-                # Adicione outros estados conforme necessário
-            ]
-        }
 
     def create_brazil_map(self, df):
         geojson_data = self.get_brazil_geojson()
@@ -200,7 +170,7 @@ class CustomerDashboard(BigQuery):
 
         with col2:
 
-            st.subheader("📊 Métricas")
+            st.subheader("📊 Metrics Summary")
 
             total_clients = filtered_df['associate_count'].sum()
             total_estados = filtered_df.height

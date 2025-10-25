@@ -388,11 +388,15 @@ variable "docker_repository" {
     type        = string
 }
 
+variable "sentiment_analysis" {
+    description = ""
+    type        = string
+}
 
+variable "logistream_solutions_report" {
+    description = ""
+    type        = string
+}
 #   ********************************************************************************************************    #
 #                                                   Cloud Run                                                   #
 #   ********************************************************************************************************    #
-variable "sentiment_analysis" {
-    description = "The name of the Cloud Run service"
-    type        = string
-}

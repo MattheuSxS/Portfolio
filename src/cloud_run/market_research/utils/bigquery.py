@@ -87,7 +87,7 @@ class BigQuery:
         """
         query_scripts = \
             {
-                "feedback_query"        : f"""
+                "sql_feedback"        : f"""
                                             SELECT
                                                 TFS.sentiment,
                                                 TF.rating,
@@ -99,7 +99,7 @@ class BigQuery:
                                             USING
                                                 (feedback_id)
                                             """,
-                "customer_query"        : f"""
+                "sql_customer"        : f"""
                                             SELECT
                                                 COUNT(associate_id) AS associate_count,
                                                 TBAS.region,
@@ -114,7 +114,7 @@ class BigQuery:
                                                 TBAS.region,
                                                 TBAS.state
                                             """,
-                "region_sales_query"    : f"""
+                "sql_region_sales"    : f"""
                                             SELECT
                                                 SUM(TBSS.discount_applied) AS discount_applied,
                                                 SUM(TBSS.final_price) AS final_price,
@@ -135,7 +135,7 @@ class BigQuery:
                                                 TBSS.order_status,
                                                 TBSS.purchase_date;
                                             """,
-                "products_sales_query"  : f"""
+                "sql_products_sales"  : f"""
                                             SELECT
                                                 SUM(TBSS.discount_applied) AS discount_applied,
                                                 SUM(TBSS.final_price) AS final_price,
@@ -218,16 +218,4 @@ if __name__ == '__main__':
     result = bq.read_bq(
         query=bq.get_query('purchase_query')
     )
-
-    # list_id         = list
-    # list_comment    = list
-
-    # list_id, list_comment = zip(*result[0:25])
-
-    # print(list_id)
-    # print(list_comment)]
-    import polars as pl
-
-
-    df = pl.DataFrame(result, schema=['feedback_id', 'comment'])
-    print(df)
+    print(result)

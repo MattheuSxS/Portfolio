@@ -7,7 +7,7 @@ from utils.products_sales import ProductsSalesDashboard
 
 class Dashboard:
     def __init__(self, project: str):
-        self.project = project
+        self.project    = project
         self.dashboards = {
             "💰 Region Sales": GeoSalesDashboard,
             "💬 Feedback": FeedbackDashboard,
@@ -22,7 +22,7 @@ class Dashboard:
             layout      = "wide"
         )
 
-        st.sidebar.header("👇🏾 Dashboard Navigation")
+        st.sidebar.header(body = "👇🏾 Navigation")
 
         selected_dashboard = st.sidebar.radio(
             label               = "Select Dashboard:",
@@ -46,37 +46,22 @@ class Dashboard:
             case "📦 Products":
                 dashboard_instance.render_dashboard()
 
-        #TODO: Change it!
-        st.sidebar.header("🌐 General Information")
-        st.sidebar.info(
-            "This dashboard combines sales analytics and feedback "
-            "to provide a complete view of business performance."
-        )
-
-        #TODO: Change it!
-        st.sidebar.header("📝 Additional Resources")
-        with st.sidebar.expander("📋 Dashboard Descriptions"):
-            st.write(\
+        with st.sidebar.expander("🌐 General Information"):
+            st.write(
                 """
-                    **💰 Sales Dashboard:**
-                    - Sales evolution over time
-                    - Total value and discounts
-                    - Regional and state analysis
+                    This dashboard provides insights into various aspects of LogiStream Solutions'
+                    operations, including sales performance across regions, customer feedback analysis,
+                    customer demographics, and product sales trends.
+                """
+            )
 
-                    **💬 Feedback Dashboard:**
-                    - Customer sentiment analysis
-                    - Rating distribution
-                    - Feedback trends over time
-
-                    **👤 Customer Dashboard:**
-                    - Customer distribution by region
-                    - Geographic mapping
-                    - Demographic insights
-
-                    **📦 Products Dashboard:**
-                    - Sales performance by product category
-                    - Inventory levels and trends
-                    - Product feedback analysis
+        with st.sidebar.expander("📝 Add Resources"):
+            st.write(
+                """
+                - **Region Sales**: Visualizes sales data across different regions, highlighting top-performing areas and trends over time.
+                - **Feedback**: Analyzes customer feedback to identify common themes, sentiment trends, and areas for improvement.
+                - **Customer**: Provides insights into customer demographics, purchasing behavior, and lifetime value.
+                - **Products**: Examines product performance, including sales trends, top-selling items, and inventory status.
                 """)
 
         st.sidebar.header("🔄 Data Management")

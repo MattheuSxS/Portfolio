@@ -57,13 +57,10 @@ resource "google_project_iam_member" "roles_sa_default_compute" {
     member  = "serviceAccount:${local.project_id}-compute@developer.gserviceaccount.com"
 }
 
-# resource "google_cloud_run_service_iam_binding" "cf_invoker" {
-#   project  = local.project
-#   service  = replace(google_cloudfunctions2_function.cf_sentiment_analysis.name, "_", "-")
-#   location = var.region
-#   role     = "roles/run.invoker"
-
-#   members = [
-#     "serviceAccount:${local.sa_bq_connect}",
-#   ]
-# }
+resource "google_cloud_run_v2_service_iam_member" "dashboard_invoker" {
+    project  = local.project
+    location = google_cloud_run_v2_service.logistream_dashboard.location
+    name     = google_cloud_run_v2_service.logistream_dashboard.name
+    role     = "roles/run.invoker"
+    member   = "allUsers"
+}

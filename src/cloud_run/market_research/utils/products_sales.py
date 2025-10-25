@@ -8,7 +8,7 @@ from utils.bigquery import BigQuery
 @st.cache_data(ttl=1200)
 def load_products_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
-        df = _bq_client.read_bq("products_sales_query")
+        df = _bq_client.read_bq("sql_products_sales")
         df = df.with_columns(
             pl.col("purchase_date").str.strptime(pl.Date, "%Y-%m-%d")
         )

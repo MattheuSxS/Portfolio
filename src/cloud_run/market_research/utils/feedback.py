@@ -7,7 +7,7 @@ from utils.bigquery import BigQuery
 @st.cache_data(ttl=1200)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
-        df = _bq_client.read_bq("feedback_query")
+        df = _bq_client.read_bq("sql_feedback")
 
         df = df.with_columns(
                 pl.col("feedback_date").cast(pl.Utf8)
@@ -39,7 +39,7 @@ class FeedbackDashboard(BigQuery):
         col1, col2 = self.st.columns(2)
         with col1:
             sentiments = self.st.multiselect(
-                label   = "Sentimentos",
+                label   = "Feelings",
                 options = self.df['sentiment'].unique().to_list(),
                 default = self.df['sentiment'].unique().to_list(),
                 key     = "feedback_sentiments"
@@ -56,7 +56,7 @@ class FeedbackDashboard(BigQuery):
         max_date = self.df['feedback_date'].max()
 
         date_range = self.st.date_input(
-            label       = "Período do Feedback",
+            label       = "Feedback Period",
             value       = [min_date, max_date],
             min_value   = min_date,
             max_value   = max_date,
@@ -118,8 +118,6 @@ class FeedbackDashboard(BigQuery):
             for sentiment, count in sentiment_distribution.sort(by='count', descending=True).rows():
                 percentage = (count / total_feedbacks) * 100
                 self.st.write(f"**{sentiment}:** {count} ({percentage:.1f}%)")
-
-        self.st.subheader("📊 Distribution Analysis")
 
         col3, col4 = self.st.columns(2)
 
