@@ -37,7 +37,7 @@ def main(args) -> None:
     VAR_DATASET_ID          = args.dataset_id
     VAR_DATASET_WRITE_ID    = args.dataset_write_id
     VAR_NUM_FEEDBACKS       = args.num_feedbacks
-    VAR_SQL_QUERY           = sql_query(VAR_PROJECT_ID, VAR_DATASET_ID, VAR_NUM_FEEDBACKS)
+    VAR_SQL_QUERY           = sql_query(VAR_PROJECT_ID, VAR_NUM_FEEDBACKS)
 
 
     df_sales = spark.read.format("bigquery") \

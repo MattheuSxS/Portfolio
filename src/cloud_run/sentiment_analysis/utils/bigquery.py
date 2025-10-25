@@ -93,7 +93,7 @@ class BigQuery:
 
                 SELECT
                     feedback_id,
-                    comment,
+                    CONCAT(comment, ' I give it a rating of ', rating) AS comment,
                     fb_date AS created_at
                 FROM
                     `{self.project}.production.tb_feedback`

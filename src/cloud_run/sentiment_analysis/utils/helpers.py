@@ -96,7 +96,7 @@ def sentiment_analysis(args, comments, start_time) -> BatchResponse:
         )
 
         log_detailed_summary(all_predictions, total_comments, processing_time)
-    
+
         return response
 
 

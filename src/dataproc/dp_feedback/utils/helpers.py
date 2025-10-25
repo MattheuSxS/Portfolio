@@ -5,18 +5,7 @@ from pyspark.sql.types import StructType, StructField, StringType, IntegerType, 
 
 
 
-def sql_query(project_id:str, dataset_id:str, row_limit:int) -> dict:
-    """
-        Generates a SQL query string to select completed orders from a specified BigQuery dataset.
-
-        Args:
-            project_id (str): The Google Cloud project ID.
-            dataset_id (str): The BigQuery dataset ID.
-
-        Returns:
-            str: A formatted SQL query string that selects purchase_id, associate_id, product_id, order_status, and purchase_date
-                from the tb_sales table where order_status is "completed", orders the results randomly, and limits the output to 75,000 rows.
-    """
+def sql_query(project_id:str, row_limit:int) -> dict:
     return {
         "tb_sales": f"""
             WITH SelectData AS (
@@ -67,12 +56,6 @@ def sql_query(project_id:str, dataset_id:str, row_limit:int) -> dict:
 
 
 def feedback_schema() -> StructType:
-    """
-        Defines the schema for feedback data.
-
-        Returns:
-            StructType: A Spark SQL StructType defining the structure of feedback data.
-    """
     return StructType([
         StructField("feedback_id", StringType(), True),
         StructField("purchase_id", StringType(), True),

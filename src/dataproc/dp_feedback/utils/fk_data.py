@@ -9,7 +9,7 @@ class FkFeedback:
 
     def __init__(self, country: str = 'en_US') -> None:
         self.fake = Faker(country)
-        self.fake.seed_instance(0)
+        # self.fake.seed_instance(0)
         self.fake.add_provider(
             DynamicProvider(
                 provider_name="product_categories",
@@ -52,7 +52,7 @@ class FkFeedback:
 
 
     def generate_comment(self, rating:int) -> str:
-        base_comment = self.fake.paragraph(nb_sentences=3)
+        base_comment = self.fake.paragraph(nb_sentences=random.randint(3, 5))
 
         match rating:
             case 1:
@@ -83,7 +83,7 @@ class FkFeedback:
                 "fb_date"           : date,
                 "verified_purchase" : random.choice([True, False]),
                 "would_recommend"   : rating >= 4 if random.random() > 0.2 else rating == 3,
-                "company_response"  : self.fake.paragraph(nb_sentences=2) if random.random() > 0.7 else None,
+                "company_response"  : self.fake.paragraph(nb_sentences=3) if random.random() > 0.7 else None,
                 "response_date"     : date + timedelta(days=random.randint(1, 7)) if random.random() > 0.7 else None
             })
 
