@@ -64,3 +64,10 @@ resource "google_cloud_run_v2_service_iam_member" "dashboard_invoker" {
     role     = "roles/run.invoker"
     member   = "allUsers"
 }
+
+resource "google_project_iam_member" "roles_sa_cloud_run" {
+    project = local.project
+    count   = length(var.roles_sa_cloud_run)
+    role    = var.roles_sa_cloud_run[count.index]
+    member  = "serviceAccount:${local.sa_cloud_run}"
+}

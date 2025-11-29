@@ -20,7 +20,7 @@ logging.basicConfig(
 # ******************************************************************************************************************** #
 #                                              Main Execution Function                                                 #
 # ******************************************************************************************************************** #
-def main(args=None):
+def main(args=None) -> None:
     start_time = time.time()
 
     try:
@@ -36,6 +36,8 @@ def main(args=None):
             logging.error("❌ Batch size must be a positive integer.")
             raise ValueError("Invalid batch size.")
 
+        #TODO: need to better it
+        # ------------------------------------------------------------------------------------ #
         if args.project:
             bq = BigQuery(project=args.project)
             result = bq.read_bq(query=bq.get_query())
@@ -45,7 +47,7 @@ def main(args=None):
             orient  = "row",
             schema  = ['feedback_id', 'comment', 'created_at']
         )
-
+        # ------------------------------------------------------------------------------------ #
         comments = df['comment'].to_list()
 
         if comments:

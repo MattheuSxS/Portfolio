@@ -125,6 +125,11 @@ variable "roles_sa_cf_pb_sensor" {
     type        = list(string)
 }
 
+variable "roles_sa_cloud_run" {
+    description = "The roles to assign to the Cloud Run service account"
+    type        = list(string)
+}
+
 #   ********************************************************************************************************    #
 #                                              Google Cloud Function                                            #
 #   ********************************************************************************************************    #

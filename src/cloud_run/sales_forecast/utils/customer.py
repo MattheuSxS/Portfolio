@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from utils.bigquery import BigQuery
 from utils.brazil_map import MapOfBrazil
 
-@st.cache_data(ttl=1800)
+@st.cache_data(ttl=18000)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
         df = _bq_client.read_bq("sql_customer")

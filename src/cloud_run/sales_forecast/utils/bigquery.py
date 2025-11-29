@@ -133,7 +133,7 @@ class BigQuery:
                                                 TBSS.region,
                                                 TBAS.state,
                                                 TBSS.order_status,
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date);
+                                                TBSS.purchase_date;
                                             """,
                 "sql_products_sales"  : f"""
                                             SELECT

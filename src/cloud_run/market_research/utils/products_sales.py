@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from utils.bigquery import BigQuery
 
 
-@st.cache_data(ttl=1200)
+@st.cache_data(ttl=1800)
 def load_products_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
         df = _bq_client.read_bq("sql_products_sales")
@@ -24,6 +24,7 @@ class ProductsSalesDashboard(BigQuery):
         self.st = st
         self.df = None
 
+    #TODO : i MUST change all graphs
     def create_top_products_chart(self, df):
         top_products = df.group_by(['region', 'name']).agg([
             pl.sum('final_price').alias('total_sales'),
@@ -31,7 +32,7 @@ class ProductsSalesDashboard(BigQuery):
         ]).sort('total_sales', descending=True).head(20)
 
         fig = px.bar(
-            top_products.to_pandas(),
+            data_frame              = top_products,
             x                       = 'name',
             y                       = 'total_sales',
             color                   = 'region',
@@ -60,7 +61,7 @@ class ProductsSalesDashboard(BigQuery):
         ])
 
         fig = px.bar(
-            status_by_region.to_pandas(),
+            data_frame              = status_by_region,
             x                       = 'region',
             y                       = 'total_sales',
             color                   = 'order_status',
@@ -71,7 +72,7 @@ class ProductsSalesDashboard(BigQuery):
                                         'region': 'Region',
                                         'order_status': 'Status'
                                     },
-            color_discrete_sequence  = ['#EF553B','#00CC96']
+            color_discrete_sequence  = ['#00CC96', '#EF553B']
         )
 
         fig.update_layout(
@@ -82,31 +83,37 @@ class ProductsSalesDashboard(BigQuery):
         return fig
 
     def create_heatmap_products_region(self, df):
-        top_products = df.group_by('name').agg([
-            pl.sum('final_price').alias('total_sales')
-        ]).sort('total_sales', descending=True).head(15)['name'].to_list()
-
-        filtered_df = df.filter(pl.col('name').is_in(top_products))
-
-        pivot_data = filtered_df.group_by(['name', 'region']).agg([
-            pl.sum('final_price').alias('total_sales')
-        ]).to_pandas().pivot_table(
-            index       = 'name',
-            columns     = 'region',
-            values      = 'total_sales',
-            fill_value  = 0
+        pivot_data = (df
+            .group_by('name')
+            .agg(pl.sum('final_price').alias('total_sales'))
+            .sort('total_sales', descending=True)
+            .head(15)
+            .join(df, on='name', how='inner')
+            .group_by(['name', 'region'])
+            .agg(pl.sum('final_price').alias('total_sales'))
+            .pivot(
+                values              = 'total_sales',
+                index               = 'name',
+                columns             = 'region',
+                aggregate_function  = 'sum'
+            )
+            .fill_null(0)
         )
 
+        products    = pivot_data['name'].to_list()
+        regions     = pivot_data.columns[1:]
+        values      = pivot_data.select(pl.exclude('name')).to_numpy()
+
         fig = px.imshow(
-            pivot_data,
+            img                     = values,
+            x                       = regions,
+            y                       = products,
             title                   = "🔥 Heatmap: Sales by Product and Region",
             labels                  = dict(x="Region", y="Product", color="Sales (R$)"),
             aspect                  = "auto",
             color_continuous_scale  = "YlOrRd",
             text_auto               = True
-        )
-
-        fig.update_layout(
+        ).update_layout(
             height      = 600,
             xaxis_title = "Region",
             yaxis_title = "Product"
@@ -132,7 +139,7 @@ class ProductsSalesDashboard(BigQuery):
         fig.update_traces(
             textposition    = 'inside',
             textinfo        = 'percent+label',
-            hovertemplate   = '<b>%{label}</b><br>Vendas: R$ %{value:,.2f}<br>Percentual: %{percent}'
+            hovertemplate   = '<b>%{label}</b><br>Sales: R$ %{value:,.2f}<br>Percentage: %{percent}'
         )
 
         fig.update_layout(
@@ -178,12 +185,8 @@ class ProductsSalesDashboard(BigQuery):
 
     def create_weekly_heatmap(self, df):
         try:
-            if df['purchase_date'].dtype != pl.Utf8:
-                df = df.with_columns(pl.col("purchase_date").cast(pl.Utf8))
-
             df_weekly = df.with_columns(
                 pl.col('purchase_date')
-                .str.strptime(pl.Date, "%Y-%m-%d", strict=False)
                 .dt.truncate("1w")
                 .alias('week_start')
             )
@@ -194,27 +197,34 @@ class ProductsSalesDashboard(BigQuery):
 
             top_product_names = top_products['name'].to_list()
 
-            weekly_data = df_weekly.filter(
-                pl.col('name').is_in(top_product_names)
-            ).group_by(['week_start', 'name']).agg([
-                pl.sum('final_price').alias('weekly_sales')
-            ]).sort('week_start')
-
-            weekly_pd = weekly_data.to_pandas()
-
-            weekly_pd['week_label'] = weekly_pd['week_start'].dt.strftime('%d/%m')
-
-            pivot_data = weekly_pd.pivot_table(
-                index       = 'name',
-                columns     = 'week_label',
-                values      = 'weekly_sales',
-                fill_value  = 0
+            weekly_data = (df_weekly
+                .filter(pl.col('name').is_in(top_product_names))
+                .group_by(['week_start', 'name'])
+                .agg(pl.sum('final_price').alias('weekly_sales'))
+                .sort('week_start')
             )
 
+            weekly_data_formatted = weekly_data.with_columns(
+                pl.col('week_start').dt.strftime('%d/%m').alias('week_label')
+            )
+
+            pivot_data = weekly_data_formatted.pivot(
+                values='weekly_sales',
+                index='name',
+                columns='week_label',
+                aggregate_function='sum'
+            ).fill_null(0)
+
+            product_names = pivot_data['name'].to_list()
+            week_labels = pivot_data.columns[1:]
+            sales_values = pivot_data.select(pl.exclude('name')).to_numpy()
+
             fig = px.imshow(
-                pivot_data,
-                title                   = "🗓️ Weekly sales by product",
-                labels                  = dict(x="Semana", y="Produto", color="Vendas (R$)"),
+                img                     = sales_values,
+                x                       = week_labels,
+                y                       = product_names,
+                title                   = "🗓️ Weekly Sales by Product",
+                labels                  = dict(x="Week", y="Product", color="Sales (R$)"),
                 aspect                  = "auto",
                 color_continuous_scale  = "Blues",
                 text_auto               = '.2s'
@@ -222,7 +232,7 @@ class ProductsSalesDashboard(BigQuery):
 
             fig.update_layout(
                 height      = 600,
-                xaxis_title = "Week (Start)",
+                xaxis_title = "Week (Start Date)",
                 yaxis_title = "Product"
             )
 
@@ -230,10 +240,9 @@ class ProductsSalesDashboard(BigQuery):
 
         except Exception as e:
             self.st.error(f"Error creating weekly heatmap: {e}")
-
             fig = go.Figure()
             fig.update_layout(
-                title   = "🗓️ Weekly Sales by Product (Data Temporarily Unavailable)",
+                title   = "🗓️ Weekly Sales by Product (Data temporarily unavailable)",
                 height  = 400
             )
             return fig
@@ -246,7 +255,7 @@ class ProductsSalesDashboard(BigQuery):
         ]).sort('total_sales', descending=True)
 
         fig = px.pie(
-            category_share.to_pandas(),
+            data_frame              = category_share,
             values                  = 'total_sales',
             names                   = 'category',
             title                   = "🥧 Market Share by Category",
@@ -257,26 +266,33 @@ class ProductsSalesDashboard(BigQuery):
         fig.update_traces(
             textposition    = 'inside',
             textinfo        = 'percent+label',
-            hovertemplate   = '<b>%{label}</b><br>Vendas: R$ %{value:,.2f}<br>Participação: %{percent}'
+            hovertemplate   = '<b>%{label}</b><br>Sales: R$ %{value:,.2f}<br>Percentage: %{percent}'
         )
 
         fig.update_layout(height=500, showlegend=False)
         return fig
 
     def create_category_status_heatmap(self, df):
-        category_status = df.group_by(['category', 'order_status']).agg([
-            pl.sum('final_price').alias('total_sales')
-        ])
-
-        pivot_data = category_status.to_pandas().pivot_table(
-            index       = 'category',
-            columns     = 'order_status',
-            values      = 'total_sales',
-            fill_value  = 0
+        pivot_data = (df
+            .group_by(['category', 'order_status'])
+            .agg(pl.sum('final_price').alias('total_sales'))
+            .pivot(
+                values='total_sales',
+                index='category',
+                columns='order_status',
+                aggregate_function='sum'
+            )
+            .fill_null(0)
         )
 
+        categories  = pivot_data['category'].to_list()
+        statuses    = pivot_data.columns[1:]
+        values      = pivot_data.select(pl.exclude('category')).to_numpy()
+
         fig = px.imshow(
-            pivot_data,
+            img                     = values,
+            x                       = statuses,
+            y                       = categories,
             title                   = "🔥 Performance by Category and Status",
             labels                  = dict(x="Status", y="Category", color="Sales (R$)"),
             aspect                  = "auto",
@@ -285,6 +301,7 @@ class ProductsSalesDashboard(BigQuery):
         )
 
         fig.update_layout(height=400)
+
         return fig
 
     def create_category_region_stacked(self, df):
@@ -304,6 +321,7 @@ class ProductsSalesDashboard(BigQuery):
         )
 
         fig.update_layout(height=500)
+
         return fig
 
     def create_category_discount_scatter(self, df):
@@ -431,7 +449,7 @@ class ProductsSalesDashboard(BigQuery):
 
         with self.st.expander("📊 Detailed Table by Category"):
             pivot_table = self.create_category_pivot_table(category_df)
-            self.st.dataframe(pivot_table.to_pandas(), use_container_width=True, height=400)
+            self.st.dataframe(data = pivot_table, use_container_width=True, height=400)
 
     def render_dashboard(self):
         self.df = load_products_data(self)
@@ -489,7 +507,7 @@ class ProductsSalesDashboard(BigQuery):
         self.st.plotly_chart(self.create_heatmap_products_region(filtered_df), use_container_width=True)
         self.st.plotly_chart(self.create_weekly_heatmap(filtered_df), use_container_width=True)
 
-        with self.st.expander("📋 Tabela Resumo - Top Produtos"):
+        with self.st.expander("📋 Resumo - Top Produtos"):
             summary_table = filtered_df.group_by(['name', 'region', 'order_status']).agg([
                 pl.sum('final_price').alias('total_sales'),
                 pl.sum('discount_applied').alias('total_discount'),
@@ -497,7 +515,7 @@ class ProductsSalesDashboard(BigQuery):
             ]).sort('total_sales', descending=True).head(20)
 
             self.st.dataframe(
-                summary_table,
+                data                = summary_table,
                 use_container_width = True,
                 height              = 400
             )

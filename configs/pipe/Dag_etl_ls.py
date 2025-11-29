@@ -21,6 +21,7 @@ from datetime import timedelta, datetime, time
 from google.protobuf.duration_pb2 import Duration
 from airflow.operators.empty import EmptyOperator
 from airflow.utils.trigger_rule import TriggerRule
+from kubernetes.client import models as k8s_models
 from airflow.operators.python import PythonOperator
 from airflow.providers.google.cloud.operators import bigquery
 from airflow.providers.google.cloud.operators.dataproc import (
@@ -28,8 +29,7 @@ from airflow.providers.google.cloud.operators.dataproc import (
     DataprocSubmitJobOperator,
     DataprocDeleteClusterOperator,
 )
-from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
-from kubernetes.client import models as k8s_models
+from airflow.providers.google.cloud.operators.cloud_run import CloudRunExecuteJobOperator
 
 # ====================================================================================================================================
 #                                                  ~~~~> Loggin Globais <~~~~                                                        #
@@ -369,30 +369,16 @@ def delete_dataproc_cluster() -> DataprocDeleteClusterOperator:
 # ====================================================================================================================================
 #                                             ~~~~> Functions Cloud Kubernetes <~~~~                                                 #
 # ====================================================================================================================================
-def feedback_sentiment_analysis() -> KubernetesPodOperator:
-    return KubernetesPodOperator(
+def feedback_sentiment_analysis() -> CloudRunExecuteJobOperator:
+    return CloudRunExecuteJobOperator(
         task_id                 = f"run_{VAR_AR_IMAGE}",
-        image                   = f"{VAR_AR_REGION}-docker.pkg.dev/{VAR_AR_PROJECT_ID}/{VAR_AR_REPOSITORY}/{VAR_AR_IMAGE}:{VAR_AR_TAG}",
-        name                    = f"python_{VAR_AR_IMAGE}",
-        namespace               = "composer-user-workloads",
-        cmds                    = ["python", "main.py"],
-        arguments               = ["--project", VAR_AR_PROJECT_ID],
-        env_vars                = {},
-        container_resources     = k8s_models.V1ResourceRequirements(
-                                    requests={"cpu": "3000m", "memory": "12G", "ephemeral-storage": "12G"},
-                                    limits={"cpu": "3000m", "memory": "12G", "ephemeral-storage": "12G"},
-                                ),
-        image_pull_policy       = "Always",  # Ou "IfNotPresent"
-        startup_timeout_seconds = VAR_AR_STARTUP_TIMEOUT,
-        get_logs                = True,
-        log_events_on_failure   = True,
-        service_account_name    = "default",  # Service account padrão do Composer
-        is_delete_operator_pod  = True,
-        in_cluster              = False,
-        config_file             = "/home/airflow/composer_kube_config",
-        kubernetes_conn_id      = "kubernetes_default",
+        job_name                = VAR_AR_IMAGE,
+        region                  = VAR_AR_REGION,
+        project_id              = VAR_AR_PROJECT_ID,
+        overrides               = {},
+        gcp_conn_id             = "google_cloud_default",
+        polling_period_seconds  = 15,
     )
-
 
 # ====================================================================================================================================
 #                                                 ~~~~> Airflow Pipeline <~~~~                                                       #

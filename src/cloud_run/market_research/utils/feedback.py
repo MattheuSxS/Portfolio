@@ -4,7 +4,7 @@ import plotly.express as px
 from utils.bigquery import BigQuery
 
 
-@st.cache_data(ttl=1200)
+@st.cache_data(ttl=1800)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
         df = _bq_client.read_bq("sql_feedback")

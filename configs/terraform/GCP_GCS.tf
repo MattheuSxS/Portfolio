@@ -112,20 +112,6 @@ resource "google_storage_bucket_object" "cf_products_inventory_files" {
 }
 
 
-resource "google_storage_bucket_object" "cf_sentiment_analysis_files" {
-    name            = "${var.cf_sentiment_analysis}/index.zip"
-    bucket          = "${local.bkt_cf_portfolio}"
-    source          = data.archive_file.cf_path_sentiment_analysis_files.output_path
-    content_type    = "application/zip"
-
-    lifecycle {
-        ignore_changes = [
-        source_md5hash,
-        ]
-    }
-}
-
-
 resource "google_storage_bucket_object" "airflow_dags" {
     for_each        = fileset("../pipe/", "**.py")
     name            = "dags/${each.value}"
@@ -179,18 +165,18 @@ resource "google_storage_bucket_object" "spark_path_tb_feedback" {
 }
 
 
-# resource "null_resource" "bkt_compose_delete" {
-#     triggers = {
-#         bucket_name = local.bkt_airflow
-#     }
-#     depends_on = [null_resource.pause_all_dags]
+resource "null_resource" "bkt_compose_delete" {
+    triggers = {
+        bucket_name = local.bkt_airflow
+    }
+    depends_on = [null_resource.pause_all_dags]
 
-#     provisioner "local-exec" {
-#         when    = destroy
-#         command = <<-EOT
-#         sleep 30
-#         echo "Deleting all objects in GCS bucket ${self.triggers.bucket_name}..."
-#         gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
-#         EOT
-#     }
-# }
+    provisioner "local-exec" {
+        when    = destroy
+        command = <<-EOT
+        sleep 30
+        echo "Deleting all objects in GCS bucket ${self.triggers.bucket_name}..."
+        gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
+        EOT
+    }
+}
