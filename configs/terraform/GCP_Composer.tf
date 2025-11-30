@@ -21,7 +21,7 @@ resource "google_composer_environment" "portfolio-composer" {
             }
             triggerer {
                 cpu        = 0.5
-                memory_gb  = 1
+                memory_gb  = 2
                 count      = 2
             }
             dag_processor {

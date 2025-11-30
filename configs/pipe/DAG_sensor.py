@@ -15,12 +15,11 @@
 import json
 import logging
 import subprocess
-from airflow import DAG
+from airflow.sdk import DAG
 from airflow.models import Variable
 from datetime import timedelta, datetime
-from airflow.operators.empty import EmptyOperator
-from airflow.operators.python import PythonOperator
-
+from airflow.providers.standard.operators.empty import EmptyOperator
+from airflow.providers.standard.operators.python import PythonOperator
 
 # ====================================================================================================================================
 #                                                  ~~~~> Loggin Globais <~~~~                                                        #
@@ -65,9 +64,9 @@ default_args = dict(
 dag_kwargs = dict(
     default_args        = default_args,
     description         = __description__,
-    schedule_interval   = __env_var__['schedule_interval'],
+    schedule            = __env_var__['schedule_interval'],
     catchup             = False,
-    concurrency         = 2,
+    max_active_runs     = 2,
     tags                = ["MTS - Pipeline"],
 )
 

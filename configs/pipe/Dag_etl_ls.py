@@ -15,21 +15,22 @@
 import json
 import logging
 import subprocess
-from airflow import DAG
+from airflow.sdk import DAG
 from airflow.models import Variable
 from datetime import timedelta, datetime, time
 from google.protobuf.duration_pb2 import Duration
-from airflow.operators.empty import EmptyOperator
-from airflow.utils.trigger_rule import TriggerRule
-from kubernetes.client import models as k8s_models
-from airflow.operators.python import PythonOperator
+from airflow.task.trigger_rule import TriggerRule
 from airflow.providers.google.cloud.operators import bigquery
 from airflow.providers.google.cloud.operators.dataproc import (
     DataprocCreateClusterOperator,
     DataprocSubmitJobOperator,
     DataprocDeleteClusterOperator,
 )
+from airflow.providers.standard.operators.empty import EmptyOperator
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.providers.common.compat.
 from airflow.providers.google.cloud.operators.cloud_run import CloudRunExecuteJobOperator
+
 
 # ====================================================================================================================================
 #                                                  ~~~~> Loggin Globais <~~~~                                                        #
@@ -88,9 +89,9 @@ default_args = dict(
 dag_kwargs = dict(
     default_args        = default_args,
     description         = __description__,
-    schedule_interval   = __env_var__["schedule_interval"],
+    schedule            = __env_var__["schedule_interval"],
     catchup             = False,
-    concurrency         = 3,
+    max_active_runs     = 2,
     tags                = ["MTS - Pipeline"],
 )
 

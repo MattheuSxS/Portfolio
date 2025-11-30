@@ -1,11 +1,13 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from airflow.models import Variable
-from airflow.utils.dates import days_ago
+from datetime import timedelta, datetime
 import logging
 
 # Configure o logger para ver as mensagens no log do Airflow
 log = logging.getLogger(__name__)
+__start_job__   = datetime.now() - timedelta(days=1)
+
 
 def delete_airflow_variable(variable_name):
     """Deleta uma variável do Airflow."""
@@ -18,8 +20,8 @@ def delete_airflow_variable(variable_name):
 
 with DAG(
     dag_id='delete_composer_variable_dag',
-    start_date=days_ago(1),
-    schedule_interval=None,
+    start_date=__start_job__,
+    schedule=None,
     catchup=False,
     tags=['admin', 'variables'],
 ) as dag:
