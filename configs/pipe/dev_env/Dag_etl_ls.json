@@ -144,14 +144,6 @@
                     "auto_delete_ttl": 0
                 }
             }
-        },
-        "Artifact_registry": {
-            "project_id": "mts-default-portfolio",
-            "region": "us-east1",
-            "repository": "docker-repository",
-            "image": "sentiment-analysis",
-            "tag": "latest",
-            "startup_timeout_seconds": 1200
         }
     }
 }

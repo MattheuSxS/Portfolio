@@ -1,14 +1,14 @@
 # ================================================================================================================================= --
 # Object................: Dags of datase Ls                                                                            .
 # Creation Date.........: 2025/04/25                                                                                   |
-# Version...............: 0.0.1                                                                                       < >
+# Version...............: 1.0.0                                                                                       < >
 # Project...............: Technical challenge                                                                          |
 # VS....................:                                                                  ______                    (^ ^)
 # Department............: Arquitetura e Engenharia de Dados                      .-,__,-. |Eatons|                    `|`
 # Owner.................: Gerencia: gd13 - Engenharia B2C                        | ]""[ | |""""""|       ,.,__         |
 # Author................: Matheus Dos S. Silva | matheus.s@                      | |""| | |""""""|     /`.     ` ;     |
 # maintainer............:                                                        | |""| | |""""""|   /`.  '.       ;   |
-# Modification Date.....:                                                        | |""| | |""""""| /`.  '.  .       ; /^\
+# Modification Date.....:  2025/11/30                                            | |""| | |""""""| /`.  '.  .       ; /^\
 # Obs...................:                                    ---Toronto----------'-'--'-'-'------''---'---'--'-------'---'----ldb
 # ================================================================================================================================= --
 
@@ -28,8 +28,6 @@ from airflow.providers.google.cloud.operators.dataproc import (
 )
 from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.standard.operators.python import PythonOperator
-from airflow.providers.common.compat.
-from airflow.providers.google.cloud.operators.cloud_run import CloudRunExecuteJobOperator
 
 
 # ====================================================================================================================================
@@ -66,13 +64,6 @@ VAR_DP_BUCKET       = __env_var__["dataproc_config"]["cluster_config"]["config_b
 VAR_DP_CLUSTER_NAME = __env_var__["dataproc_config"]["cluster_name"]
 VAR_DP_SECRET_ID    = __env_var__["dataproc_config"]["secret_id"]
 
-VAR_AR_PROJECT_ID       = __env_var__["Artifact_registry"]["project_id"]
-VAR_AR_REGION           = __env_var__["Artifact_registry"]["region"]
-VAR_AR_REPOSITORY       = __env_var__["Artifact_registry"]["repository"]
-VAR_AR_IMAGE            = __env_var__["Artifact_registry"]["image"]
-VAR_AR_TAG              = __env_var__["Artifact_registry"]["tag"]
-VAR_AR_STARTUP_TIMEOUT  = __env_var__["Artifact_registry"]["startup_timeout_seconds"]
-
 
 # ====================================================================================================================================
 #                                           ~~~~> Propriedades da DAG <~~~~                                                          #
@@ -91,7 +82,7 @@ dag_kwargs = dict(
     description         = __description__,
     schedule            = __env_var__["schedule_interval"],
     catchup             = False,
-    max_active_runs     = 2,
+    max_active_runs     = 1,
     tags                = ["MTS - Pipeline"],
 )
 
@@ -258,7 +249,7 @@ def cluster_config(job_name: str = None) -> dict:
 
     CLUSTER_NAME = __env_var__["dataproc_config"]["cluster_name"]
     CLUSTER_CONFIG = __env_var__["dataproc_config"]["cluster_config"]
-    CLUSTER_CONFIG["gce_cluster_config"]["zone_uri"] = f"https://www.googleapis.com/compute/v1/projects/{VAR_DP_PROJECT_ID}/zones/us-east1-c" # In creating...
+    CLUSTER_CONFIG["gce_cluster_config"]["zone_uri"] = f"https://www.googleapis.com/compute/v1/projects/{VAR_DP_PROJECT_ID}/zones/us-east1-c"
     # CLUSTER_CONFIG["gce_cluster_config"]["subnetwork_uri"] = "projects/shared-services-268518/regions/us-east1/subnetworks/shared" # In creating...
     # CLUSTER_CONFIG["gce_cluster_config"]["tags"] = CLUSTER_CONFIG["gce_cluster_config"]["tags"].extend('Test') # In creating...
     CLUSTER_CONFIG["software_config"]["image_version"] = "2.3-debian12"
@@ -367,28 +358,13 @@ def delete_dataproc_cluster() -> DataprocDeleteClusterOperator:
             retries         = 2
         )
 
-# ====================================================================================================================================
-#                                             ~~~~> Functions Cloud Kubernetes <~~~~                                                 #
-# ====================================================================================================================================
-def feedback_sentiment_analysis() -> CloudRunExecuteJobOperator:
-    return CloudRunExecuteJobOperator(
-        task_id                 = f"run_{VAR_AR_IMAGE}",
-        job_name                = VAR_AR_IMAGE,
-        region                  = VAR_AR_REGION,
-        project_id              = VAR_AR_PROJECT_ID,
-        overrides               = {},
-        gcp_conn_id             = "google_cloud_default",
-        polling_period_seconds  = 15,
-    )
 
 # ====================================================================================================================================
 #                                                 ~~~~> Airflow Pipeline <~~~~                                                       #
 # ====================================================================================================================================
 with DAG(dag_id=__artefact__, start_date=default_args["start_date"], **dag_kwargs):
 
-    dummy_end          = dummy("End")
     bq_merge_delivery   = bq_procedure_exec("merge_delivery")
-    spark_feedback      = spark_submit_job("tb_feedback")
 
 
     dummy("Start") >> [
@@ -398,11 +374,9 @@ with DAG(dag_id=__artefact__, start_date=default_args["start_date"], **dag_kwarg
             spark_submit_job("tb_order") >> \
                 call_cf("cf-delivery-sensor") >> \
                     bq_merge_delivery >> \
-                        spark_feedback >> \
+                        spark_submit_job("tb_feedback") >> \
                             delete_dataproc_cluster() >> \
-                                dummy_end
+                                dummy("End")
 
     if datetime.now().time() >= time(7, 0):
        bq_procedure_exec("delete_delivery_status") >> bq_merge_delivery
-
-    spark_feedback >> feedback_sentiment_analysis() >> dummy_end
