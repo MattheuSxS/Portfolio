@@ -48,6 +48,7 @@ def _hide_card(card_number: str) -> str:
     """
 
     clean_card = re.sub(r'\D', '', card_number)
+    print(clean_card)
     if not 13 <= len(card_number) <= 19:
         logging.warning("Invalid card number length")
         return "0000 0000 0000 0000"
@@ -148,3 +149,8 @@ def split_data(data_list: list) -> dict[str, list]:
             "tb_cards":     [data['cards'] for data in data_list],
             "tb_address":   [data['address'] for data in data_list]
         }
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    _hide_card("1234-5678-9012-3456")

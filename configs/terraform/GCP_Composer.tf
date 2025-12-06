@@ -160,18 +160,18 @@ resource "local_file" "create_airflow_variable_script" {
   EOT
 }
 
-# resource "null_resource" "create_airflow_variable" {
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       echo "Waiting for Composer to be ready..."
-#       sleep 30
-#       gcloud composer environments storage plugins import \
-#         --environment ${var.composer_name} \
-#         --location ${var.region} \
-#         --source ${local_file.create_airflow_variable_script.filename}
-#     EOT
-#   }
-# }
+resource "null_resource" "create_airflow_variable" {
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Waiting for Composer to be ready..."
+      sleep 30
+      gcloud composer environments storage plugins import \
+        --environment ${var.composer_name} \
+        --location ${var.region} \
+        --source ${local_file.create_airflow_variable_script.filename}
+    EOT
+  }
+}
 
 resource "null_resource" "pause_all_dags" {
     triggers = {

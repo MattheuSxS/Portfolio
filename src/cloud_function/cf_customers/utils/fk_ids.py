@@ -1,3 +1,4 @@
+import unicodedata
 from faker import Faker
 from random import choice
 from datetime import date, timedelta
@@ -25,6 +26,14 @@ class FakeDataPerson:
         self.fake = Faker(country)
         # self.fake.seed_instance(0)
 
+    @staticmethod
+    def _normalize_for_email(text):
+        text = unicodedata.normalize('NFD', text)
+        text = ''.join(c for c in text if unicodedata.category(c) != 'Mn')
+        text = ''.join(c for c in text if c.isalnum() or c.isspace())
+        return text.lower()
+
+
     def dict_customers(self) -> dict[str, dict]:
         """
             Generate a dictionary representing a customer with fake data.
@@ -34,6 +43,7 @@ class FakeDataPerson:
                     - associate_id (str): Unique identifier for the associate.
                     - name (str): Customer's first name.
                     - last_name (str): Customer's last name(s).
+                    - gender (str): Customer's gender ('M', 'F', or 'O').
                     - cpf (str): Unique CPF number.
                     - email (str): Customer's email address.
                     - phone (str): Unique phone number.
@@ -43,13 +53,14 @@ class FakeDataPerson:
                     - deleted_at (None): Placeholder for deletion timestamp.
         """
 
-        full_name = f"{self.fake.first_name()} {self.fake.last_name()}"
+        full_name = self._normalize_for_email(f"{self.fake.first_name()} {self.fake.last_name()}")
         fk_birthday = (date.today() - timedelta(days=6570)) # 18 years ago
         return \
             {
                 "associate_id": f"ID##{self.fake.unique.uuid4()}",
                 "name":         full_name.split()[0],
                 "last_name":    " ".join(full_name.split()[1:4]),
+                "gender":       choice(['M', 'F', 'O']),
                 "cpf":          self.fake.unique.cpf(),
                 "email":        f"{full_name.replace(' ', '.')}@{self.fake.domain_name()}".lower(),
                 "phone":        self.fake.unique.phone_number(),
@@ -89,7 +100,7 @@ class FakeDataPerson:
                 "card_expiration_date": self.fake.credit_card_expire(start='now', end='+10y', date_format='%m/%y'),
                 "card_code_security":   self.fake.credit_card_security_code(card_type=card_flags),
                 "card_flag":            card_flags,
-                "Enabled":              True,
+                "Enabled":              choice([True, False]),
                 "created_at":           None,
                 "updated_at":           None,
                 "deleted_at":           None,
@@ -105,8 +116,5 @@ if __name__ == "__main__":
         print("------------ Data Customer ------------")
         for key, value in fake_data.dict_customers().items():
             print(f"{key}: {value}")
-        print("------------ Data Card ------------")
-        # for key, value in fake_data.dict_card().items():
-        #     print(f"{key}: {value}")
         print("-" * 40)
         print()

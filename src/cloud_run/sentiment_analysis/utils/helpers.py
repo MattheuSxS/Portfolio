@@ -140,6 +140,6 @@ def df_columns_add(df: pl.DataFrame, response: BatchResponse) -> pl.DataFrame:
             pl.Series(name="confidence", values=[res.confidence for res in response.predictions]),
             pl.Series(name="is_positive", values=[res.is_positive for res in response.predictions]),
             pl.Series(name="is_neutral", values=[res.is_neutral for res in response.predictions]),
-            pl.col("created_at").cast(pl.String).str.slice(0, 19),
+            pl.col("created_at").dt.strftime('%Y-%m-%d %H:%M:%S'),
             pl.lit(updated_at).alias("updated_at")
         ])

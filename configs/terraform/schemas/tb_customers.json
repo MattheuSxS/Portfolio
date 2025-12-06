@@ -18,6 +18,12 @@
         "description": "Last name of the customer"
     },
     {
+        "name": "gender",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Gender of the customer"
+    },
+    {
         "name": "cpf",
         "type": "STRING",
         "mode": "REQUIRED",

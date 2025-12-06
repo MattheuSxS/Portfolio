@@ -1,4 +1,3 @@
-#TODO: I must get back here tomorrow
 import logging
 from typing import List, Dict
 from utils.bigquery import BigQuery
@@ -104,9 +103,9 @@ def main(request: dict) -> dict:
         tables = credentials['table_id']
         for _, table in enumerate(tables, 1):
             bq_client.batch_load_from_memory(
-                data=structured_data[table],
-                dataset=credentials['dataset_id'],
-                table=table
+                data    = structured_data[table],
+                dataset = credentials['dataset_id'],
+                table   = table
             )
 
         logging.info("All data inserted successfully into BigQuery tables.")

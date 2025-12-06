@@ -36,11 +36,17 @@ jobs:
           apt-get update
           apt-get install -y build-essential
 
-      - name: Run tests
+      - name: 🐍 Setup Python and Install Python dependencies
+        run: |
+            python3 -m venv /opt/venv
+            . /opt/venv/bin/activate
+            pip install --upgrade pip
+            pip install -r ./src/requirements-dev.txt
+
+      - name: Run tests 🐍
         run: |
           echo "Running tests 👀"
-          sleep 5
-          echo "Tests successfully completed 🫦"
+          make coverage
 
 
   tf-test:

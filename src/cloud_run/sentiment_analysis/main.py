@@ -2,7 +2,6 @@ import time
 import json
 import logging
 import argparse
-import polars as pl
 from utils.bigquery import BigQuery
 from utils.helpers import sentiment_analysis, df_columns_add
 
@@ -36,18 +35,10 @@ def main(args=None) -> None:
             logging.error("❌ Batch size must be a positive integer.")
             raise ValueError("Invalid batch size.")
 
-        #TODO: need to better it
-        # ------------------------------------------------------------------------------------ #
         if args.project:
             bq = BigQuery(project=args.project)
-            result = bq.read_bq(query=bq.get_query())
+            df = bq.read_bq()
 
-        df = pl.DataFrame(
-            data    = result,
-            orient  = "row",
-            schema  = ['feedback_id', 'comment', 'created_at']
-        )
-        # ------------------------------------------------------------------------------------ #
         comments = df['comment'].to_list()
 
         if comments:
@@ -56,10 +47,10 @@ def main(args=None) -> None:
             response = sentiment_analysis(args, comments, start_time)
             df = df_columns_add(df, response)
 
-            bq.batch_load_from_memory(
-                data=df.to_dicts(),
-                dataset="ls_customers",
-                table="tb_feedback_sentiment",
+            bq.batch_load(
+                _df     = df,
+                dataset = "ls_customers",
+                table   = "tb_feedback_sentiment",
             )
         else:
             logging.info("No new comments to process.")

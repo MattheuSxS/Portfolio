@@ -1,6 +1,7 @@
 import io
-import json
+import time
 import logging
+import polars as pl
 from google.cloud import bigquery
 from google.cloud.bigquery import QueryJobConfig
 
@@ -23,8 +24,8 @@ class BigQuery:
         self.project = project
         self.client = bigquery.Client(self.project)
 
-
-    def batch_load_from_memory(self, data: list[dict], dataset: str, table: str) -> None:
+    def batch_load(self, _df: pl.DataFrame, dataset: str, table: str) -> None:
+    # def batch_load_from_memory(self, data: list[dict], dataset: str, table: str) -> None:
         """
         Loads a batch of data from memory into a BigQuery table using NDJSON format.
 
@@ -45,39 +46,32 @@ class BigQuery:
         logging.info(f"Starting batch load to {table_id}...")
 
         try:
-            memory_file = io.BytesIO()
-            for row in data:
-                json_string = json.dumps(row) + '\n'
-                memory_file.write(json_string.encode('utf-8'))
+            with io.BytesIO() as stream:
+                _df.write_parquet(stream)
+                stream.seek(0)
+                parquet_options = bigquery.ParquetOptions()
+                parquet_options.enable_list_inference = True
+                load_job = self.client.load_table_from_file(
+                    file_obj    = stream,
+                    destination = table_id,
+                    project     = self.project,
+                    job_config  = bigquery.LoadJobConfig(
+                        source_format   = bigquery.SourceFormat.PARQUET,
+                        parquet_options = parquet_options,
+                    ),
+                )
 
-            memory_file.seek(0)
+                while load_job.state != 'DONE':
+                    time.sleep(3)
+                    load_job.reload()
 
-        except Exception as e:
-            logging.error(f"Error converting data to NDJSON: {e}")
-            raise
+                    if load_job.errors:
+                        logging.warning(f"Job warnings: {load_job.errors}")
 
-        job_config = \
-            bigquery.LoadJobConfig(
-                source_format       = bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
-                write_disposition   = bigquery.WriteDisposition.WRITE_APPEND,
-                create_disposition  = bigquery.CreateDisposition.CREATE_NEVER,
-                autodetect          = False,
-        )
-
-        try:
-            load_job = \
-                self.client.load_table_from_file(
-                    memory_file,
-                    table_id,
-                    job_config=job_config
-            )
-
-            load_job.result()
-
-            logging.info(f"batch load was successful. {load_job.output_rows} rows loaded into {table_id}.")
+                logging.info(f"Batch load completed. {load_job.output_rows} rows loaded into {table_id}.")
 
         except Exception as e:
-            logging.error(f"Failed to load data from memory: {e}")
+            logging.error(f"Failed to load data: {e}")
             raise
 
 
@@ -101,11 +95,11 @@ class BigQuery:
                     feedback_id NOT IN (SELECT feedback_id FROM SelectData)
                 ORDER BY
                     RAND()
-                LIMIT 10000;
+                LIMIT 400;
             """
 
 
-    def read_bq(self, query: str) -> list[list]:
+    def read_bq(self) -> pl.DataFrame:
         """
             Execute a BigQuery SQL query and return the results as a list of rows.
 
@@ -132,7 +126,9 @@ class BigQuery:
             This method submits the query using self.client, waits for the query job to finish
             (synchronous/blocking), and converts each returned Row to a plain list via list(row).
         """
-        if not isinstance(query, str) or not query.strip():
+        _query = self.get_query()
+
+        if not isinstance(_query, str) or not _query.strip():
             raise ValueError("The 'query' parameter must be a non-empty string.")
 
         try:
@@ -140,32 +136,19 @@ class BigQuery:
             job_config = QueryJobConfig()
             job_config.use_legacy_sql = False
 
-            query_job = self.client.query(query, job_config=job_config)
-            rows = query_job.result()
+            query_job = self.client.query(_query, job_config=job_config)
+            rows = query_job.to_arrow()
             logging.info("Query executed successfully.")
 
         except Exception as e:
             logging.error(f"Error executing query: {e}")
             raise
 
-        return [list(row) for row in rows]
+        return pl.from_arrow(rows)
 
 
 if __name__ == '__main__':
     bq = BigQuery(project="mts-default-portfolio")
-    result = bq.read_bq(
-        query=bq.get_query('purchase_query')
-    )
+    result = bq.read_bq()
 
-    # list_id         = list
-    # list_comment    = list
-
-    # list_id, list_comment = zip(*result[0:25])
-
-    # print(list_id)
-    # print(list_comment)]
-    import polars as pl
-
-
-    df = pl.DataFrame(result, schema=['feedback_id', 'comment'])
-    print(df)
+    print(result)

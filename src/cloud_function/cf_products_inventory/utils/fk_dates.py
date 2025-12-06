@@ -1,5 +1,4 @@
 from faker import Faker
-
 from datetime import datetime, timedelta
 
 
@@ -42,7 +41,7 @@ class GeneratorDate:
                 ValueError: If the option is not one of 'date', 'datetime', or 'datetime_v1'.
         """
         if option not in ['date', 'datetime', 'datetime_v1']:
-            raise ValueError("Option must be either 'date' or 'datetime'.")
+            raise ValueError("Option must be either 'date', 'datetime' or 'datetime_v1'.")
 
         match option:
             case 'date':

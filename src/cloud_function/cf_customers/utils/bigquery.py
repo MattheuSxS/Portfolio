@@ -57,19 +57,19 @@ class BigQuery:
             raise
 
         job_config = bigquery.LoadJobConfig(
-            source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
-            write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
-            create_disposition=bigquery.CreateDisposition.CREATE_NEVER,
-            autodetect=False,
-            max_bad_records=10,
+            source_format       = bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+            write_disposition   = bigquery.WriteDisposition.WRITE_APPEND,
+            create_disposition  = bigquery.CreateDisposition.CREATE_NEVER,
+            autodetect          = False,
+            max_bad_records     = 10,
         )
 
         try:
             load_job = self.client.load_table_from_file(
-                memory_file,
-                table_id,
-                job_config=job_config,
-                timeout=300
+                file_obj    = memory_file,
+                destination = table_id,
+                job_config  = job_config,
+                timeout     = 300
             )
 
             while load_job.state != 'DONE':
