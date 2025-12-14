@@ -133,6 +133,11 @@ variable "roles_sa_cloud_run" {
 #   ********************************************************************************************************    #
 #                                              Google Cloud Function                                            #
 #   ********************************************************************************************************    #
+variable "cf_path_all_files" {
+    description = "Path default all files of Cloud Function"
+    type        = string
+}
+
 variable "cf_wh_sensor" {
     description = "name of the function"
     type        = string
@@ -394,14 +399,18 @@ variable "docker_repository" {
 }
 
 variable "sentiment_analysis" {
-    description = ""
+    description = "The name of the Sentiment Analysis image"
     type        = string
 }
 
 variable "logistream_solutions_report" {
-    description = ""
+    description = "The name of the Logistream Solutions reporting image"
     type        = string
 }
 #   ********************************************************************************************************    #
 #                                                   Cloud Run                                                   #
 #   ********************************************************************************************************    #
+variable "run_path_all_files" {
+  description   = "Path default all files of Cloud Run"
+  type          = string
+}

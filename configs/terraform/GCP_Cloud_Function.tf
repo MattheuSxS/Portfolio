@@ -3,8 +3,8 @@
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_customers_files" {
     type        = "zip"
-    source_dir  = "../../src/cloud_function/${var.cf_customers}/"
-    output_path = "../../src/cloud_function/${var.cf_customers}/index.zip"
+    source_dir  = "${var.cf_path_all_files}${var.cf_customers}/src/"
+    output_path = "${var.cf_path_all_files}${var.cf_customers}/src/src/index.zip"
 }
 
 
@@ -53,8 +53,8 @@ resource "google_cloudfunctions2_function" "cf_customers" {
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_products_inventory_files" {
   type        = "zip"
-  source_dir  = "../../src/cloud_function/${var.cf_products_inventory}/"
-  output_path = "../../src/cloud_function/${var.cf_products_inventory}/index.zip"
+  source_dir  = "${var.cf_path_all_files}${var.cf_products_inventory}/src/"
+  output_path = "${var.cf_path_all_files}${var.cf_products_inventory}/src/index.zip"
 }
 
 
@@ -103,8 +103,8 @@ resource "google_cloudfunctions2_function" "cf_products_inventory" {
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_wh_sensor_files" {
   type        = "zip"
-  source_dir  = "../../src/cloud_function/${var.cf_wh_sensor}/"
-  output_path = "../../src/cloud_function/${var.cf_wh_sensor}/index.zip"
+  source_dir  = "${var.cf_path_all_files}${var.cf_wh_sensor}/src/"
+  output_path = "${var.cf_path_all_files}${var.cf_wh_sensor}/src/index.zip"
 }
 
 
@@ -153,8 +153,8 @@ resource "google_cloudfunctions2_function" "cf_wh_sensor" {
 #   ********************************************************************************************************    #
 data "archive_file" "cf_path_cf_delivery_sensor_files" {
     type        = "zip"
-    source_dir  = "../../src/cloud_function/${var.cf_delivery_sensor}/"
-    output_path = "../../src/cloud_function/${var.cf_delivery_sensor}/index.zip"
+    source_dir  = "${var.cf_path_all_files}${var.cf_delivery_sensor}/src/"
+    output_path = "${var.cf_path_all_files}${var.cf_delivery_sensor}/src/index.zip"
 }
 
 

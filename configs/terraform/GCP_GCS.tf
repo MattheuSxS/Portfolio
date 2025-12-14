@@ -58,7 +58,7 @@ resource "google_storage_bucket" "bucket" {
 
 
 resource "google_storage_bucket_object" "cf_wh_sensor_files" {
-    name            = "${var.cf_wh_sensor}/index.zip"
+    name            = "${var.cf_wh_sensor}/src/index.zip"
     bucket          = "${local.bkt_cf_portfolio}"
     source          = data.archive_file.cf_path_wh_sensor_files.output_path
     content_type    = "application/zip"
@@ -72,7 +72,7 @@ resource "google_storage_bucket_object" "cf_wh_sensor_files" {
 
 
 resource "google_storage_bucket_object" "cf_delivery_sensor_files" {
-    name            = "${var.cf_delivery_sensor}/index.zip"
+    name            = "${var.cf_delivery_sensor}/src/index.zip"
     bucket          = "${local.bkt_cf_portfolio}"
     source          = data.archive_file.cf_path_cf_delivery_sensor_files.output_path
     content_type    = "application/zip"
@@ -86,7 +86,7 @@ resource "google_storage_bucket_object" "cf_delivery_sensor_files" {
 
 
 resource "google_storage_bucket_object" "cf_customers_files" {
-    name            = "${var.cf_customers}/index.zip"
+    name            = "${var.cf_customers}/src/index.zip"
     bucket          = "${local.bkt_cf_portfolio}"
     source          = data.archive_file.cf_path_customers_files.output_path
     content_type    = "application/zip"
@@ -99,7 +99,7 @@ resource "google_storage_bucket_object" "cf_customers_files" {
 }
 
 resource "google_storage_bucket_object" "cf_products_inventory_files" {
-    name            = "${var.cf_products_inventory}/index.zip"
+    name            = "${var.cf_products_inventory}/src/index.zip"
     bucket          = "${local.bkt_cf_portfolio}"
     source          = data.archive_file.cf_path_products_inventory_files.output_path
     content_type    = "application/zip"
