@@ -43,6 +43,8 @@ jobs:
           pip install --upgrade pip
           pip install -r ./modules/requirements-dev.txt
 
+      - name: 🧪 Run tests
+        run: |
           echo "Running tests 👀"
           make coverage
 
