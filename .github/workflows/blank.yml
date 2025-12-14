@@ -46,6 +46,7 @@ jobs:
       - name: 🧪 Run tests
         run: |
           echo "Running tests 👀"
+          . /opt/venv/bin/activate
           make coverage
 
 
