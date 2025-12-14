@@ -38,13 +38,11 @@ jobs:
 
       - name: 🐍 Setup Python and Install Python dependencies
         run: |
-            python3 -m venv /opt/venv
-            . /opt/venv/bin/activate
-            pip install --upgrade pip
-            pip install -r ./modules/requirements-dev.txt
+          python3 -m venv /opt/venv
+          . /opt/venv/bin/activate
+          pip install --upgrade pip
+          pip install -r ./src/requirements-dev.txt
 
-      - name: Run tests 🐍
-        run: |
           echo "Running tests 👀"
           make coverage
 
