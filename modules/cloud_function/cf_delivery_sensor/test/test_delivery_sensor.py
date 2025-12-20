@@ -1,11 +1,6 @@
-import sys
-import types
 import pytest
 import random
 import logging
-import importlib
-from datetime import datetime
-from types import SimpleNamespace
 from modules.cloud_function.cf_delivery_sensor.src.utils import delivery_sensor
 
 

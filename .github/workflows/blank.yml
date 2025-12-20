@@ -47,8 +47,8 @@ jobs:
         run: |
           echo "Running tests 👀"
           . /opt/venv/bin/activate
+          export PYTHONPATH=$(pwd)/modules:$PYTHONPATH
           make coverage
-
 
   tf-test:
     name: ⚙️ Terraform Test
