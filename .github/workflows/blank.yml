@@ -39,26 +39,16 @@ jobs:
       - name: 🐍 Setup Python and Install Python dependencies
         run: |
           python3 -m venv /opt/venv
-          # install dependencies using the virtual environment
           /opt/venv/bin/pip install --upgrade pip
           /opt/venv/bin/pip install -r ./modules/requirements-dev.txt
-
-          # Configure PYTHONPATH and PATH globally
+          /opt/venv/bin/pip install faker-vehicle
           echo "/opt/venv/bin" >> $GITHUB_PATH
-          echo "PYTHONPATH=$(pwd):$(pwd)/modules:$PYTHONPATH" >> $GITHUB_ENV
-
-      - name: 🔍 Debug environment
-        run: |
-          echo "=== Environment Debug ==="
-          echo "Python: $(which python)"
-          echo "PYTHONPATH: $PYTHONPATH"
-          echo "PWD: $(pwd)"
 
       - name: 🧪 Run tests
         run: |
           echo "Running tests 👀"
-          echo "Python being used: $(which python)"
-          echo "Current PYTHONPATH: $PYTHONPATH"
+          echo "Python sendo usado: $(which python)"
+          echo "PYTHONPATH atual: $PYTHONPATH"
           make coverage
 
   tf-test:
