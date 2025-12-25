@@ -1,63 +1,78 @@
+import logging
 import argparse
 import apache_beam as beam
-from apache_beam.transforms import window
+from utils.helpers import MessageParser, Kwargs
+from apache_beam.transforms import ParDo
+from utils.bigquery import get_schema_from_bigquery
 from apache_beam.options.pipeline_options import PipelineOptions
 
-#TODO: Redoing whole file, because had plan changes.
-def pipeline_run(exec_mode:str, project_dataflow:str, region:str, job_name:str,
-                 bkt_dataflow:str, project:str, dataset:str, subscription:str) -> None:
 
-    from utils.functions import parse_pubsub_message, split_dict, ConvertToTableRowFn, \
-                                    get_schema, write_to_bigquery
+# ******************************************************************************************************************** #
+#                                              System Logging                                                          #
+# ******************************************************************************************************************** #
+logging.basicConfig(
+    format=("%(asctime)s | %(levelname)s | File_name ~> %(module)s.py "
+            "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
+    level=logging.INFO
+)
 
-    project_id      = project
-    dataset_id      = dataset
-    subscription_id = f"projects/{project_dataflow}/subscriptions/{subscription}"
-    dict_schema     = get_schema(
-                        project_id,
-                        dataset_id,
-                        ['tb_associate', 'tb_card', 'tb_movement', 'tb_account']
+
+# ******************************************************************************************************************** #
+#                                              Dataflow Pipeline                                                       #
+# ******************************************************************************************************************** #
+def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, project:str, dataset:str,
+                 table:str, topics:str) -> None:
+
+    PROJECT_ID      = project
+    DATASET_ID      = dataset
+    TABLE_ID        = table
+    TOPIC_ID        = f"projects/{project}/topics/{topics}"
+    BQ_SCHEMA       = get_schema_from_bigquery(
+                        PROJECT_ID, DATASET_ID, TABLE_ID
                     )
 
     options = \
         PipelineOptions(
             runner                      = exec_mode,
-            project                     = project_id,
+            project                     = PROJECT_ID,
             region                      = region,
             job_name                    = job_name,
             num_workers                 = 1,
             max_num_workers             = 2,
-            machine_type                = 'n2-standard-2',
-            worker_machine_type         = 'n2-standard-2',
+            machine_type                = 'n1-standard-2',
+            worker_machine_type         = 'n1-standard-2',
             staging_location            = f"gs://{bkt_dataflow}/staging",
             temp_location               = f"gs://{bkt_dataflow}/temp",
-            streaming                   = True
+            streaming                   = True,
+            experiments                 = [
+                                            'use_runner_v2',
+                                            'max_batch_size=10000'
+                                          ],
+            save_main_session           = True
         )
 
     with beam.Pipeline(options=options) as p:
-        messages = (
+        get_messages = (
             p
-            | 'Read from Pub/Sub' >> beam.io.ReadFromPubSub(subscription=subscription_id)
-            | 'Decode messages' >> beam.Map(parse_pubsub_message)
+            | 'Read from Pub/Sub' >> beam.io.ReadFromPubSub(
+                topic           = TOPIC_ID,
+                with_attributes = False
+            )
+            | 'Efficient Parse Message' >> ParDo(MessageParser())
         )
 
-        transformed_messages = (
-            messages
-            | 'Split dictionaries' >> beam.FlatMap(split_dict)
-            | 'Flatten dictionaries' >> beam.ParDo(ConvertToTableRowFn())
-            | 'Extract Key' >> beam.Map(lambda x: (next(iter(x)), x))
+        #TODO: I need to check if this is the best way to treat the data
+        treat_the_data = (
+            get_messages
+            | 'Flatten dictionaries' >> beam.ParDo(Kwargs())
         )
 
-        group_messages = (
-            transformed_messages
-            | 'Window into fixed intervals' >> beam.WindowInto(window.FixedWindows(2 * 30),
-                              trigger=beam.transforms.trigger.AfterWatermark(),
-                              accumulation_mode=beam.transforms.trigger.AccumulationMode.DISCARDING)
-            | 'Group by key' >> beam.GroupByKey()
-        )
-
-        group_messages | 'Write to BigQuery' >> beam.Map(
-                lambda element: write_to_bigquery(element, dict_schema, project_id, dataset_id)
+        treat_the_data | 'Write to BigQuery' >> beam.io.WriteToBigQuery(
+            table                   = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}",
+            schema                  = BQ_SCHEMA,
+            create_disposition      = beam.io.BigQueryDisposition.CREATE_NEVER,
+            write_disposition       = beam.io.BigQueryDisposition.WRITE_APPEND,
+            method                  = beam.io.WriteToBigQuery.Method.STREAMING_INSERTS,
         )
 
 
@@ -69,14 +84,14 @@ if __name__ == "__main__":
         type=str,
         choices=['DataflowRunner', 'DirectRunner'],
         required=False,
-        default='DataflowRunner',
+        default='DirectRunner',
         help="Choose where apache-beam will run!"
     )
     parser.add_argument(
-        "--project_dataflow",
+        "--project",
         type=str,
         required=True,
-        help="Choose which project apache-beam will run!"
+        help="What project will be used to get the schema!"
     )
     parser.add_argument(
         "--region",
@@ -98,13 +113,6 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--project",
-        type=str,
-        required=True,
-        help="What project will be used to get the schema!"
-    )
-
-    parser.add_argument(
         "--dataset",
         type=str,
         required=True,
@@ -112,10 +120,17 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--subscription",
+        "--table",
         type=str,
         required=True,
-        help="Choose which subscription apache-beam will used!"
+        help="What table will be used to get the schema!"
+    )
+
+    parser.add_argument(
+        "--topics",
+        type=str,
+        required=True,
+        help="Choose which topics apache-beam will used!"
     )
 
     parser.add_argument(
@@ -143,11 +158,11 @@ if __name__ == "__main__":
 
     pipeline_run(
             exec_mode           = args.runner,
-            project_dataflow    = args.project_dataflow,
+            project             = args.project,
             region              = args.region,
             job_name            = args.job_name,
             bkt_dataflow        = args.bkt_dataflow,
-            project             = args.project,
             dataset             = args.dataset,
-            subscription        = args.subscription
+            table               = args.table,
+            topics              = args.topics
         )

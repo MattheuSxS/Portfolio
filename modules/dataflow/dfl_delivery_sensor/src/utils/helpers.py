@@ -6,8 +6,6 @@ from datetime import datetime
 
 
 class MessageParser(beam.DoFn):
-    """Parseia mensagens do Pub/Sub (um por vez, deixa o BigQuery lotear)"""
-
     def process(self, element):
         try:
             message_str = element.decode('utf-8')

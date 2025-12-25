@@ -3,7 +3,6 @@ import time
 import logging
 from time import sleep
 from datetime import datetime
-
 from utils.pub_sub import PubSub
 from typing import Dict, Any, Union
 from utils.fk_sensor import FakeWhSensorData
@@ -96,10 +95,10 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         )
 
         # Main processing loop
-        max_duration = 180  # 3 minutes in seconds
-        batch_size = 5
-        retry_limit = 9
-        delay_between_batches = 5
+        max_duration            = 180  # 3 minutes in seconds
+        batch_size              = 5
+        retry_limit             = 9
+        delay_between_batches   = 5
 
         start_time = time.time()
 

@@ -41,14 +41,11 @@ jobs:
           python3 -m venv /opt/venv
           /opt/venv/bin/pip install --upgrade pip
           /opt/venv/bin/pip install -r ./modules/requirements-dev.txt
-          /opt/venv/bin/pip install faker-vehicle
           echo "/opt/venv/bin" >> $GITHUB_PATH
 
       - name: 🧪 Run tests
         run: |
           echo "Running tests 👀"
-          echo "Python sendo usado: $(which python)"
-          echo "PYTHONPATH atual: $PYTHONPATH"
           make coverage
 
   tf-test:

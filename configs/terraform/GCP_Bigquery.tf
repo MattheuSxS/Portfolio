@@ -57,18 +57,17 @@ resource "google_bigquery_table" "tb_raw_delivery_sensor" {
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_wh_sensor" {
     project               = local.project
-    dataset_id            = local.bq_dataset_production
+    dataset_id            = local.bq_dataset_ls_customers
     table_id              = var.tb_wh_sensor
-    schema                = file("${path.module}/schemas/tb_trusted_dw_messages.json")
+    schema                = file("${path.module}/schemas/${var.tb_wh_sensor}.json")
     deletion_protection   = false
 
     time_partitioning {
         type          = "DAY"
         field         = "time_stamp"
-        expiration_ms = 7776000000
     }
 
-    clustering = ["warehouse_id", "message_id"]
+    clustering = ["warehouse_id", "sensor_id"]
 }
 
 resource "google_bigquery_table" "tb_feedback" {
@@ -350,51 +349,3 @@ resource "google_bigquery_routine" "sp_delete_delivery_status" {
         END;
     EOT
 }
-
-#TODO: Remove this procedure and implement the logic in Cloud Run
-# resource "google_bigquery_routine" "sp_feedback_sentiment" {
-#     project         = local.project
-#     dataset_id      = local.bq_dataset_production
-#     routine_id      = var.sp_feedback_sentiment
-#     routine_type    = "PROCEDURE"
-#     language        = "SQL"
-#     definition_body = <<-EOT
-#         BEGIN
-#             INSERT INTO `${local.project}.${local.bq_dataset_production}.tb_feedback_sentiment` (
-#                 feedback_id,
-#                 feeling_score,
-#                 feeling_magnitude,
-#                 created_at,
-#                 updated_at
-#             )
-#             WITH feedback_with_analysis AS (
-#                 SELECT
-#                     f.feedback_id,
-#                     f.created_at,
-#                     sa.score AS feeling_score,
-#                     sa.magnitude AS feeling_magnitude,
-#                     -- Gera um ID para manter a ordem antes e depois da chamada da API
-#                     ROW_NUMBER() OVER (ORDER BY f.feedback_id) AS rn
-#                 FROM
-#                     `${local.project}.${local.bq_dataset_production}.tb_feedback` AS f,
-#                     -- Chama a função UMA VEZ com um array de todos os comentários
-#                     UNNEST(
-#                         `${local.project}.${local.bq_dataset_production}.sentiment_analysis`(
-#                             (SELECT ARRAY_AGG(comment) FROM `${local.project}.${local.bq_dataset_production}.tb_feedback`)
-#                         )
-#                     ) WITH OFFSET AS sa_offset -- Pega o resultado da API e seu índice
-#                 -- Junta o feedback original com o resultado da análise pelo índice
-#                 WHERE
-#                     ROW_NUMBER() OVER (ORDER BY f.feedback_id) = sa_offset + 1
-#             )
-#             SELECT
-#                 feedback_id,
-#                 CAST(feeling_score AS FLOAT64),
-#                 CAST(feeling_magnitude AS FLOAT64),
-#                 created_at,
-#                 CURRENT_TIMESTAMP() AS updated_at
-#             FROM
-#                 feedback_with_analysis;
-#         END;
-#     EOT
-# }

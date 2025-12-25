@@ -1,0 +1,38 @@
+[
+    {
+        "name": "warehouse_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the warehouse."
+    },
+    {
+        "name": "sensor_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the sensor."
+    },
+    {
+        "name": "time_stamp",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp of the sensor reading."
+    },
+    {
+        "name": "temperature",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Temperature reading from the sensor."
+    },
+    {
+        "name": "humidity",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Humidity reading from the sensor."
+    },
+    {
+        "name": "pressure",
+        "type": "FLOAT",
+        "mode": "REQUIRED",
+        "description": "Pressure reading from the sensor."
+    }
+]

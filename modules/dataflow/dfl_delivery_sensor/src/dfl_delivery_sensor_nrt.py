@@ -1,4 +1,3 @@
-#TODO: I must finish it later [0]
 import logging
 import argparse
 import apache_beam as beam
@@ -24,16 +23,16 @@ logging.basicConfig(
 def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, project:str, dataset:str,
                  table:str, topics:str) -> None:
 
-    PROJECT_ID      = project
-    DATASET_ID      = dataset
-    TABLE_ID       = table
-    TOPIC_ID = f"projects/{PROJECT_ID}/topics/{topics}"
-    BQ_SCHEMA       = get_schema_from_bigquery(PROJECT_ID, DATASET_ID, TABLE_ID)
+    PROJECT_ID  = project
+    DATASET_ID  = dataset
+    TABLE_ID    = table
+    TOPIC_ID    = f"projects/{PROJECT_ID}/topics/{topics}"
+    BQ_SCHEMA   = get_schema_from_bigquery(PROJECT_ID, DATASET_ID, TABLE_ID)
 
     options = \
         PipelineOptions(
             runner                      = exec_mode,
-            project                     = project,
+            project                     = PROJECT_ID,
             region                      = region,
             job_name                    = job_name,
             num_workers                 = 1,

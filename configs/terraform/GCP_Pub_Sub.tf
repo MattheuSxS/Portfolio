@@ -1,5 +1,5 @@
 #   ********************************************************************************************************    #
-#                                                      Pub/Sub Sensor                                           #
+#                                            Pub/Sub ~~ creating topic                                          #
 #   ********************************************************************************************************    #
 resource "google_pubsub_topic" "pub_sub_topics" {
     project   = local.project
@@ -19,6 +19,10 @@ resource "google_pubsub_topic" "pub_sub_topics" {
 
 }
 
+
+#   ********************************************************************************************************    #
+#                                            Pub/Sub Warehouse Sensor                                           #
+#   ********************************************************************************************************    #
 resource "google_pubsub_subscription" "pub_sub_wh_sensor_subs" {
     project               = local.project
     topic                 = local.pb_wh_sensor_topic
@@ -57,6 +61,10 @@ resource "google_pubsub_subscription" "pub_sub_wh_sensor_subs_bq" {
     }
 }
 
+
+#   ********************************************************************************************************    #
+#                                             Pub/Sub Delivery Sensor                                           #
+#   ********************************************************************************************************    #
 resource "google_pubsub_subscription" "pub_sub_delivery_sensor_subs" {
     project               = local.project
     topic                 = local.pb_delivery_sensor_topic
