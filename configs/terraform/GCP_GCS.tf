@@ -112,22 +112,22 @@ resource "google_storage_bucket_object" "cf_products_inventory_files" {
 }
 
 
-resource "google_storage_bucket_object" "airflow_dags" {
-    for_each        = fileset("../pipe/", "**.py")
-    name            = "dags/${each.value}"
-    bucket          = local.bkt_airflow
-    content_type    = "text/x-python"
-    source          = "../pipe/${each.value}"
-}
+# resource "google_storage_bucket_object" "airflow_dags" {
+#     for_each        = fileset("../pipe/", "**.py")
+#     name            = "dags/${each.value}"
+#     bucket          = local.bkt_airflow
+#     content_type    = "text/x-python"
+#     source          = "../pipe/${each.value}"
+# }
 
 
-resource "google_storage_bucket_object" "airflow_variables" {
-    for_each        = fileset("../pipe/${var.environment}_env", "**.json")
-    name            = "variables/${each.value}"
-    bucket          = local.bkt_airflow
-    content_type    = "application/json"
-    source          = "../pipe/${var.environment}_env/${each.value}"
-}
+# resource "google_storage_bucket_object" "airflow_variables" {
+#     for_each        = fileset("../pipe/${var.environment}_env", "**.json")
+#     name            = "variables/${each.value}"
+#     bucket          = local.bkt_airflow
+#     content_type    = "application/json"
+#     source          = "../pipe/${var.environment}_env/${each.value}"
+# }
 
 
 resource "google_storage_bucket_object" "spark_job_tb_order" {
@@ -165,18 +165,18 @@ resource "google_storage_bucket_object" "spark_path_tb_feedback" {
 }
 
 
-resource "null_resource" "bkt_compose_delete" {
-    triggers = {
-        bucket_name = local.bkt_airflow
-    }
-    depends_on = [null_resource.pause_all_dags]
+# resource "null_resource" "bkt_compose_delete" {
+#     triggers = {
+#         bucket_name = local.bkt_airflow
+#     }
+#     depends_on = [null_resource.pause_all_dags]
 
-    provisioner "local-exec" {
-        when    = destroy
-        command = <<-EOT
-        sleep 30
-        echo "Deleting all objects in GCS bucket ${self.triggers.bucket_name}..."
-        gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
-        EOT
-    }
-}
+#     provisioner "local-exec" {
+#         when    = destroy
+#         command = <<-EOT
+#         sleep 30
+#         echo "Deleting all objects in GCS bucket ${self.triggers.bucket_name}..."
+#         gcloud storage rm -r --recursive gs://${self.triggers.bucket_name}
+#         EOT
+#     }
+# }

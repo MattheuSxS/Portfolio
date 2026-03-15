@@ -5,7 +5,7 @@ locals {
     bkt_cf_portfolio    = google_storage_bucket.bucket[0].name
     bkt_dataflow        = google_storage_bucket.bucket[1].name
     bkt_dataproc        = google_storage_bucket.bucket[2].name
-    bkt_airflow         = regex("gs://([^/]+)/dags", google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix)[0]
+    # bkt_airflow         = regex("gs://([^/]+)/dags", google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix)[0]
 
     sa_composer                 = google_service_account.creating_sa[0].email
     sa_pubsub                   = google_service_account.creating_sa[1].email
@@ -32,8 +32,14 @@ locals {
     secret_bq_products_access_authorization     = google_secret_manager_secret.create_secrets[4].id
 
     artifact_registry_url = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}"
+
+    # dfl_script_path = "${path.root}/modules/dataflow/"
 }
 
 output "service_url" {
-  value = google_cloud_run_v2_service.logistream_dashboard.uri
+    value = google_cloud_run_v2_service.logistream_dashboard.uri
+}
+
+output "dfl_script_path" {
+    value = "${path.root}/modules/dataflow/"
 }

@@ -103,7 +103,7 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     data_dict = {
-            "project_id": "mts-default-portfolio",
+            "project_id": "gcp-default-portfolio",
             "secret_id": "ps_delivery_sensor_access_authorization",
         }
     print(main(data_dict))

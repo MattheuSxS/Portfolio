@@ -53,7 +53,7 @@ class FakeWhSensorData:
             "time_stamp":   datetime.now().isoformat(),
             "temperature":  round(random.uniform(5.0, 30.0), 2),
             "humidity":     round(random.uniform(30.0, 70.0), 2),
-            "pressure":     round(random.uniform(1000.0, 1500.0), 2)
+            "pressure":     round(random.uniform(1000.0, 1020.0), 2)
         }
 
 

@@ -129,7 +129,6 @@ class GeneratorDeliveryVehicle(GeneratorDate):
         _type = random.choice(list(self.VEHICLE_TYPES.keys()))
         specs = self.VEHICLE_TYPES[_type]
 
-        #TODO: I must implement the date generation for the last maintenance
         manufacturing_data = self.faker.date_between(start_date='-5y', end_date='today')
         last_maintenance = self.faker.date_between(
             start_date=manufacturing_data,

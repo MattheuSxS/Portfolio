@@ -1,59 +1,59 @@
-CREATE OR REPLACE PROCEDURE `mts-default-portfolio.ls_customers.sp_merge_and_delete_delivery_status`()
+CREATE OR REPLACE PROCEDURE `gcp-default-portfolio.ls_customers.sp_merge_and_delete_delivery_status`()
 BEGIN
-  -- Cria uma transação para garantir que as operações sejam atômicas.
-  BEGIN TRANSACTION;
+    -- Create a transaction to ensure that the operations are atomic.
+    BEGIN TRANSACTION;
 
-  -- 1. Cria uma tabela temporária para armazenar os dados do último intervalo.
-  --    Esta tabela será visível para o MERGE e o DELETE.
-  CREATE TEMP TABLE RecentData AS (
-    SELECT
-      *
-    FROM
-      `mts-default-portfolio.staging.tb_delivery_status_stage`
-    WHERE
-      -- Filtra os dados que chegaram nos últimos 30 minutos.
-      updated_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 MINUTE)
-  );
-
-  -- 2. Executa o MERGE na tabela principal usando a tabela temporária como fonte.
-  MERGE `mts-default-portfolio.ls_customers.tb_delivery_status` AS T
-  USING RecentData AS S
-  ON T.delivery_id = S.delivery_id
-  WHEN MATCHED THEN
-    UPDATE SET
-      T.remaining_distance_km = COALESCE(S.remaining_distance_km, T.remaining_distance_km),
-      T.estimated_time_min = COALESCE(S.estimated_time_min, T.estimated_time_min),
-      T.delivery_difficulty = COALESCE(S.delivery_difficulty, T.delivery_difficulty),
-      T.status = COALESCE(S.status, T.status),
-      T.updated_at = COALESCE(S.updated_at, T.updated_at)
-  WHEN NOT MATCHED BY TARGET THEN
-    INSERT (
-        delivery_id,
-        vehicle_id,
-        purchase_id,
-        remaining_distance_km,
-        estimated_time_min,
-        delivery_difficulty,
-        status,
-        created_at,
-        updated_at
-    )
-    VALUES (
-        S.delivery_id,
-        S.vehicle_id,
-        S.purchase_id,
-        S.remaining_distance_km,
-        S.estimated_time_min,
-        S.delivery_difficulty,
-        S.status,
-        COALESCE(S.created_at, CURRENT_TIMESTAMP()),
-        COALESCE(S.updated_at, CURRENT_TIMESTAMP())
+    -- 1. Create a temporary table to store the data from the last interval.
+    --    This table will be visible to the MERGE and DELETE statements.
+    CREATE TEMP TABLE RecentData AS (
+        SELECT
+        *
+        FROM
+        `gcp-default-portfolio.staging.tb_delivery_status_stage`
+        WHERE
+        -- Filter the data that arrived in the last 30 minutes.
+        updated_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 MINUTE)
     );
 
-  -- 3. Exclui os dados da tabela de staging original, referenciando a tabela temporária.
-  DELETE FROM `mts-default-portfolio.staging.tb_delivery_status_stage`
-  WHERE delivery_id IN (SELECT delivery_id FROM RecentData);
+    -- 2. Execute the MERGE statement to update existing records and insert new ones based on the RecentData temporary table.
+    MERGE `gcp-default-portfolio.ls_customers.tb_delivery_status` AS T
+    USING RecentData AS S
+    ON T.delivery_id = S.delivery_id
+    WHEN MATCHED THEN
+        UPDATE SET
+        T.remaining_distance_km = COALESCE(S.remaining_distance_km, T.remaining_distance_km),
+        T.estimated_time_min = COALESCE(S.estimated_time_min, T.estimated_time_min),
+        T.delivery_difficulty = COALESCE(S.delivery_difficulty, T.delivery_difficulty),
+        T.status = COALESCE(S.status, T.status),
+        T.updated_at = COALESCE(S.updated_at, T.updated_at)
+    WHEN NOT MATCHED BY TARGET THEN
+        INSERT (
+            delivery_id,
+            vehicle_id,
+            purchase_id,
+            remaining_distance_km,
+            estimated_time_min,
+            delivery_difficulty,
+            status,
+            created_at,
+            updated_at
+        )
+        VALUES (
+            S.delivery_id,
+            S.vehicle_id,
+            S.purchase_id,
+            S.remaining_distance_km,
+            S.estimated_time_min,
+            S.delivery_difficulty,
+            S.status,
+            COALESCE(S.created_at, CURRENT_TIMESTAMP()),
+            COALESCE(S.updated_at, CURRENT_TIMESTAMP())
+        );
 
-  -- Confirma as alterações.
-  COMMIT TRANSACTION;
+    -- 3. Delete the data from the original staging table, referencing the temporary table.
+    DELETE FROM `gcp-default-portfolio.staging.tb_delivery_status_stage`
+    WHERE delivery_id IN (SELECT delivery_id FROM RecentData);
+
+    -- Commit the changes.
+    COMMIT TRANSACTION;
 END;

@@ -16,7 +16,7 @@ logging.basicConfig(
 #                                              Main Execution Function                                                 #
 # ******************************************************************************************************************** #
 def main():
-    dashboard = Dashboard("mts-default-portfolio")
+    dashboard = Dashboard("gcp-default-portfolio")
     dashboard.main_page()
 
 

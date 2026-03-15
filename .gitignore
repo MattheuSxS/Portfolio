@@ -190,7 +190,7 @@ terraform.tfvars
 *.tfplan
 # Terraform variable files
 .DS_Store
-
+*DS_Store
 # GCP
 mts-default-portfolio.json
 Solve.md
@@ -198,5 +198,6 @@ backup/*
 .editorconfig
 terraform.debug.log
 
-
+.vscode/
 tests-result.xml
+*tests-result.xml

@@ -27,9 +27,9 @@ class ProphetSalesForecaster:
             TBSS.order_status,
             FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
         FROM
-            `mts-default-portfolio.ls_customers.tb_sales` AS TBSS
+            `gcp-default-portfolio.ls_customers.tb_sales` AS TBSS
         INNER JOIN
-            `mts-default-portfolio.ls_customers.tb_address` AS TBAS
+            `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
         ON
             TBSS.associate_id = TBAS.fk_associate_id
             AND TBSS.order_status = "completed"

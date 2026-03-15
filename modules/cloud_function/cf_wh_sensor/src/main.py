@@ -149,6 +149,6 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     main({
-        "project_id": "mts-default-portfolio",
+        "project_id": "gcp-default-portfolio",
         "secret_id" : "ps_wh_sensor_access_authorization"
     })

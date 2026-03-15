@@ -4,11 +4,11 @@
         "retries": 2,
         "retry_delay": 15,
         "dagrun_timeout": 30,
-        "project_vars": "mts-default-portfolio",
+        "project_vars": "gcp-default-portfolio",
         "project_number": "380502645515",
         "region": "us-east1",
         "Artifact_registry": {
-            "project_id": "mts-default-portfolio",
+            "project_id": "gcp-default-portfolio",
             "region": "us-east1",
             "repository": "docker-repository",
             "image": "sentiment-analysis",
