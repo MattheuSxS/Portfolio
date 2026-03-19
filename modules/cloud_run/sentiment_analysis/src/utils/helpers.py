@@ -132,8 +132,6 @@ def log_detailed_summary(all_predictions, total_comments, processing_time) -> lo
 # ******************************************************************************************************************** #
 def df_columns_add(df: pl.DataFrame, response: BatchResponse) -> pl.DataFrame:
 
-    df = df.filter(pl.col('feedback_id').is_not_null())
-
     return \
         df.select([
             pl.col("feedback_id"),
