@@ -128,14 +128,12 @@ def generate_fake_purchases(df_customers, df_products, VAR_NUM_PURCHASES):
         - The resulting DataFrame does not include the index columns used for joining.
     """
 
-    # Adiciona índices aleatórios por região
     w_cust = Window.partitionBy("region").orderBy(F.rand())
     w_prod = Window.partitionBy("region").orderBy(F.rand())
 
     df_customers_indexed = df_customers.withColumn("cust_idx", F.row_number().over(w_cust) - 1)
     df_products_indexed = df_products.withColumn("prod_idx", F.row_number().over(w_prod) - 1)
 
-    # Calcula estatísticas por região
     region_stats = df_customers_indexed.groupBy("region").agg(
         F.count("*").alias("total_customers"),
         F.first(F.lit(0)).alias("dummy"))
@@ -146,7 +144,6 @@ def generate_fake_purchases(df_customers, df_products, VAR_NUM_PURCHASES):
         how="left"
     ).fillna(0)
 
-    # Calcula distribuição de compras por região
     purchases_per_region = df_customers_indexed.groupBy("region").agg(
         F.count("*").alias("customer_count")
     )
@@ -158,14 +155,12 @@ def generate_fake_purchases(df_customers, df_products, VAR_NUM_PURCHASES):
         F.round(F.col("customer_count") / total_customers * VAR_NUM_PURCHASES)
     )
 
-    # Ajusta para garantir o total exato
     total_diff = VAR_NUM_PURCHASES - purchases_per_region.agg(F.sum("purchase_count")).first()[0]
     purchases_per_region = purchases_per_region.withColumn(
         "purchase_count",
         F.when(F.rand() < total_diff/VAR_NUM_PURCHASES, F.col("purchase_count") + 1).otherwise(F.col("purchase_count"))
     ).drop("customer_count")
 
-    # Gera as compras
     df_base = purchases_per_region.withColumn(
         "id",
         F.explode(F.array_repeat(F.lit(1), F.col("purchase_count").cast("integer")))

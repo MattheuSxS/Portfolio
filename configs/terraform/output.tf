@@ -31,15 +31,10 @@ locals {
     secret_bq_customers_access_authorization    = google_secret_manager_secret.create_secrets[3].id
     secret_bq_products_access_authorization     = google_secret_manager_secret.create_secrets[4].id
 
-    artifact_registry_url = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}"
-
-    # dfl_script_path = "${path.root}/modules/dataflow/"
+    artifact_registry_url   = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}"
+    dfl_script_path         = "${path.cwd}/../../modules/dataflow"
 }
 
 output "service_url" {
     value = google_cloud_run_v2_service.logistream_dashboard.uri
-}
-
-output "dfl_script_path" {
-    value = "${path.cwd}/modules/dataflow/"
 }

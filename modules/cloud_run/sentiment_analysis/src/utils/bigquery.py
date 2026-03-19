@@ -1,5 +1,6 @@
 import io
 import time
+import google
 import logging
 import polars as pl
 from google.cloud import bigquery
@@ -25,58 +26,107 @@ class BigQuery:
         self.client = bigquery.Client(self.project)
 
     def batch_load(self, _df: pl.DataFrame, dataset: str, table: str) -> None:
-    # def batch_load_from_memory(self, data: list[dict], dataset: str, table: str) -> None:
         """
-        Loads a batch of data from memory into a BigQuery table using NDJSON format.
+            Load a Polars DataFrame into a BigQuery table using Parquet format.
 
-        Args:
-            data (list[dict]): A list of dictionaries representing the rows to be loaded.
-            dataset (str): The name of the BigQuery dataset.
-            table (str): The name of the BigQuery table.
+            This method performs a batch load operation, converting a Polars DataFrame
+            to Parquet format and uploading it to a specified BigQuery table. The load
+            operation appends data to the existing table without creating or overwriting it.
 
-        Raises:
-            Exception: If there is an error converting data to NDJSON or loading data into BigQuery.
+            Args:
+                _df (pl.DataFrame): The Polars DataFrame to be loaded into BigQuery.
+                dataset (str): The BigQuery dataset name where the table resides.
+                table (str): The BigQuery table name where data will be loaded.
 
-        Logs:
-            - Info: When the batch load starts and completes successfully.
-            - Error: If there is a failure during data conversion or loading.
+            Returns:
+                None
+
+            Raises:
+                - pl.ComputeError: If there is an error in processing the Polars DataFrame.
+                - google.api_core.exceptions.BadRequest: If the BigQuery load job fails due to a bad request.
+                - Exception: For any other unexpected errors during the load process.
+
+            Notes:
+                - Uses Parquet format with Snappy compression for efficient data transfer.
+                - Enables list inference in Parquet options for better nested type handling.
+                - Respects the existing BigQuery table schema (autodetect=False).
+                - Write disposition is set to WRITE_APPEND (inserts data).
+                - Create disposition is set to CREATE_NEVER (table must exist).
+                - Operations timeout after 300 seconds.
+                - Logs detailed information about shape, columns, and schema before loading.
+                - Logs the number of rows successfully loaded upon completion.
         """
+
         table_id = f"{self.project}.{dataset}.{table}"
 
-        logging.info(f"Starting batch load to {table_id}...")
+        logging.info(f"🚀 Iniciando batch load para {table_id}...")
+        logging.info(f"📊 Shape: {_df.shape}, Colunas: {_df.columns}")
+        logging.info(f"📋 Tipos: {_df.schema}")
 
         try:
+
+            table_ref   = self.client.dataset(dataset).table(table)
+            bq_table    = self.client.get_table(table_ref)
+
             with io.BytesIO() as stream:
-                _df.write_parquet(stream)
+                _df.write_parquet(stream, compression='snappy')
                 stream.seek(0)
+
                 parquet_options = bigquery.ParquetOptions()
                 parquet_options.enable_list_inference = True
+
+                job_config = bigquery.LoadJobConfig(
+                    source_format       = bigquery.SourceFormat.PARQUET,
+                    parquet_options     = parquet_options,
+                    schema              = bq_table.schema,
+                    write_disposition   = bigquery.WriteDisposition.WRITE_APPEND,
+                    create_disposition  = bigquery.CreateDisposition.CREATE_NEVER,
+                    autodetect          = False,
+                )
+
                 load_job = self.client.load_table_from_file(
                     file_obj    = stream,
                     destination = table_id,
                     project     = self.project,
-                    job_config  = bigquery.LoadJobConfig(
-                        source_format   = bigquery.SourceFormat.PARQUET,
-                        parquet_options = parquet_options,
-                    ),
+                    job_config  = job_config,
+                    timeout     = 300
                 )
 
-                while load_job.state != 'DONE':
-                    time.sleep(3)
-                    load_job.reload()
+                load_job.result(timeout=300)
+                logging.info(f"✅ {load_job.output_rows} Rows have been loaded successfully into {table_id}.")
 
-                    if load_job.errors:
-                        logging.warning(f"Job warnings: {load_job.errors}")
-
-                logging.info(f"Batch load completed. {load_job.output_rows} rows loaded into {table_id}.")
-
+        except pl.ComputeError as e:
+            logging.error(f"❌ Error in Polars DataFrame: {e}")
+            raise
+        except google.api_core.exceptions.BadRequest as e:
+            logging.error(f"❌ Error in BigQuery (BadRequest): {e}")
+            if hasattr(e, 'errors') and e.errors:
+                for err in e.errors:
+                    logging.error(f"  - {err.get('reason')}: {err.get('message')}")
+            raise
         except Exception as e:
-            logging.error(f"Failed to load data: {e}")
+            logging.error(f"❌ Unexpected error: {type(e).__name__}: {e}")
             raise
 
 
     def get_query(self) -> str:
         """
+            Generates a BigQuery SQL query to retrieve feedback records for sentiment analysis.
+
+            This method constructs a query that:
+            - Identifies feedback records that have already been processed for sentiment analysis
+            - Selects unprocessed feedback from the production feedback table
+            - Combines the comment text with the rating information
+            - Returns results in random order with a limit of 400 records
+
+            The query uses a CTE (Common Table Expression) named 'SelectData' to identify
+            feedback IDs that already exist in the sentiment analysis table, then excludes
+            those records from the result set using a NOT IN clause.
+
+            Returns:
+                str: A formatted SQL query string for BigQuery that retrieves up to 400
+                    unprocessed feedback records with their combined comment and rating,
+                    and creation date, ordered randomly.
         """
 
         return \

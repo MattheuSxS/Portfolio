@@ -84,12 +84,12 @@ def set_airflow_variables(bucket_name, prefix):
             logging.error(f"File {file_name} does not contain a valid JSON dictionary.")
         continue
 
-        try:
-            for key, value in data.items():
-                Variable.set(key, json.dumps(value, indent=4))
-                logging.info(f"Variable '{file_name}_{key}' created with success")
-        except Exception as e:
-            logging.error(f"Error setting variables from file '{file_name}' - {e}")
+    try:
+        for key, value in data.items():
+            Variable.set(key, json.dumps(value, indent=4))
+            logging.info(f"Variable '{file_name}_{key}' created with success")
+    except Exception as e:
+        logging.error(f"Error setting variables from file '{file_name}' - {e}")
 
 
 bucket_name = "us-east1-mts-portfolio-airf-4216b1f7-bucket"

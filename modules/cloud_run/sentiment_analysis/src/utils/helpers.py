@@ -131,7 +131,8 @@ def log_detailed_summary(all_predictions, total_comments, processing_time) -> lo
 #                                              DataFrame Column Addition                                               #
 # ******************************************************************************************************************** #
 def df_columns_add(df: pl.DataFrame, response: BatchResponse) -> pl.DataFrame:
-    updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    df = df.filter(pl.col('feedback_id').is_not_null())
 
     return \
         df.select([
@@ -140,6 +141,6 @@ def df_columns_add(df: pl.DataFrame, response: BatchResponse) -> pl.DataFrame:
             pl.Series(name="confidence", values=[res.confidence for res in response.predictions]),
             pl.Series(name="is_positive", values=[res.is_positive for res in response.predictions]),
             pl.Series(name="is_neutral", values=[res.is_neutral for res in response.predictions]),
-            pl.col("created_at").dt.strftime('%Y-%m-%d %H:%M:%S'),
-            pl.lit(updated_at).alias("updated_at")
+            pl.col("created_at").dt.replace_time_zone(None).alias("created_at"),
+            pl.lit(datetime.now()).alias("updated_at")
         ])

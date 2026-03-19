@@ -87,34 +87,34 @@ class BigQuery:
         """
         query_scripts = \
             {
-                "sql_feedback"        : f"""
-                                            SELECT
-                                                TFS.sentiment,
-                                                TF.rating,
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TF.fb_date) AS feedback_date
-                                            FROM
-                                                `gcp-default-portfolio.ls_customers.tb_feedback_sentiment` AS TFS
-                                            INNER JOIN
-                                                `gcp-default-portfolio.production.tb_feedback` AS TF
-                                            USING
-                                                (feedback_id)
-                                            """,
-                "sql_customer"        : f"""
-                                            SELECT
-                                                COUNT(associate_id) AS associate_count,
-                                                TBAS.region,
-                                                TBAS.state
-                                            FROM
-                                                `gcp-default-portfolio.ls_customers.tb_customers` AS TBCS
-                                            INNER JOIN
-                                                `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
-                                            ON
-                                                TBCS.associate_id = TBAS.fk_associate_id
-                                            GROUP BY
-                                                TBAS.region,
-                                                TBAS.state
-                                            """,
-                "sql_region_sales"    : f"""
+                "sql_feedback"  : f"""
+                                        SELECT
+                                            TFS.sentiment,
+                                            TF.rating,
+                                            FORMAT_TIMESTAMP('%Y-%m-%d', TF.fb_date) AS feedback_date
+                                        FROM
+                                            `gcp-default-portfolio.ls_customers.tb_feedback_sentiment` AS TFS
+                                        INNER JOIN
+                                            `gcp-default-portfolio.production.tb_feedback` AS TF
+                                        USING
+                                            (feedback_id)
+                                    """,
+                "sql_customer"  : f"""
+                                        SELECT
+                                            COUNT(associate_id) AS associate_count,
+                                            TBAS.region,
+                                            TBAS.state
+                                        FROM
+                                            `gcp-default-portfolio.ls_customers.tb_customers` AS TBCS
+                                        INNER JOIN
+                                            `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
+                                        ON
+                                            TBCS.associate_id = TBAS.fk_associate_id
+                                        GROUP BY
+                                            TBAS.region,
+                                            TBAS.state
+                                        """,
+                "sql_region_sales"  : f"""
                                             SELECT
                                                 SUM(TBSS.discount_applied) AS discount_applied,
                                                 SUM(TBSS.final_price) AS final_price,
@@ -134,7 +134,7 @@ class BigQuery:
                                                 TBAS.state,
                                                 TBSS.order_status,
                                                 FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date);
-                                            """,
+                                        """,
                 "sql_products_sales"  : f"""
                                             SELECT
                                                 SUM(TBSS.discount_applied) AS discount_applied,

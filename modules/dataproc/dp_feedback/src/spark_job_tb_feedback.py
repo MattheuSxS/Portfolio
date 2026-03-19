@@ -1,4 +1,4 @@
-#TODO: Finish the code tomorrow
+#TODO: check out the variable [ VAR_DATASET_ID ] It's not being used in the code, should we remove it or is it for future use?
 import logging
 import argparse
 from pyspark.sql import SparkSession

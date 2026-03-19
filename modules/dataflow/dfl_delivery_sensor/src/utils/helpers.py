@@ -19,7 +19,7 @@ class MessageParser(beam.DoFn):
             yield message
 
         except Exception as e:
-            logging.debug(f"Error parsing message: {e}")
+            logging.error(f"Error parsing message: {e}")
             # TODO: Dead letter
 
 

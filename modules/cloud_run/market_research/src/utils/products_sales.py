@@ -26,30 +26,55 @@ class ProductsSalesDashboard(BigQuery):
 
     #TODO : i MUST change all graphs
     def create_top_products_chart(self, df):
-        top_products = df.group_by(['region', 'name']).agg([
-            pl.sum('final_price').alias('total_sales'),
-            pl.sum('discount_applied').alias('total_discount')
-        ]).sort('total_sales', descending=True).head(20)
+        product_sales = df.group_by(['region', 'name']).agg([
+            pl.sum('final_price').alias('total_sales')
+        ])
+
+        top_3_per_region = (product_sales
+            .sort(['region', 'total_sales'], descending=[False, True])
+            .group_by('region', maintain_order=True)
+            .head(3)
+        )
+
+        top_3_per_region = top_3_per_region.with_columns(
+            pl.col('name').str.replace('Premium ', '')
+                        .str.replace('Pro ', '')
+                        .alias('short_name')
+        )
+
+        top_3_per_region = top_3_per_region.with_columns(
+            (pl.col('region') + ' - ' + pl.col('short_name')).alias('region_product')
+        )
 
         fig = px.bar(
-            data_frame              = top_products,
-            x                       = 'name',
-            y                       = 'total_sales',
-            color                   = 'region',
-            title                   = "📊 Top 20 Products by Region (Last 90 Days)",
-            barmode                 = 'group',
-            labels                  = {
-                                        'total_sales': 'Total Value (R$)',
-                                        'name': 'Product',
-                                        'region': 'Region'
-                                    },
-            color_discrete_sequence = px.colors.qualitative.Set3
+            data_frame=top_3_per_region,
+            y='region_product',
+            x='total_sales',
+            color='region',
+            title="📊 Top 3 Products by Region",
+            orientation='h',
+            labels={
+                'total_sales': 'Sales (R$)',
+                'region_product': '',
+                'region': 'Region'
+            },
+            color_discrete_sequence=px.colors.qualitative.Set3,
+            text='total_sales'
+        )
+
+        fig.update_traces(
+            texttemplate='R$ %{x:,.0f}',
+            textposition='outside',
+            hovertemplate='<b>%{y}</b><br>Sales: R$ %{x:,.2f}<extra></extra>'
         )
 
         fig.update_layout(
-            height          = 500,
-            xaxis_tickangle = -45,
-            showlegend      = True
+            height=700,
+            xaxis_title="Sales (R$)",
+            yaxis_title="",
+            showlegend=True,
+            legend_title="Region",
+            xaxis=dict(tickformat='$,.0f')
         )
 
         return fig
