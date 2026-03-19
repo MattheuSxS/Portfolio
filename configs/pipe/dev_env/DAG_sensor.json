@@ -5,7 +5,7 @@
         "retry_delay": 5,
         "dagrun_timeout": 20,
         "project_vars": "gcp-default-portfolio",
-        "project_number": "380502645515",
+        "project_number": "44898060382",
         "cloud_functions": {
             "cf-wh-sensor": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",

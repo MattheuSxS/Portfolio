@@ -112,22 +112,22 @@ resource "google_storage_bucket_object" "cf_products_inventory_files" {
 }
 
 
-# resource "google_storage_bucket_object" "airflow_dags" {
-#     for_each        = fileset("../pipe/", "**.py")
-#     name            = "dags/${each.value}"
-#     bucket          = local.bkt_airflow
-#     content_type    = "text/x-python"
-#     source          = "../pipe/${each.value}"
-# }
+resource "google_storage_bucket_object" "airflow_dags" {
+    for_each        = fileset("../pipe/", "**.py")
+    name            = "dags/${each.value}"
+    bucket          = local.bkt_airflow
+    content_type    = "text/x-python"
+    source          = "../pipe/${each.value}"
+}
 
 
-# resource "google_storage_bucket_object" "airflow_variables" {
-#     for_each        = fileset("../pipe/${var.environment}_env", "**.json")
-#     name            = "variables/${each.value}"
-#     bucket          = local.bkt_airflow
-#     content_type    = "application/json"
-#     source          = "../pipe/${var.environment}_env/${each.value}"
-# }
+resource "google_storage_bucket_object" "airflow_variables" {
+    for_each        = fileset("../pipe/${var.environment}_env", "**.json")
+    name            = "variables/${each.value}"
+    bucket          = local.bkt_airflow
+    content_type    = "application/json"
+    source          = "../pipe/${var.environment}_env/${each.value}"
+}
 
 
 resource "google_storage_bucket_object" "spark_job_tb_order" {

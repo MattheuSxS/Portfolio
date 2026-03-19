@@ -1,6 +1,7 @@
 import json
 import time
 import logging
+import random
 from time import sleep
 from datetime import datetime
 from utils.pub_sub import PubSub
@@ -45,9 +46,8 @@ def _process_batch(faker: FakeWhSensorData, pubsub: PubSub, batch_size: int) -> 
                 message = json.dumps(data)
                 pubsub.publisher(message)
                 messages_sent += 1
-                logging.debug(f"Message published: {message[:100]}...")  # Log truncated message
             except Exception as e:
-                logging.warning(f"Failed to publish message: {str(e)}")
+                logging.error(f"Failed to publish message: {str(e)}")
                 raise  # Re-raise to trigger batch retry
 
     return messages_sent
@@ -88,13 +88,24 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
         logging.info("Checking request format and authorization...")
         dt_request = get_request_data(dt_request)
 
-        faker = FakeWhSensorData()
+        if random.random() < 0.05:
+        # if True:  # Enable anomaly generation for testing
+            logging.warning("⚠️ Anomaly generation enabled for this execution.")
+            anomaly_type = random.choice(['temperature_spike', 'humidity_drop', 'pressure_drop'])
+            anomaly_state = random.choice(['SP', 'SC', 'DF', 'BA', 'AM'])
+
+            logging.warning(f"⚠️ Anomaly Type: {anomaly_type}, Anomaly State: {anomaly_state}")
+            faker = FakeWhSensorData(anomaly_chance=True, anomaly_state=anomaly_state, anomaly_type=anomaly_type)
+
+        else:
+            logging.info("Anomaly generation disabled for this execution.")
+            faker = FakeWhSensorData(anomaly_chance=False)
+
         pubsub = PubSub(
             project_id  = dt_request["project_id"],
             topic_id    = dt_request["topic_id"]
         )
 
-        # Main processing loop
         max_duration            = 180  # 3 minutes in seconds
         batch_size              = 5
         retry_limit             = 9
@@ -120,6 +131,7 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
                 if metrics['fail'] >= retry_limit:
                     logging.critical("Maximum retry limit reached. Stopping processing.")
                     break
+
 
     except Exception as main_error:
         logging.critical(f"Critical failure in main function: {str(main_error)}")

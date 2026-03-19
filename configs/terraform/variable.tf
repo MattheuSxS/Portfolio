@@ -231,6 +231,11 @@ variable "tb_wh_sensor" {
     type        = string
 }
 
+variable "tb_wh_sensor_anomalies" {
+    description = "Table with warehouse sensor anomaly information"
+    type        = string
+}
+
 variable "tb_feedback" {
     description = "Table with feedback information of customers"
     type        = string

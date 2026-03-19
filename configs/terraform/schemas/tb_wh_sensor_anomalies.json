@@ -36,6 +36,12 @@
         "description": "Pressure reading from the sensor."
     },
     {
+        "name": "anomaly_type",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Type of anomaly detected in the sensor reading."
+    },
+    {
         "name": "created_at",
         "type": "TIMESTAMP",
         "mode": "REQUIRED",

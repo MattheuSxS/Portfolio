@@ -5,7 +5,7 @@ locals {
     bkt_cf_portfolio    = google_storage_bucket.bucket[0].name
     bkt_dataflow        = google_storage_bucket.bucket[1].name
     bkt_dataproc        = google_storage_bucket.bucket[2].name
-    # bkt_airflow         = regex("gs://([^/]+)/dags", google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix)[0]
+    bkt_airflow         = regex("gs://([^/]+)/dags", google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix)[0]
 
     sa_composer                 = google_service_account.creating_sa[0].email
     sa_pubsub                   = google_service_account.creating_sa[1].email
@@ -41,5 +41,5 @@ output "service_url" {
 }
 
 output "dfl_script_path" {
-    value = "${path.root}/modules/dataflow/"
+    value = "${path.cwd}/modules/dataflow/"
 }

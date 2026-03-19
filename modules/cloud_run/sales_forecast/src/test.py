@@ -15,7 +15,7 @@ class ProphetSalesForecaster:
         self.models = {}
         self.forecasts = {}
         self.performance_metrics = {}
-        
+
     def fetch_sales_data(self):
         """Busca dados históricos completos do BigQuery"""
         query = """

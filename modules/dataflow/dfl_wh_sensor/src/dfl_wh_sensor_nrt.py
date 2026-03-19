@@ -1,10 +1,10 @@
 import logging
 import argparse
 import apache_beam as beam
-from utils.helpers import MessageParser, Kwargs
 from apache_beam.transforms import ParDo
 from utils.bigquery import get_schema_from_bigquery
 from apache_beam.options.pipeline_options import PipelineOptions
+from utils.helpers import MessageParser, Kwargs, write_to_bigquery
 
 
 # ******************************************************************************************************************** #
@@ -20,16 +20,20 @@ logging.basicConfig(
 # ******************************************************************************************************************** #
 #                                              Dataflow Pipeline                                                       #
 # ******************************************************************************************************************** #
-def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, project:str, dataset:str,
+def pipeline_run(exec_mode:str, region:str, job_name:str, bkt_dataflow:str, project:str, dataset:str,
                  table:str, topics:str) -> None:
 
-    PROJECT_ID      = project
-    DATASET_ID      = dataset
-    TABLE_ID        = table
-    TOPIC_ID        = f"projects/{project}/topics/{topics}"
-    BQ_SCHEMA       = get_schema_from_bigquery(
-                        PROJECT_ID, DATASET_ID, TABLE_ID
-                    )
+    PROJECT_ID  = project
+    DATASET_ID  = dataset
+    TABLE_ID    = table
+    TOPIC_ID    = f"projects/{project}/topics/{topics}"
+
+    tb_anomalies   = get_schema_from_bigquery(
+        PROJECT_ID, DATASET_ID, f"{TABLE_ID}_anomalies"
+        )
+    tb_normal_data = get_schema_from_bigquery(
+        PROJECT_ID, DATASET_ID, TABLE_ID
+        )
 
     options = \
         PipelineOptions(
@@ -39,8 +43,8 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, proje
             job_name                    = job_name,
             num_workers                 = 1,
             max_num_workers             = 2,
-            machine_type                = 'n1-standard-2',
-            worker_machine_type         = 'n1-standard-2',
+            machine_type                = 'n4-standard-2',
+            worker_machine_type         = 'n4-standard-2',
             staging_location            = f"gs://{bkt_dataflow}/staging",
             temp_location               = f"gs://{bkt_dataflow}/temp",
             streaming                   = True,
@@ -50,6 +54,11 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, proje
                                           ],
             save_main_session           = True
         )
+
+    def is_anomaly(element):
+        return (element['temperature'] > 30.0 or
+                element['humidity'] < 30 or
+                element['pressure'] < 1000.0)
 
     with beam.Pipeline(options=options) as p:
         get_messages = (
@@ -61,20 +70,27 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, proje
             | 'Efficient Parse Message' >> ParDo(MessageParser())
         )
 
-        #TODO: I need to check if this is the best way to treat the data
-        treat_the_data = (
+        anomalies, normal_data = (
             get_messages
-            | 'Flatten dictionaries' >> beam.ParDo(Kwargs())
+            | 'Flatten' >> beam.ParDo(Kwargs())
+            | 'Split by Anomaly' >> beam.Partition(
+                lambda elem, num_partitions: 0 if is_anomaly(elem) else 1, 2
+            )
         )
 
-        treat_the_data | 'Write to BigQuery' >> beam.io.WriteToBigQuery(
-            table                   = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}",
-            schema                  = BQ_SCHEMA,
-            create_disposition      = beam.io.BigQueryDisposition.CREATE_NEVER,
-            write_disposition       = beam.io.BigQueryDisposition.WRITE_APPEND,
-            method                  = beam.io.WriteToBigQuery.Method.STREAMING_INSERTS,
+        _ = (
+            anomalies
+            | 'Write Anomalies' >> write_to_bigquery(
+                PROJECT_ID, DATASET_ID, f"{TABLE_ID}_anomalies", tb_anomalies
+            )
         )
 
+        _ = (
+            normal_data
+            | 'Write Normal Data' >> write_to_bigquery(
+                PROJECT_ID, DATASET_ID, TABLE_ID, tb_normal_data
+            )
+        )
 
 if __name__ == "__main__":
 

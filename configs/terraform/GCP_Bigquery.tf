@@ -70,6 +70,21 @@ resource "google_bigquery_table" "tb_wh_sensor" {
     clustering = ["warehouse_id", "sensor_id"]
 }
 
+resource "google_bigquery_table" "tb_wh_sensor_anomalies" {
+    project               = local.project
+    dataset_id            = local.bq_dataset_ls_customers
+    table_id              = var.tb_wh_sensor_anomalies
+    schema                = file("${path.module}/schemas/${var.tb_wh_sensor_anomalies}.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "time_stamp"
+    }
+
+    clustering = ["warehouse_id", "sensor_id"]
+}
+
 resource "google_bigquery_table" "tb_feedback" {
     project               = local.project
     dataset_id            = local.bq_dataset_production

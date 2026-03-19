@@ -249,10 +249,10 @@ def cluster_config(job_name: str = None) -> dict:
 
     CLUSTER_NAME = __env_var__["dataproc_config"]["cluster_name"]
     CLUSTER_CONFIG = __env_var__["dataproc_config"]["cluster_config"]
-    CLUSTER_CONFIG["gce_cluster_config"]["zone_uri"] = f"https://www.googleapis.com/compute/v1/projects/{VAR_DP_PROJECT_ID}/zones/us-east1-c"
+    # CLUSTER_CONFIG["gce_cluster_config"]["zone_uri"] = f"https://www.googleapis.com/compute/v1/projects/{VAR_DP_PROJECT_ID}/zones/us-east1-c"
     # CLUSTER_CONFIG["gce_cluster_config"]["subnetwork_uri"] = "projects/shared-services-268518/regions/us-east1/subnetworks/shared" # In creating...
     # CLUSTER_CONFIG["gce_cluster_config"]["tags"] = CLUSTER_CONFIG["gce_cluster_config"]["tags"].extend('Test') # In creating...
-    CLUSTER_CONFIG["software_config"]["image_version"] = "2.3-debian12"
+    CLUSTER_CONFIG["software_config"]["image_version"] = "2.3.24-debian12"
     CLUSTER_CONFIG["lifecycle_config"]["idle_delete_ttl"] = durationIdle
     CLUSTER_CONFIG["lifecycle_config"]["auto_delete_ttl"] = durationAuto
 

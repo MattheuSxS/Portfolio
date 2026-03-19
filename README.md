@@ -101,7 +101,7 @@ Portfolio/
 │     │  ├─ tb_sales.json
 │     │  ├─ tb_trusted_dw_messages.json
 │     │  ├─ tb_vehicles.json
-│     │  └─ tb_wh_sensor.json
+│     │  └─ tb_wh_sensor_anomaly.json
 │     ├─ scripts/
 │     │  └─ install-delta-lake.sh
 │     ├─ sql_scripts/

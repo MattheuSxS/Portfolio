@@ -11,10 +11,6 @@ resource "google_cloud_run_v2_service" "logistream_dashboard" {
     deletion_protection = false
 
   template {
-        scaling {
-            min_instance_count = 1
-            max_instance_count = 2
-        }
 
         timeout = "3600s"
         max_instance_request_concurrency = 50
@@ -48,6 +44,11 @@ resource "google_cloud_run_v2_service" "logistream_dashboard" {
         }
 
 
+    }
+
+    scaling {
+        min_instance_count = 1
+        max_instance_count = 2
     }
 
     build_config {

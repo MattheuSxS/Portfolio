@@ -1,6 +1,6 @@
 # streamlit_app.py (exemplo)
-import streamlit as st
 import pandas as pd
+import streamlit as st
 from test import SalesForecastingPipeline, StreamlitHelper
 
 # Configurar página

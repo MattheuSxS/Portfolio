@@ -37,8 +37,8 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, proje
             job_name                    = job_name,
             num_workers                 = 1,
             max_num_workers             = 2,
-            machine_type                = 'n1-standard-2',
-            worker_machine_type         = 'n1-standard-2',
+            machine_type                = 'n4-standard-2',
+            worker_machine_type         = 'n4-standard-2',
             staging_location            = f"gs://{bkt_dataflow}/staging",
             temp_location               = f"gs://{bkt_dataflow}/temp",
             streaming                   = True,
@@ -67,11 +67,11 @@ def pipeline_run(exec_mode:str, region:str, job_name:str,bkt_dataflow:str, proje
         )
 
         treat_the_data | 'Write to BigQuery' >> beam.io.WriteToBigQuery(
-            table                   = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}",
-            schema                  = BQ_SCHEMA,
-            create_disposition      = beam.io.BigQueryDisposition.CREATE_NEVER,
-            write_disposition       = beam.io.BigQueryDisposition.WRITE_APPEND,
-            method                  = beam.io.WriteToBigQuery.Method.STREAMING_INSERTS,
+            table               = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}",
+            schema              = BQ_SCHEMA,
+            create_disposition  = beam.io.BigQueryDisposition.CREATE_NEVER,
+            write_disposition   = beam.io.BigQueryDisposition.WRITE_APPEND,
+            method              = beam.io.WriteToBigQuery.Method.STREAMING_INSERTS,
         )
 
 
