@@ -11,8 +11,8 @@ BEGIN
         FROM
         `gcp-default-portfolio.staging.tb_delivery_status_stage`
         WHERE
-        -- Filter the data that arrived in the last 30 minutes.
-        updated_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 MINUTE)
+        -- Filter the data that arrived in the last 60 minutes.
+        updated_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 60 MINUTE)
     );
 
     -- 2. Execute the MERGE statement to update existing records and insert new ones based on the RecentData temporary table.

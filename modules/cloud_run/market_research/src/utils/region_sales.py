@@ -35,7 +35,7 @@ class GeoSalesDashboard(BigQuery, MapOfBrazil):
         state_totals = state_totals.with_columns(
             pl.col("state").replace(self.state_names).alias("state_name")
         )
-
+        # 'R$ %{value:,.2f}'
         fig = px.choropleth(
             data_frame              = state_totals,
             geojson                 = geojson_data,
@@ -44,8 +44,8 @@ class GeoSalesDashboard(BigQuery, MapOfBrazil):
             color                   = 'total_sales',
             hover_name              = 'state_name',
             hover_data              = {
-                                        'total_sales': ':,2f',
-                                        'total_discount': ':,2f',
+                                        'total_sales': ':,.2f',
+                                        'total_discount': ':,.2f',
                                         'state': False
                                     },
             color_continuous_scale  = "Blues",
@@ -133,10 +133,10 @@ class GeoSalesDashboard(BigQuery, MapOfBrazil):
         )
 
         fig.update_layout(
-            height=500,
-            showlegend=False,
-            xaxis_title="State",
-            yaxis_title="Total Sales (R$)"
+            height      = 500,
+            showlegend  = False,
+            xaxis_title = "State",
+            yaxis_title = "Total Sales (R$)"
         )
 
         return fig
@@ -196,9 +196,9 @@ class GeoSalesDashboard(BigQuery, MapOfBrazil):
 
         fig.update_traces(
             hovertemplate = '<b>%{label}</b><br>' +
-                            'Vendas: R$ %{value:,.2f}<br>' +
-                            'Pedidos: %{customdata[0]:,}<br>' +
-                            'Descontos: R$ %{customdata[1]:,.2f}<extra></extra>'
+                            'Sold: R$ %{value:,.2f}<br>' +
+                            'Orders: %{customdata[0]:,}<br>' +
+                            'Discounts: R$ %{customdata[1]:,.2f}<extra></extra>'
         )
 
         fig.update_layout(

@@ -14,7 +14,7 @@
 
 import logging
 from airflow.sdk import DAG
-from airflow.models import Variable
+from airflow.sdk import Variable
 from datetime import timedelta, datetime
 from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.google.cloud.operators.cloud_run import CloudRunExecuteJobOperator

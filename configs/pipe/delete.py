@@ -1,8 +1,8 @@
-from airflow import DAG
-from airflow.providers.standard.operators.python import PythonOperator
-from airflow.models import Variable
-from datetime import timedelta, datetime
 import logging
+from airflow import DAG
+from airflow.sdk import Variable
+from datetime import timedelta, datetime
+from airflow.providers.standard.operators.python import PythonOperator
 
 # Configure o logger para ver as mensagens no log do Airflow
 log = logging.getLogger(__name__)

@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from utils.bigquery import BigQuery
 from utils.brazil_map import MapOfBrazil
 
+
 @st.cache_data(ttl=1800)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
@@ -13,6 +14,7 @@ def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     except Exception as e:
         st.error(f"Error loading customer data: {e}")
         return pl.DataFrame()
+
 
 class CustomerDashboard(BigQuery, MapOfBrazil):
     def __init__(self, project: str, st: any):
@@ -31,14 +33,14 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
         fig = px.choropleth(
             data_frame              = df_map,
             geojson                 = geojson_data,
-            locations               = 'state',           # Siglas dos estados que devem corresponder ao 'id' no GeoJSON
-            featureidkey            = "properties.sigla",  # Chave que contém as siglas no GeoJSON
-            color                   = 'associate_count',     # Variável para o gradiente de cores
-            hover_name              = 'state_name',     # Nome completo no hover
+            locations               = 'state',
+            featureidkey            = "properties.sigla",
+            color                   = 'associate_count',
+            hover_name              = 'state_name',
             hover_data              = {
-                                            'region': True,
-                                            'associate_count': True,
-                                            'state': False
+                                        'region': True,
+                                        'associate_count': True,
+                                        'state': False
                                         },
             color_continuous_scale  = "Blues",
             title                   = "Customer Distribution by State in Brazil"
@@ -54,7 +56,6 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
             scope           = "south america"
         )
 
-        # Personalizar o layout
         fig.update_layout(
             height  = 600,
             margin  = dict(l=0, r=0, t=50, b=0),
@@ -73,6 +74,7 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
         )
 
         return fig
+
 
     def create_brazil_map_alternative(self, df):
 
@@ -112,6 +114,7 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
 
         return fig
 
+
     def create_region_summary(self, df):
         region_totals = df.group_by('region').agg([
             pl.sum('associate_count').alias('total_clients')
@@ -133,6 +136,7 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
         )
 
         return fig
+
 
     def render_dashboard(self):
         self.df = load_data(self)

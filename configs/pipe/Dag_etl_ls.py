@@ -16,10 +16,10 @@ import json
 import logging
 import subprocess
 from airflow.sdk import DAG
-from airflow.models import Variable
+from airflow.sdk import Variable
 from datetime import timedelta, datetime, time
 from google.protobuf.duration_pb2 import Duration
-from airflow.task.trigger_rule import TriggerRule
+from airflow.task.trigger_rule import TriggerRule1
 from airflow.providers.google.cloud.operators import bigquery
 from airflow.providers.google.cloud.operators.dataproc import (
     DataprocCreateClusterOperator,

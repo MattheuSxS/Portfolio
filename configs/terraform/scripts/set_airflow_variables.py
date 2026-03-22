@@ -2,7 +2,7 @@ import json
 import logging
 from pathlib import Path
 from google.cloud import storage
-from airflow.models import Variable
+from airflow.sdk import Variable
 
 
 logging.basicConfig(
@@ -92,7 +92,7 @@ def set_airflow_variables(bucket_name, prefix):
         logging.error(f"Error setting variables from file '{file_name}' - {e}")
 
 
-bucket_name = "us-east1-mts-portfolio-airf-4216b1f7-bucket"
+bucket_name = "us-east1-mts-portfolio-airf-bd6d9182-bucket"
 prefix = "variables/"
 
 set_airflow_variables(bucket_name, prefix)

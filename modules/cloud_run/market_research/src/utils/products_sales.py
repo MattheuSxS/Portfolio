@@ -24,7 +24,6 @@ class ProductsSalesDashboard(BigQuery):
         self.st = st
         self.df = None
 
-    #TODO : i MUST change all graphs
     def create_top_products_chart(self, df):
         product_sales = df.group_by(['region', 'name']).agg([
             pl.sum('final_price').alias('total_sales')
