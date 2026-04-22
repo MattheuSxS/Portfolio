@@ -343,8 +343,8 @@ variable "dfl_wh_sensor_template" {
     description = "The name of the Dataflow template"
     type        = string
 }
-variable "dfl_wh_sensor_script_path" {
-    description = "The path to the Python script"
+variable "dfl_script_path" {
+    description = "The base path to the Dataflow Python scripts"
     type        = string
 }
 
@@ -355,11 +355,6 @@ variable "dfl_delivery_sensor_template" {
 
 variable "dfl_delivery_sensor_job_name" {
     description = "The name of the Dataflow job for delivery sensor"
-    type        = string
-}
-
-variable "dfl_delivery_sensor_script_path" {
-    description = "The path to the Python script for delivery sensor"
     type        = string
 }
 

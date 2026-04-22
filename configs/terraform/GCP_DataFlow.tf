@@ -4,7 +4,7 @@
 resource "null_resource" "run_dataflow_wh_job" {
   provisioner "local-exec" {
     command = <<EOT
-    python "${path.cwd}${var.dfl_wh_sensor_script_path}/src/${var.dfl_wh_sensor_template}.py" \
+    python "${path.cwd}${var.dfl_script_path}/dfl_wh_sensor/src/${var.dfl_wh_sensor_template}.py" \
         --runner "DataflowRunner" \
         --region "${var.region}" \
         --job_name "${var.dfl_wh_sensor_job_name}" \
@@ -13,7 +13,7 @@ resource "null_resource" "run_dataflow_wh_job" {
         --dataset "${local.bq_dataset_ls_customers}" \
         --table "${var.tb_wh_sensor}" \
         --topics "${local.pb_wh_sensor_topic}" \
-        --setup_file ${path.cwd}${var.dfl_wh_sensor_script_path}/src/setup.py \
+        --setup_file ${path.cwd}${var.dfl_script_path}/dfl_wh_sensor/src/setup.py \
         --template_location "gs://${local.bkt_dataflow}/template/${var.dfl_wh_sensor_template}"
     EOT
   }
@@ -62,7 +62,7 @@ resource "google_dataflow_job" "dataflow_wh_job" {
 resource "null_resource" "dfl_run_delivery_job" {
     provisioner "local-exec" {
         command = <<EOT
-        python "${path.cwd}${var.dfl_delivery_sensor_script_path}/src/${var.dfl_delivery_sensor_template}.py" \
+        python "${path.cwd}${var.dfl_script_path}/dfl_delivery_sensor/src/${var.dfl_delivery_sensor_template}.py" \
             --runner "DataflowRunner" \
             --region "${var.region}" \
             --job_name "${var.dfl_delivery_sensor_job_name}" \
@@ -71,7 +71,7 @@ resource "null_resource" "dfl_run_delivery_job" {
             --dataset "${local.bq_dataset_staging}" \
             --table "${var.tb_delivery_status}_stage" \
             --topics "${local.pb_delivery_sensor_topic}" \
-            --setup_file ${path.cwd}${var.dfl_delivery_sensor_script_path}/src/setup.py \
+            --setup_file ${path.cwd}${var.dfl_script_path}/dfl_delivery_sensor/src/setup.py \
             --template_location "gs://${local.bkt_dataflow}/template/${var.dfl_delivery_sensor_template}"
         EOT
     }
