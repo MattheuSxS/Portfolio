@@ -5,7 +5,7 @@ locals {
     bkt_cf_portfolio    = google_storage_bucket.bucket[0].name
     bkt_dataflow        = google_storage_bucket.bucket[1].name
     bkt_dataproc        = google_storage_bucket.bucket[2].name
-    bkt_airflow         = regex("gs://([^/]+)/dags", google_composer_environment.portfolio-composer.config[0].dag_gcs_prefix)[0]
+    bkt_airflow         = google_storage_bucket.bucket[3].name
 
     sa_composer                 = google_service_account.creating_sa[0].email
     sa_pubsub                   = google_service_account.creating_sa[1].email
@@ -33,8 +33,24 @@ locals {
 
     artifact_registry_url   = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}"
     dfl_script_path         = "${path.cwd}/../../modules/dataflow"
+
+    sentiment_context_path = "${var.run_path_all_files}/${replace(var.sentiment_analysis, "-", "_")}/src"
+    sentiment_hash = sha256(join("", [
+        for f in fileset(local.sentiment_context_path, "**") :
+        filesha256("${local.sentiment_context_path}/${f}")
+    ]))
+    sentiment_image_tag = substr(local.sentiment_hash, 0, 12)
+
+    #TODO: I need to back here and solve the variable name
+    logistream_solutions_report_context_path = "${var.run_path_all_files}/market_research/src"
+    logistream_solutions_report_hash = sha256(join("", [
+        for f in fileset(local.logistream_solutions_report_context_path, "**") :
+        filesha256("${local.logistream_solutions_report_context_path}/${f}")
+    ]))
+    logistream_solutions_report_image_tag = substr(local.logistream_solutions_report_hash, 0, 12)
+
 }
 
-output "service_url" {
-    value = google_cloud_run_v2_service.logistream_dashboard.uri
-}
+# output "service_url" {
+#     value = google_cloud_run_v2_service.logistream_dashboard.uri
+# }

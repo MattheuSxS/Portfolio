@@ -36,7 +36,7 @@ resource "google_composer_environment" "portfolio-composer" {
                 storage_gb = 5
             }
             worker {
-                cpu = 2
+                cpu        = 2
                 memory_gb  = 7.5
                 storage_gb = 20
                 min_count  = 1
@@ -49,9 +49,13 @@ resource "google_composer_environment" "portfolio-composer" {
         }
     }
 
+    storage_config {
+        bucket = local.bkt_airflow
+    }
+
     labels = {
-        "created_by": "terraform",
-        "env": var.environment
+        created_by = "terraform"
+        env        = var.environment
     }
 }
 

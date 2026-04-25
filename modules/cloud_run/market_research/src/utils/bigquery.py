@@ -88,78 +88,84 @@ class BigQuery:
         query_scripts = \
             {
                 "sql_feedback"  : f"""
-                                        SELECT
-                                            TFS.sentiment,
-                                            TF.rating,
-                                            FORMAT_TIMESTAMP('%Y-%m-%d', TF.fb_date) AS feedback_date
-                                        FROM
-                                            `gcp-default-portfolio.ls_customers.tb_feedback_sentiment` AS TFS
-                                        INNER JOIN
-                                            `gcp-default-portfolio.production.tb_feedback` AS TF
-                                        USING
-                                            (feedback_id)
-                                    """,
+                    SELECT
+                        TFS.sentiment,
+                        TF.rating,
+                        FORMAT_TIMESTAMP('%Y-%m-%d', TF.fb_date) AS feedback_date
+                    FROM
+                        `gcp-default-portfolio.ls_customers.tb_feedback_sentiment` AS TFS
+                    INNER JOIN
+                        `gcp-default-portfolio.production.tb_feedback` AS TF
+                    USING
+                        (feedback_id)
+                    """,
                 "sql_customer"  : f"""
-                                        SELECT
-                                            COUNT(associate_id) AS associate_count,
-                                            TBAS.region,
-                                            TBAS.state
-                                        FROM
-                                            `gcp-default-portfolio.ls_customers.tb_customers` AS TBCS
-                                        INNER JOIN
-                                            `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
-                                        ON
-                                            TBCS.associate_id = TBAS.fk_associate_id
-                                        GROUP BY
-                                            TBAS.region,
-                                            TBAS.state
-                                        """,
+                    SELECT
+                        COUNT(associate_id) AS associate_count,
+                        TBAS.region,
+                        TBAS.state,
+                        CASE
+                            WHEN TBCS.gender = "F" THEN "Female"
+                            WHEN TBCS.gender = "M"THEN "Male"
+                            ELSE "Unknow"
+                        END AS gender
+                    FROM
+                        `gcp-default-portfolio.ls_customers.tb_customers` AS TBCS
+                    INNER JOIN
+                        `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
+                    ON
+                        TBCS.associate_id = TBAS.fk_associate_id
+                    GROUP BY
+                        TBAS.region,
+                        TBAS.state,
+                        TBCS.gender
+                    """,
                 "sql_region_sales"  : f"""
-                                            SELECT
-                                                SUM(TBSS.discount_applied) AS discount_applied,
-                                                SUM(TBSS.final_price) AS final_price,
-                                                TBSS.region,
-                                                TBAS.state,
-                                                TBSS.order_status,
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
-                                            FROM
-                                                `gcp-default-portfolio.ls_customers.tb_sales` AS TBSS
-                                            INNER JOIN
-                                                `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
-                                            ON
-                                                TBSS.associate_id = TBAS.fk_associate_id
-                                                AND TBSS.order_status = "completed"
-                                            GROUP BY
-                                                TBSS.region,
-                                                TBAS.state,
-                                                TBSS.order_status,
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date);
-                                        """,
+                    SELECT
+                        SUM(TBSS.discount_applied) AS discount_applied,
+                        SUM(TBSS.final_price) AS final_price,
+                        TBSS.region,
+                        TBAS.state,
+                        TBSS.order_status,
+                        FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
+                    FROM
+                        `gcp-default-portfolio.ls_customers.tb_sales` AS TBSS
+                    INNER JOIN
+                        `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
+                    ON
+                        TBSS.associate_id = TBAS.fk_associate_id
+                        AND TBSS.order_status = "completed"
+                    GROUP BY
+                        TBSS.region,
+                        TBAS.state,
+                        TBSS.order_status,
+                        FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date);
+                """,
                 "sql_products_sales"  : f"""
-                                            SELECT
-                                                SUM(TBSS.discount_applied) AS discount_applied,
-                                                SUM(TBSS.final_price) AS final_price,
-                                                TBSS.region,
-                                                TBSS.order_status,
-                                                TBPS.category,
-                                                REGEXP_REPLACE(TBPS.name, r'[0-9]', '') AS name,
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
-                                            FROM
-                                                `gcp-default-portfolio.ls_customers.tb_sales` AS TBSS
-                                            INNER JOIN
-                                                `gcp-default-portfolio.ls_customers.tb_products` AS TBPS
-                                            ON
-                                                TBSS.product_id = TBPS.product_id
-                                            WHERE
-                                                TBSS.order_status IN ("completed", "processing")
-                                                AND TBSS.purchase_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)
-                                            GROUP BY
-                                                TBSS.region,
-                                                TBSS.order_status,
-                                                TBPS.category,
-                                                REGEXP_REPLACE(TBPS.name, r'[0-9]', ''),
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date);
-                                            """
+                    SELECT
+                        SUM(TBSS.discount_applied) AS discount_applied,
+                        SUM(TBSS.final_price) AS final_price,
+                        TBSS.region,
+                        TBSS.order_status,
+                        TBPS.category,
+                        REGEXP_REPLACE(TBPS.name, r'[0-9]', '') AS name,
+                        FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
+                    FROM
+                        `gcp-default-portfolio.ls_customers.tb_sales` AS TBSS
+                    INNER JOIN
+                        `gcp-default-portfolio.ls_customers.tb_products` AS TBPS
+                    ON
+                        TBSS.product_id = TBPS.product_id
+                    WHERE
+                        TBSS.order_status IN ("completed", "processing")
+                        AND TBSS.purchase_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)
+                    GROUP BY
+                        TBSS.region,
+                        TBSS.order_status,
+                        TBPS.category,
+                        REGEXP_REPLACE(TBPS.name, r'[0-9]', ''),
+                        FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date);
+                    """
             }
 
         return query_scripts[query_name]

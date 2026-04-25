@@ -138,6 +138,35 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
         return fig
 
 
+    def create_gender_by_state_chart(self, df):
+
+        # Garantir agregação correta (caso já não venha agregada)
+        df_grouped = df.group_by(['state', 'gender']).agg([
+            pl.sum('associate_count').alias('associate_count')
+        ])
+
+        fig = px.bar(
+            data_frame=df_grouped,
+            x="state",
+            y="associate_count",
+            color="gender",
+            barmode="group",
+            title="Customers by Gender and State",
+            labels={
+                "associate_count": "Number of Customers",
+                "state": "State",
+                "gender": "Gender"
+            }
+        )
+
+        fig.update_layout(
+            height=500,
+            xaxis_tickangle=-45
+        )
+
+        return fig
+
+
     def render_dashboard(self):
         self.df = load_data(self)
 
@@ -172,6 +201,11 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
 
             self.st.plotly_chart(map_fig, use_container_width=True)
 
+
+            st.subheader("👥 Gender Distribution by State")
+            gender_fig = self.create_gender_by_state_chart(filtered_df)
+            self.st.plotly_chart(gender_fig, use_container_width=True)
+
         with col2:
 
             st.subheader("📊 Metrics Summary")
@@ -194,21 +228,21 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
             region_fig = self.create_region_summary(filtered_df)
             self.st.plotly_chart(region_fig, use_container_width=True)
 
-        with st.expander("📋 View Detailed Data by State"):
-            display_df = filtered_df.select([
-                'state', 'region', 'associate_count'
-            ]).sort('associate_count', descending=True)
+        # with st.expander("📋 View Detailed Data by State"):
+        #     display_df = filtered_df.select([
+        #         'state', 'region', 'associate_count'
+        #     ]).sort('associate_count', descending=True)
 
-            self.st.dataframe(
-                display_df,
-                use_container_width = True,
-                height              = 300
-            )
+        #     self.st.dataframe(
+        #         display_df,
+        #         use_container_width = True,
+        #         height              = 300
+        #     )
 
-            csv_data = filtered_df.write_csv()
-            st.download_button(
-                label       = "📥 Download data as CSV",
-                data        = csv_data,
-                file_name   = "customers_by_state.csv",
-                mime        = "text/csv"
-            )
+        #     csv_data = filtered_df.write_csv()
+        #     st.download_button(
+        #         label       = "📥 Download data as CSV",
+        #         data        = csv_data,
+        #         file_name   = "customers_by_state.csv",
+        #         mime        = "text/csv"
+        #     )

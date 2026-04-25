@@ -1,6 +1,6 @@
 import unicodedata
 from faker import Faker
-from random import choice
+from random import choice, choices
 from datetime import date, timedelta
 
 
@@ -60,7 +60,7 @@ class FakeDataPerson:
                 "associate_id": f"ID##{self.fake.unique.uuid4()}",
                 "name":         full_name.split()[0],
                 "last_name":    " ".join(full_name.split()[1:4]),
-                "gender":       choice(['M', 'F', 'O']),
+                "gender":       choices(['M', 'F', 'O'], weights=[40, 40, 20], k=1)[0],
                 "cpf":          self.fake.unique.cpf(),
                 "email":        f"{full_name.replace(' ', '.')}@{self.fake.domain_name()}".lower(),
                 "phone":        self.fake.unique.phone_number(),
