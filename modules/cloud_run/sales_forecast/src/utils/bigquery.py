@@ -93,9 +93,9 @@ class BigQuery:
                                                 TF.rating,
                                                 FORMAT_TIMESTAMP('%Y-%m-%d', TF.fb_date) AS feedback_date
                                             FROM
-                                                `gcp-default-portfolio.ls_customers.tb_feedback_sentiment` AS TFS
+                                                `gcp-mts-pf.ls_customers.tb_feedback_sentiment` AS TFS
                                             INNER JOIN
-                                                `gcp-default-portfolio.production.tb_feedback` AS TF
+                                                `gcp-mts-pf.production.tb_feedback` AS TF
                                             USING
                                                 (feedback_id)
                                             """,
@@ -105,9 +105,9 @@ class BigQuery:
                                                 TBAS.region,
                                                 TBAS.state
                                             FROM
-                                                `gcp-default-portfolio.ls_customers.tb_customers` AS TBCS
+                                                `gcp-mts-pf.ls_customers.tb_customers` AS TBCS
                                             INNER JOIN
-                                                `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
+                                                `gcp-mts-pf.ls_customers.tb_address` AS TBAS
                                             ON
                                                 TBCS.associate_id = TBAS.fk_associate_id
                                             GROUP BY
@@ -123,9 +123,9 @@ class BigQuery:
                                                 TBSS.order_status,
                                                 FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
                                             FROM
-                                                `gcp-default-portfolio.ls_customers.tb_sales` AS TBSS
+                                                `gcp-mts-pf.ls_customers.tb_sales` AS TBSS
                                             INNER JOIN
-                                                `gcp-default-portfolio.ls_customers.tb_address` AS TBAS
+                                                `gcp-mts-pf.ls_customers.tb_address` AS TBAS
                                             ON
                                                 TBSS.associate_id = TBAS.fk_associate_id
                                                 AND TBSS.order_status = "completed"
@@ -145,9 +145,9 @@ class BigQuery:
                                                 REGEXP_REPLACE(TBPS.name, r'[0-9]', '') AS name,
                                                 FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
                                             FROM
-                                                `gcp-default-portfolio.ls_customers.tb_sales` AS TBSS
+                                                `gcp-mts-pf.ls_customers.tb_sales` AS TBSS
                                             INNER JOIN
-                                                `gcp-default-portfolio.ls_customers.tb_products` AS TBPS
+                                                `gcp-mts-pf.ls_customers.tb_products` AS TBPS
                                             ON
                                                 TBSS.product_id = TBPS.product_id
                                             WHERE
@@ -214,7 +214,7 @@ class BigQuery:
 
 
 if __name__ == '__main__':
-    bq = BigQuery(project="gcp-default-portfolio")
+    bq = BigQuery(project="gcp-mts-pf")
     result = bq.read_bq(
         query=bq.get_query('purchase_query')
     )

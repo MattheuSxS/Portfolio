@@ -1,0 +1,26 @@
+[
+    {
+        "name": "ds",
+        "type": "DATE",
+        "mode": "REQUIRED",
+        "description": "Data of the sales forecast"
+    },
+    {
+        "name": "actual",
+        "type": "FLOAT64",
+        "mode": "NULLABLE",
+        "description": "Actual sales value"
+    },
+    {
+        "name": "prophet",
+        "type": "FLOAT64",
+        "mode": "NULLABLE",
+        "description": "Name of the prophet model used for the forecast"
+    },
+    {
+        "name": "holt_winters",
+        "type": "FLOAT64",
+        "mode": "NULLABLE",
+        "description": "Holt-Winters forecast value"
+    }
+]

@@ -1,7 +1,5 @@
 wheel
 Faker==37.1.0
 load_dotenv==0.1.0
-apache-airflow==2.10.2
-apache_beam[gcp]==2.66.0
-google-cloud-pubsub==2.29.0
-google-cloud-bigquery==3.36.0
+apache_beam[gcp]==2.75.0
+google-cloud-bigquery==3.42.2

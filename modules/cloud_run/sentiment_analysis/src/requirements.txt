@@ -1,7 +1,7 @@
-numpy==1.26.4
-polars==1.34.0
-fastapi==0.95.0
-uvicorn==0.38.0
-pyarrow==18.1.0
-transformers==4.30.0
-google-cloud-bigquery==3.36.0
+numpy==2.4.6
+polars==1.43.1
+uvicorn==0.51.0
+pyarrow==23.0.1
+fastapi==0.117.1
+transformers==5.14.1
+google-cloud-bigquery==3.42.2

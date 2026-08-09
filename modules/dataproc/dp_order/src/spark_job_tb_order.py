@@ -27,10 +27,10 @@ from utils.helpers import (
 def main(args) -> None:
     spark = SparkSession.builder \
         .appName("BigQuery-ETL-TTable-Sales") \
-        .config("spark.jars.packages", "com.google.cloud.spark:spark-3.5-bigquery:0.42.4") \
+        .config("spark.jars.packages", "com.google.cloud.spark:spark-4.1-bigquery:0.44.2-preview") \
         .getOrCreate()
 
-    # spark.sparkContext.setLogLevel("ERROR")
+    spark.sparkContext.setLogLevel("ERROR")
 
     VAR_PROJECT_ID      = args.project_id
     VAR_DATASET_ID      = args.dataset_id

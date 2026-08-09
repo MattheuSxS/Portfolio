@@ -51,9 +51,8 @@ resource "google_bigquery_table" "tb_raw_delivery_sensor" {
     clustering = ["message_id"]
 }
 
-
 #   ********************************************************************************************************   #
-#                                             DataSet production |  Table production                           #
+#                                       DataSet production |  Table production                                 #
 #   ********************************************************************************************************   #
 resource "google_bigquery_table" "tb_wh_sensor" {
     project               = local.project
@@ -98,6 +97,21 @@ resource "google_bigquery_table" "tb_feedback" {
     }
 
     clustering = ["feedback_id", "category", "brand", "rating"]
+}
+
+resource "google_bigquery_table" "tb_sales_forecast" {
+    project               = local.project
+    dataset_id            = local.bq_dataset_production
+    table_id              = var.tb_sales_forecast
+    schema                = file("${path.module}/schemas/${var.tb_sales_forecast}.json")
+    deletion_protection   = false
+
+    time_partitioning {
+        type          = "DAY"
+        field         = "ds"
+    }
+
+    # clustering = ["product_id", "location", "forecast_date"]
 }
 
 #   ********************************************************************************************************   #
@@ -252,6 +266,7 @@ resource "google_bigquery_table" "tb_feedback_sentiment" {
 
     clustering = ["feedback_id", "sentiment", "updated_at"]
 }
+
 #   ********************************************************************************************************   #
 #                                                 BigQuery  Procedures                                         #
 #   ********************************************************************************************************   #

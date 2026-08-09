@@ -1,6 +1,6 @@
-tqdm==4.67.1
+tqdm==4.70.0
 Faker==37.1.0
-polars==1.29.0
+polars==1.43.1
 functions-framework==3.10.0
-google-cloud-bigquery==3.35.0
-google-cloud-secret-manager==2.23.3
+google-cloud-bigquery==3.42.2
+google-cloud-secret-manager==2.30.0

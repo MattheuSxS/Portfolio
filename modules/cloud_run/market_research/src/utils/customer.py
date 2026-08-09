@@ -28,7 +28,11 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
 
         df_map = df.with_columns(
             pl.col('state').map_elements(lambda x: self.state_names.get(x, x)).alias('state_name')
-        )
+        ).group_by('state', maintain_order=True).agg([
+            pl.sum('associate_count').alias('associate_count'),
+            pl.first('state_name').alias('state_name'),
+            pl.first('region').alias('region')
+        ])
 
         fig = px.choropleth(
             data_frame              = df_map,
@@ -39,7 +43,7 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
             hover_name              = 'state_name',
             hover_data              = {
                                         'region': True,
-                                        'associate_count': True,
+                                        'associate_count': ':,.0f',
                                         'state': False
                                         },
             color_continuous_scale  = "Blues",
@@ -47,25 +51,14 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
         )
 
         fig.update_geos(
-            visible         = False,
-            resolution      = 50,
-            showcountries   = True,
-            countrycolor    = "Black",
-            showsubunits    = True,
-            subunitcolor    = "Blue",
-            scope           = "south america"
+            fitbounds   = "locations",
+            visible     = False
         )
 
         fig.update_layout(
-            height  = 600,
-            margin  = dict(l=0, r=0, t=50, b=0),
-            font    = dict(size=12),
-            geo     = dict(
-                            bgcolor         = 'rgba(0,0,0,0)',
-                            showframe       = False,
-                            showcoastlines  = True,
-                            projection_type = 'equirectangular'
-            )
+            height  = 650,
+
+            geo     = dict(bgcolor='rgba(0,0,0,0)')
         )
 
         fig.update_coloraxes(
@@ -108,7 +101,7 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
 
         fig.update_layout(
             title_text  = "Customer Distribution by State in Brazil",
-            height      = 600,
+            height      = 650,
             margin      = dict(l=0, r=0, t=50, b=0)
         )
 
@@ -131,7 +124,7 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
         )
 
         fig.update_layout(
-            height      = 400,
+            height      = 500,
             showlegend  = False
         )
 
@@ -140,23 +133,22 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
 
     def create_gender_by_state_chart(self, df):
 
-        # Garantir agregação correta (caso já não venha agregada)
         df_grouped = df.group_by(['state', 'gender']).agg([
             pl.sum('associate_count').alias('associate_count')
         ])
 
         fig = px.bar(
-            data_frame=df_grouped,
-            x="state",
-            y="associate_count",
-            color="gender",
-            barmode="group",
-            title="Customers by Gender and State",
-            labels={
-                "associate_count": "Number of Customers",
-                "state": "State",
-                "gender": "Gender"
-            }
+            data_frame  = df_grouped,
+            x           = "state",
+            y           = "associate_count",
+            color       = "gender",
+            barmode     = "group",
+            title       = "Customers by Gender and State",
+            labels      = {
+                            "associate_count": "Number of Customers",
+                            "state": "State",
+                            "gender": "Gender"
+                         }
         )
 
         fig.update_layout(
@@ -176,7 +168,8 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
 
         self.st.header("👥 Member Distribution Analysis")
 
-        col1, col2 = self.st.columns(2)
+        col1 = self.st.columns(1)[0]
+
         with col1:
             regions = self.st.multiselect(
                 label   = "Filter by Region:",
@@ -189,7 +182,7 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
             (pl.col('region').is_in(regions))
         )
 
-        col1, col2 = self.st.columns([2, 1])
+        col1, col2 = self.st.columns(2)
 
         with col1:
             st.subheader("📍 Geographical Distribution")
@@ -202,47 +195,58 @@ class CustomerDashboard(BigQuery, MapOfBrazil):
             self.st.plotly_chart(map_fig, use_container_width=True)
 
 
-            st.subheader("👥 Gender Distribution by State")
-            gender_fig = self.create_gender_by_state_chart(filtered_df)
-            self.st.plotly_chart(gender_fig, use_container_width=True)
-
         with col2:
 
             st.subheader("📊 Metrics Summary")
 
             total_clients = filtered_df['associate_count'].sum()
-            total_estados = filtered_df.height
+            total_estados = filtered_df.group_by('state').agg(pl.count()).shape[0]
 
-            if not filtered_df.is_empty():
-                estado_mais_clientes = filtered_df.sort('associate_count', descending=True).row(0)
-                st.metric(
-                    "State with the Most Customers",
-                    f"{estado_mais_clientes[2]} - {estado_mais_clientes[0]:,}"
-                )
-            else:
-                st.metric("State with the Most Customers", "N/A")
+            col1, col2, col3 = self.st.columns(3)
+            with col1:
+                if not filtered_df.is_empty():
+                    estado_mais_clientes = filtered_df.group_by('state').agg([
+                        pl.sum('associate_count').alias('associate_count')
+                    ]).sort('associate_count', descending=True).row(0)
 
-            st.metric("Total Customers", f"{total_clients:,}")
-            st.metric("States with Customers", total_estados)
+                    st.metric(
+                        "State with the Most Customers",
+                        f"{estado_mais_clientes[0]} - {estado_mais_clientes[1]:,}"
+                    )
+
+                    with col2:
+                        st.metric("Total Customers", f"{total_clients:,}")
+                    with col3:
+                        st.metric("States with Customers", total_estados)
+                else:
+                    st.metric("State with the Most Customers", "N/A")
 
             region_fig = self.create_region_summary(filtered_df)
-            self.st.plotly_chart(region_fig, use_container_width=True)
+            self.st.plotly_chart(region_fig, use_container_width=False, height=500)
 
-        # with st.expander("📋 View Detailed Data by State"):
-        #     display_df = filtered_df.select([
-        #         'state', 'region', 'associate_count'
-        #     ]).sort('associate_count', descending=True)
 
-        #     self.st.dataframe(
-        #         display_df,
-        #         use_container_width = True,
-        #         height              = 300
-        #     )
+        col1 = self.st.columns(1)[0]
+        with col1:
+            st.subheader("👥 Gender Distribution by State")
+            gender_fig = self.create_gender_by_state_chart(filtered_df)
+            self.st.plotly_chart(gender_fig, use_container_width=True, height=500)
 
-        #     csv_data = filtered_df.write_csv()
-        #     st.download_button(
-        #         label       = "📥 Download data as CSV",
-        #         data        = csv_data,
-        #         file_name   = "customers_by_state.csv",
-        #         mime        = "text/csv"
-        #     )
+
+        with st.expander("📋 View Detailed Data by State"):
+            display_df = filtered_df.select([
+                'state', 'region', 'associate_count'
+            ]).sort('associate_count', descending=True)
+
+            self.st.dataframe(
+                display_df,
+                use_container_width = True,
+                height              = 300
+            )
+
+            csv_data = filtered_df.write_csv()
+            st.download_button(
+                label       = "📥 Download data as CSV",
+                data        = csv_data,
+                file_name   = "customers_by_state.csv",
+                mime        = "text/csv"
+            )

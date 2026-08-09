@@ -65,6 +65,6 @@ def main(request: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     main({
-        "project_id": "gcp-default-portfolio",
+        "project_id": "gcp-mts-pf",
         "secret_id" : "bq_products_access_authorization"
     })

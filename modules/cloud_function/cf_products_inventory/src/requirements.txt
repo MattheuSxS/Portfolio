@@ -1,5 +1,5 @@
 Faker==37.1.0
 faker-vehicle==0.2.0
 functions-framework==3.10.0
-google-cloud-bigquery==3.36.0
-google-cloud-secret-manager==2.23.3
+google-cloud-bigquery==3.42.2
+google-cloud-secret-manager==2.30.0

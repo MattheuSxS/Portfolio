@@ -47,7 +47,6 @@ def _hide_card(card_number: str) -> str:
     """
 
     clean_card = re.sub(r'\D', '', card_number)
-    print(clean_card)
     if not 13 <= len(card_number) <= 19:
         logging.warning("Invalid card number length")
         return "0000 0000 0000 0000"

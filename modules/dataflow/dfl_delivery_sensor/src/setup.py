@@ -7,7 +7,7 @@ setup(
     author_email='mattheusxs@gmail.com',
     packages=find_packages(),
     install_requires=[
-        'apache_beam[gcp]==2.66.0',
+        'apache_beam[gcp]==2.75.0',
     ],
     include_package_data=True,
     classifiers=[

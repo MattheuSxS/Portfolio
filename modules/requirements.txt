@@ -1,17 +1,42 @@
-numpy==1.26.4
-Flask==2.2.5
-Faker==37.1.0
-plotly==6.3.1
-polars==1.34.0
-pyspark==3.5.6
-streamlit==1.50.0
-setuptools==80.9.0
+# numpy==1.26.4
+# Flask==2.2.5
+# Faker==37.1.0
+# plotly==6.9.0
+# polars==1.34.0
+# pyspark==3.5.6
+# streamlit==1.60.0
+# setuptools==80.9.0
+# faker-vehicle==0.2.0
+# transformers==4.30.0
+# apache-beam[gcp]==2.66.0
+# functions-framework==3.10.0
+# google-cloud-pubsub==2.39.0
+# google-cloud-storage==2.19.0
+# google-cloud-bigquery==3.42.2
+# apache-airflow[google]==3.1.8
+# google-cloud-secret-manager==2.30.0
+
+
+
+numpy==2.4.6 # 2.5.1
+tqdm==4.70.0
+Flask==3.1.3
+Faker==40.36.0
+plotly==6.9.0
+polars==1.43.1
+pyspark==4.2.0
+pyarrow==23.0.1
+uvicorn==0.51.0
+fastapi==0.117.1
+starlette==0.48.0
+streamlit==1.60.0
+setuptools==83.0.0
 faker-vehicle==0.2.0
-transformers==4.30.0
-apache-airflow==3.1.3
-apache-beam[gcp]==2.66.0
+transformers==5.14.1
+apache-beam[gcp]==2.75.0
 functions-framework==3.10.0
-google-cloud-pubsub==2.29.0
-google-cloud-storage==2.19.0
-google-cloud-bigquery==3.36.0
-google-cloud-secret-manager==2.23.3
+google-cloud-pubsub==2.39.0
+google-cloud-storage==3.13.0
+google-cloud-bigquery==3.42.2
+apache-airflow[google]==3.1.8
+google-cloud-secret-manager==2.30.0

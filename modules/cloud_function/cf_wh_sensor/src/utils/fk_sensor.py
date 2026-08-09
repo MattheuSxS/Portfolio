@@ -36,6 +36,7 @@ class FakeWhSensorData:
         self.anomaly_state = anomaly_state
         self.anomaly_type = anomaly_type
 
+
     def _apply_anomaly(self, value: float, type: str) -> float:
         """
         Applies a specified anomaly to a given value based on the anomaly type.

@@ -185,7 +185,7 @@ class BigQuery:
 
 
 if __name__ == '__main__':
-    bq = BigQuery(project="gcp-default-portfolio")
+    bq = BigQuery(project="gcp-mts-pf")
     for query in ['purchase_query', 'delivery_query']:
         result = bq.read_bq(
             query=bq.get_query(query)

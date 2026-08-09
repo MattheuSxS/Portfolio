@@ -4,13 +4,14 @@
 # Version...............: 0.1.0                                                                                       < >
 # Project...............: Technical challenge                                                                          |
 # VS....................:                                                                  ______                    (^ ^)
-# Department............: Arquitetura e Engenharia de Dados                      .-,__,-. |Eatons|                    `|`
-# Owner.................: Gerencia: gd13 - Engenharia B2C                        | ]""[ | |""""""|       ,.,__         |
+# Department............: Data Architecture and Engineering                      .-,__,-. |Eatons|                    `|`
+# Owner.................: Management: gd13 - B2C Engineering                     | ]""[ | |""""""|       ,.,__         |
 # Author................: Matheus Dos S. Silva | matheus.s@                      | |""| | |""""""|     /`.     ` ;     |
 # maintainer............:                                                        | |""| | |""""""|   /`.  '.       ;   |
 # Modification Date.....:                                                        | |""| | |""""""| /`.  '.  .       ; /^\
 # Obs...................:                                    ---Toronto----------'-'--'-'-'------''---'---'--'-------'---'----ldb
 # ================================================================================================================================= --
+
 
 import logging
 from airflow.sdk import DAG

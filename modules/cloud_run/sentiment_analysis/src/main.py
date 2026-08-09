@@ -81,7 +81,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        '--project', type=str, default='gcp-default-portfolio',
+        '--project', type=str, default='gcp-mts-pf',
         help='GCP project ID for BigQuery operations'
     )
 

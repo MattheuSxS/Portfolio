@@ -3,13 +3,13 @@ FROM ubuntu:latest
 LABEL maintainer="Matheus Dos S. Silva"
 LABEL mail="mattheusxs@gmail.com"
 LABEL description="This is a Docker image for Infrastructure as Code (IaC) tools."
-LABEL version="2.0"
+LABEL version="3.0"
 LABEL license="MIT"
 LABEL name="mattheusxs/portfolio-iac"
-LABEL imagetag="2.0.0 ~~> linux/arm64 | 1.0.0 ~~> linux/amd64"
+LABEL imagetag="3.0.0 ~~> linux/arm64 | 1.0.0 ~~> linux/amd64"
 
-ENV TERRAFORM_VERSION=1.13.3
-ENV GOOGLE_CLOUD_SDK_VERSION=539.0.0
+ENV TERRAFORM_VERSION=v1.15.8
+ENV GOOGLE_CLOUD_SDK_VERSION=579.0.0
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -20,7 +20,7 @@ RUN apt-get update && \
     openssh-client \
     iputils-ping \
     git \
-    python3.12 \
+    python3.14 \
     python3-pip \
     python3-venv \
     ca-certificates \

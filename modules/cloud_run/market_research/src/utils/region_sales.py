@@ -58,7 +58,7 @@ class GeoSalesDashboard(BigQuery, MapOfBrazil):
         )
 
         fig.update_layout(
-            height  = 500,
+            height  = 600,
             geo     = dict(bgcolor='rgba(0,0,0,0)')
         )
 
@@ -214,7 +214,7 @@ class GeoSalesDashboard(BigQuery, MapOfBrazil):
             self.st.warning("No geographic sales data found.")
             return
 
-        self.st.header("🗺️ Geographic Sales Analysis")
+        self.st.header("🗺️ Geographic Sales Analysis -> Order Completed <-")
         self.st.markdown("**Complete view of sales by region and state**")
 
 
@@ -248,7 +248,7 @@ class GeoSalesDashboard(BigQuery, MapOfBrazil):
             total_sales = filtered_df['final_price'].sum()
             st.metric("Total Sales", f"R$ {total_sales:,.2f}")
         with col2:
-            total_orders = filtered_df.height
+            total_orders = filtered_df['total_orders'].sum()
             st.metric("Total Orders", f"{total_orders:,}")
         with col3:
             avg_ticket = filtered_df['final_price'].mean()

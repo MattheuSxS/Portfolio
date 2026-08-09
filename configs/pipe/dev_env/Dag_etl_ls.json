@@ -4,8 +4,8 @@
         "retries": 2,
         "retry_delay": 15,
         "dagrun_timeout": 30,
-        "project_vars": "gcp-default-portfolio",
-        "project_number": "44898060382",
+        "project_vars": "gcp-mts-pf",
+        "project_number": "914954438122",
         "region": "us-east1",
         "bigquery_sql": {
             "merge_delivery": {
@@ -30,28 +30,28 @@
             "cf-customers": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
-                    "project_id": "gcp-default-portfolio",
+                    "project_id": "gcp-mts-pf",
                     "secret_id": "bq_customers_access_authorization"
                 }
             },
             "cf-products-inventory": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
-                    "project_id": "gcp-default-portfolio",
+                    "project_id": "gcp-mts-pf",
                     "secret_id": "bq_products_access_authorization"
                 }
             },
             "cf-delivery-sensor": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
-                    "project_id": "gcp-default-portfolio",
+                    "project_id": "gcp-mts-pf",
                     "secret_id": "ps_delivery_sensor_access_authorization"
                 }
             },
             "cf-wh-sensor": {
                 "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
                 "cloud_function_dict": {
-                    "project_id": "gcp-default-portfolio",
+                    "project_id": "gcp-mts-pf",
                     "secret_id": "ps_wh_sensor_access_authorization"
                 }
             }
@@ -59,7 +59,7 @@
         "dataproc_tables": {
             "tb_order": {
                 "spark_job_name": "spark_job_tb_order",
-                "args": ["--project_id", "gcp-default-portfolio",
+                "args": ["--project_id", "gcp-mts-pf",
                           "--dataset_id", "ls_customers",
                           "--num_purchases", "200000",
                           "--job_id"
@@ -68,7 +68,7 @@
             },
             "tb_feedback": {
                 "spark_job_name": "spark_job_tb_feedback",
-                "args": ["--project_id", "gcp-default-portfolio",
+                "args": ["--project_id", "gcp-mts-pf",
                       "--dataset_id", "ls_customers",
                       "--dataset_write_id", "production",
                       "--num_feedbacks", "75000",
@@ -78,8 +78,8 @@
             }
         },
         "dataproc_config": {
-            "region": "us-east1",
-            "project_id": "gcp-default-portfolio",
+            "region": "us-east4",
+            "project_id": "gcp-mts-pf",
             "cluster_name": "mts-cluster-dataproc",
             "secret_id": "dataproc_access_authorization",
             "cluster_config": {
@@ -121,7 +121,7 @@
                     "image_version": "{{dataproc_version}}",
                     "properties": {
                         "dataproc:dataproc.conscrypt.provider.enable": "false",
-                        "dataproc:pip.packages": "pytz==2026.1, Faker==37.1.0",
+                        "dataproc:pip.packages": "pytz==2026.3, Faker==37.1.0",
                         "spark:spark.dynamicAllocation.enabled": "true",
                         "spark:spark.dynamicAllocation.minExecutors": "1",
                         "spark:spark.dynamicAllocation.maxExecutors": "2",

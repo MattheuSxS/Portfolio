@@ -4,8 +4,8 @@
 # Version...............: 1.0.0                                                                                       < >
 # Project...............: Technical challenge                                                                          |
 # VS....................:                                                                  ______                    (^ ^)
-# Department............: Arquitetura e Engenharia de Dados                      .-,__,-. |Eatons|                    `|`
-# Owner.................: Gerencia: gd13 - Engenharia B2C                        | ]""[ | |""""""|       ,.,__         |
+# Department............: Data Architecture and Engineering                      .-,__,-. |Eatons|                    `|`
+# Owner.................: Management: gd13 - B2C Engineering                     | ]""[ | |""""""|       ,.,__         |
 # Author................: Matheus Dos S. Silva | matheus.s@                      | |""| | |""""""|     /`.     ` ;     |
 # maintainer............:                                                        | |""| | |""""""|   /`.  '.       ;   |
 # Modification Date.....:  2025/11/30                                            | |""| | |""""""| /`.  '.  .       ; /^\
@@ -252,7 +252,7 @@ def cluster_config(job_name: str = None) -> dict:
     # CLUSTER_CONFIG["gce_cluster_config"]["zone_uri"] = f"https://www.googleapis.com/compute/v1/projects/{VAR_DP_PROJECT_ID}/zones/us-east1-c"
     # CLUSTER_CONFIG["gce_cluster_config"]["subnetwork_uri"] = "projects/shared-services-268518/regions/us-east1/subnetworks/shared" # In creating...
     # CLUSTER_CONFIG["gce_cluster_config"]["tags"] = CLUSTER_CONFIG["gce_cluster_config"]["tags"].extend('Test') # In creating...
-    CLUSTER_CONFIG["software_config"]["image_version"] = "2.3.24-debian12"
+    CLUSTER_CONFIG["software_config"]["image_version"] = "3.0-debian13"
     CLUSTER_CONFIG["lifecycle_config"]["idle_delete_ttl"] = durationIdle
     CLUSTER_CONFIG["lifecycle_config"]["auto_delete_ttl"] = durationAuto
 

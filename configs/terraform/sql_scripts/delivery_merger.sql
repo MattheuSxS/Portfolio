@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE `gcp-default-portfolio.ls_customers.sp_merge_and_delete_delivery_status`()
+CREATE OR REPLACE PROCEDURE `gcp-mts-pf.ls_customers.sp_merge_and_delete_delivery_status`()
 BEGIN
     -- Create a transaction to ensure that the operations are atomic.
     BEGIN TRANSACTION;
@@ -9,14 +9,14 @@ BEGIN
         SELECT
         *
         FROM
-        `gcp-default-portfolio.staging.tb_delivery_status_stage`
+        `gcp-mts-pf.staging.tb_delivery_status_stage`
         WHERE
         -- Filter the data that arrived in the last 60 minutes.
         updated_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 60 MINUTE)
     );
 
     -- 2. Execute the MERGE statement to update existing records and insert new ones based on the RecentData temporary table.
-    MERGE `gcp-default-portfolio.ls_customers.tb_delivery_status` AS T
+    MERGE `gcp-mts-pf.ls_customers.tb_delivery_status` AS T
     USING RecentData AS S
     ON T.delivery_id = S.delivery_id
     WHEN MATCHED THEN
@@ -51,7 +51,7 @@ BEGIN
         );
 
     -- 3. Delete the data from the original staging table, referencing the temporary table.
-    DELETE FROM `gcp-default-portfolio.staging.tb_delivery_status_stage`
+    DELETE FROM `gcp-mts-pf.staging.tb_delivery_status_stage`
     WHERE delivery_id IN (SELECT delivery_id FROM RecentData);
 
     -- Commit the changes.

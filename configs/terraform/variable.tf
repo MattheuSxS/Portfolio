@@ -303,6 +303,13 @@ variable "sp_feedback_sentiment" {
     description = "Stored procedure for sentiment analysis on feedback"
     type        = string
 }
+
+variable "tb_sales_forecast" {
+    description = "Table with sales forecast information"
+    type        = string
+}
+
+
 #   ********************************************************************************************************    #
 #                                                   Pub/Sub                                                     #
 #   ********************************************************************************************************    #

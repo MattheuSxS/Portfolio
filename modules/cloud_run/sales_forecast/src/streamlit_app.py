@@ -1,7 +1,7 @@
 # streamlit_app.py (exemplo)
 import pandas as pd
 import streamlit as st
-from test import SalesForecastingPipeline, StreamlitHelper
+from backup.test import SalesForecastingPipeline, StreamlitHelper
 
 # Configurar página
 st.set_page_config(page_title="Previsão de Vendas", layout="wide")

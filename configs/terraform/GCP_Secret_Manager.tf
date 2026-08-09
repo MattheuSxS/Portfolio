@@ -19,23 +19,23 @@ resource "google_secret_manager_secret" "create_secrets" {
 
 }
 
-resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorization" {
-    secret      = local.secret_wh_sensor_access_authorization
-    secret_data = jsonencode({
-        "project_id"    = local.project
-        "topic_id"      = local.pb_wh_sensor_topic
-        "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
-    })
-}
+# resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorization" {
+#     secret      = local.secret_wh_sensor_access_authorization
+#     secret_data = jsonencode({
+#         "project_id"    = local.project
+#         "topic_id"      = local.pb_wh_sensor_topic
+#         "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
+#     })
+# }
 
-resource "google_secret_manager_secret_version" "ps_delivery_sensor_access_authorization" {
-    secret      = local.secret_delivery_sensor_access_authorization
-    secret_data = jsonencode({
-        "project_id"    = local.project
-        "topic_id"      = local.pb_delivery_sensor_topic
-        "subscriber_id" = google_pubsub_subscription.pub_sub_delivery_sensor_subs.name
-    })
-}
+# resource "google_secret_manager_secret_version" "ps_delivery_sensor_access_authorization" {
+#     secret      = local.secret_delivery_sensor_access_authorization
+#     secret_data = jsonencode({
+#         "project_id"    = local.project
+#         "topic_id"      = local.pb_delivery_sensor_topic
+#         "subscriber_id" = google_pubsub_subscription.pub_sub_delivery_sensor_subs.name
+#     })
+# }
 
 
 resource "google_secret_manager_secret_version" "bq_customers_access_authorization" {

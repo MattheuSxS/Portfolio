@@ -1,0 +1,31 @@
+{
+    "dataset": "sales_forecast",
+    "training_start": "2026-02-07",
+    "training_end": "2026-08-06",
+    "forecast_start": "2026-08-07",
+    "forecast_end": "2026-12-31",
+    "models": {
+        "prophet": {
+            "weekly_seasonality": true,
+            "daily_seasonality": false,
+            "yearly_seasonality": false
+        },
+        "holt_winters": {
+            "trend": null,
+            "seasonal": "add",
+            "seasonal_periods": 7
+        }
+    },
+    "metrics": {
+        "prophet": {
+            "mae": 464929.6718762419,
+            "rmse": 1017723.7971310901,
+            "mape": 0.029429160510853796
+        },
+        "holt_winters": {
+            "mae": 993942.3122317084,
+            "rmse": 1474958.3416098554,
+            "mape": 0.05536116057097471
+        }
+    }
+}

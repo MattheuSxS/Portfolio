@@ -198,7 +198,7 @@ class BigQuery:
 
 
 if __name__ == '__main__':
-    bq = BigQuery(project="gcp-default-portfolio")
+    bq = BigQuery(project="gcp-mts-pf")
     result = bq.read_bq()
 
     print(result)

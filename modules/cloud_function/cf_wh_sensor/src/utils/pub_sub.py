@@ -64,5 +64,5 @@ class PubSub:
 
 
 if __name__ == "__main__":
-    t = PubSub("gcp-default-portfolio", "wh_sensor_topic")
+    t = PubSub("gcp-mts-pf", "wh_sensor_topic")
     t.publisher('{"hello": "2131"}')
