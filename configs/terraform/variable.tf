@@ -166,8 +166,13 @@ variable "cf_delivery_sensor" {
 variable "cf_sentiment_analysis" {
     description = "name of the function for sentiment analysis"
     type        = string
-
 }
+
+variable "cf_sales_forecast" {
+    description = "name of the function for sales forecast"
+    type        = string
+}
+
 #   ********************************************************************************************************    #
 #                                                   Secret Manager                                              #
 #   ********************************************************************************************************    #

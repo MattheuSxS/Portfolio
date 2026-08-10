@@ -67,14 +67,14 @@ class HoltWintersModel:
 
             model = ExponentialSmoothing(
                 train["y"],
-                trend=None,
-                seasonal="add",
-                seasonal_periods=7,
-                initialization_method="estimated"
+                trend = None,
+                seasonal = "add",
+                seasonal_periods = 7,
+                initialization_method = "estimated"
             )
 
             fitted_model = model.fit(
-                optimized=True
+                optimized = True
             )
 
             forecast = fitted_model.forecast(

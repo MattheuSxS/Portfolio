@@ -19,23 +19,23 @@ resource "google_secret_manager_secret" "create_secrets" {
 
 }
 
-# resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorization" {
-#     secret      = local.secret_wh_sensor_access_authorization
-#     secret_data = jsonencode({
-#         "project_id"    = local.project
-#         "topic_id"      = local.pb_wh_sensor_topic
-#         "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
-#     })
-# }
+resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorization" {
+    secret      = local.secret_ps_wh_sensor_access_authorization
+    secret_data = jsonencode({
+        "project_id"    = local.project
+        "topic_id"      = local.pb_wh_sensor_topic
+        "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
+    })
+}
 
-# resource "google_secret_manager_secret_version" "ps_delivery_sensor_access_authorization" {
-#     secret      = local.secret_delivery_sensor_access_authorization
-#     secret_data = jsonencode({
-#         "project_id"    = local.project
-#         "topic_id"      = local.pb_delivery_sensor_topic
-#         "subscriber_id" = google_pubsub_subscription.pub_sub_delivery_sensor_subs.name
-#     })
-# }
+resource "google_secret_manager_secret_version" "ps_delivery_sensor_access_authorization" {
+    secret      = local.secret_ps_delivery_sensor_access_authorization
+    secret_data = jsonencode({
+        "project_id"    = local.project
+        "topic_id"      = local.pb_delivery_sensor_topic
+        "subscriber_id" = google_pubsub_subscription.pub_sub_delivery_sensor_subs.name
+    })
+}
 
 
 resource "google_secret_manager_secret_version" "bq_customers_access_authorization" {
@@ -55,5 +55,14 @@ resource "google_secret_manager_secret_version" "bq_products_access_authorizatio
         "dataset_id"        = local.bq_dataset_ls_customers
         "table_id"          = [var.tb_products, var.tb_inventory]
         "number_products"   = var.number_products
+    })
+}
+
+resource "google_secret_manager_secret_version" "bq_sales_access_authorization" {
+    secret      = local.secret_bq_sales_access_authorization
+    secret_data = jsonencode({
+        "project_id"        = local.project
+        "dataset_id"        = [local.bq_dataset_ls_customers, local.bq_dataset_production]
+        "table_id"          = [var.tb_sales, var.tb_sales_forecast]
     })
 }

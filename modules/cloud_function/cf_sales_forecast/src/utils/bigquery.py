@@ -1,5 +1,3 @@
-import io
-import json
 import logging
 import pandas_gbq
 import pandas as pd
@@ -74,6 +72,25 @@ class BigQuery:
 
         except Exception as e:
             logging.error(f"Error executing query: {e}")
+            raise
+
+
+    def execute_ddl(self, query: str) -> None:
+        """
+        """
+        job_config = QueryJobConfig()
+        job_config.use_legacy_sql = False
+
+        logging.info(f"Executing DDL command: {query[:100]}...")
+
+        try:
+            query_job = self.client.query(query, job_config=job_config)
+            query_job.result()
+
+            logging.info(f"✅ DDL command executed successfully")
+
+        except Exception as e:
+            logging.error(f"❌ Error executing DDL: {e}")
             raise
 
 

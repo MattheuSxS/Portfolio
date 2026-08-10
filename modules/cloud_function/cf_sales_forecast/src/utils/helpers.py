@@ -4,14 +4,23 @@ from datetime import date
 
 try:
     from .bigquery import BigQuery
-    from .save_all_models import ModelSaver
-    from .prophet_model import ProphetModel
-    from .holtwinters_model import HoltWintersModel
 except ImportError:
     from bigquery import BigQuery
-    from save_all_models import ModelSaver
+
+try:
+    from .prophet_model import ProphetModel
+except ImportError:
     from prophet_model import ProphetModel
+
+try:
+    from .holtwinters_model import HoltWintersModel
+except ImportError:
     from holtwinters_model import HoltWintersModel
+
+try:
+    from .save_all_models import ModelSaver
+except ImportError:
+    from save_all_models import ModelSaver
 
 
 # ******************************************************************************************************************** #
@@ -22,7 +31,6 @@ logging.basicConfig(
             "| Function ~> %(funcName)s | Line ~~> %(lineno)d  ~~>  %(message)s"),
     level=logging.INFO
 )
-
 
 
 class ForecastingHelper(BigQuery):
@@ -40,25 +48,36 @@ class ForecastingHelper(BigQuery):
         run_forecasting(): Run the specified forecasting model and return the results.
     """
 
-    def __init__(self, project: str, horizon: int = 28, n_cutoffs: int = 3) -> None:
+    def __init__(self, project: str, dataset: str, table: list, horizon: int = 28, n_cutoffs: int = 3) -> None:
         super().__init__(project=project)
 
-        self.horizon = horizon
-        self.n_cutoffs = n_cutoffs
-        self.df = self.get_data_from_bigquery(
-            query = f"""
+        self.project    = project
+        self.dataset    = dataset
+        self.table      = table
+        self.horizon    = horizon
+        self.n_cutoffs  = n_cutoffs
+        self.sql_query  = {
+            "get_sales_data": \
+                f"""
                         SELECT
                             FORMAT_DATE('%Y-%m-%d', purchase_date) AS ds,
                             ROUND(SUM(final_price), 2) AS y
                         FROM
-                            `{project}.ls_customers.tb_sales`
+                            `{self.project}.{self.dataset[0]}.{self.table[0]}`
                         GROUP BY
                             ALL
                         QUALIFY
                             ROW_NUMBER() OVER (ORDER BY y) > 2 AND ROW_NUMBER() OVER (ORDER BY y DESC) > 2
                         ORDER BY
                             y;
-            """
+                """,
+            "query_ddl": \
+                f"""
+                    TRUNCATE TABLE `{self.project}.{self.dataset[1]}.{self.table[1]}`;
+                """
+        }
+        self.df = self.get_data_from_bigquery(
+            query = self.sql_query["get_sales_data"]
         )
 
         self.df["ds"] = pd.to_datetime(self.df["ds"])
@@ -110,27 +129,27 @@ class ForecastingHelper(BigQuery):
         result = self.run_forecasting()
 
         actual = self.df[["ds", "y"]].rename(
-            columns={"y": "actual"}
+            columns = {"y": "actual"}
         )
 
         prophet_historical = (
             result["prophet"]["historical"]
-            .rename(columns={"yhat": "prophet"})
+            .rename(columns = {"yhat": "prophet"})
         )
 
         prophet_future = (
             result["prophet"]["forecast"][["ds", "yhat"]]
-            .rename(columns={"yhat": "prophet"})
+            .rename(columns = {"yhat": "prophet"})
         )
 
         holt_historical = (
             result["holt_winters"]["historical"]
-            .rename(columns={"yhat": "holt_winters"})
+            .rename(columns = {"yhat": "holt_winters"})
         )
 
         holt_future = (
             result["holt_winters"]["forecast"][["ds", "yhat"]]
-            .rename(columns={"yhat": "holt_winters"})
+            .rename(columns = {"yhat": "holt_winters"})
         )
 
         logging.info("Combining actuals, historical predictions and future forecasts...")
@@ -139,7 +158,7 @@ class ForecastingHelper(BigQuery):
                 prophet_historical,
                 prophet_future
             ],
-            ignore_index=True
+            ignore_index = True
         )
 
         holt_winters = pd.concat(
@@ -147,7 +166,7 @@ class ForecastingHelper(BigQuery):
                 holt_historical,
                 holt_future
             ],
-            ignore_index=True
+            ignore_index = True
         )
 
         forecast_df = (
@@ -162,7 +181,7 @@ class ForecastingHelper(BigQuery):
                 how = "outer"
             )
             .sort_values("ds")
-            .reset_index(drop=True)
+            .reset_index(drop = True)
         )
 
 
@@ -183,13 +202,17 @@ class ForecastingHelper(BigQuery):
         except Exception as e:
             logging.warning(f"Failed to save models: {e}")
 
+
+        logging.info("Truncating the target table in BigQuery...")
+        self.execute_ddl(
+            query = self.sql_query["query_ddl"]
+        )
+
         logging.info("Sending combined forecasts to BigQuery...")
-
-
         self.batch_load_from_memory(
             data = forecast_df,
-            dataset = "production",
-            table = "tb_sales_forecast"
+            dataset = self.dataset[1],
+            table = self.table[1]
         )
 
         logging.info("Forecasting process completed successfully.")
@@ -197,5 +220,5 @@ class ForecastingHelper(BigQuery):
 
 if __name__ == "__main__":
     project = "gcp-mts-pf"
-    helper = ForecastingHelper(project=project)
+    helper = ForecastingHelper(project=project, dataset=["ls_customers", "production"], table=["tb_sales", "tb_sales_forecast"])
     helper.run_all()

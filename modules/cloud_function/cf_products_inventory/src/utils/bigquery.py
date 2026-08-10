@@ -48,9 +48,9 @@ class BigQuery:
         table_id = f"{self.project}.{dataset}.{table}"
         logging.info(f"Starting optimized batch load to {table_id}...")
 
-        
+
         try:
-            
+
             ndjson_content = '\n'.join(json.dumps(row) for row in data)
             memory_file = io.BytesIO(ndjson_content.encode('utf-8'))
 

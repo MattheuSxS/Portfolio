@@ -110,8 +110,7 @@ resource "google_bigquery_table" "tb_sales_forecast" {
         type          = "DAY"
         field         = "ds"
     }
-
-    # clustering = ["product_id", "location", "forecast_date"]
+    # clustering = ["ds"]
 }
 
 #   ********************************************************************************************************   #
@@ -286,7 +285,7 @@ resource "google_bigquery_routine" "sp_merge_delivery_status" {
                         CAST(JSON_VALUE(data, '$.remaining_distance_km') AS INT64) AS remaining_distance_km,
                         CAST(JSON_VALUE(data, '$.estimated_time_min') AS INT64) AS estimated_time_min,
                     FROM
-                        `${local.project}.${local.bq_dataset_raw}.tb_raw_delivery_sensor`
+                        `${local.project}.${local.bq_dataset_raw}.${var.tb_raw_delivery_sensor}`
                     WHERE
                         DATE(publish_time) = CURRENT_DATE()
                     QUALIFY
@@ -305,7 +304,7 @@ resource "google_bigquery_routine" "sp_merge_delivery_status" {
                         TBDS.created_at,
                         TBDS.updated_at,
                     FROM
-                        `${local.project}.${local.bq_dataset_staging}.tb_delivery_status_stage` AS TBDS
+                        `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage` AS TBDS
                     LEFT JOIN
                         AdditionalData AS ADDA
                     ON
@@ -313,7 +312,7 @@ resource "google_bigquery_routine" "sp_merge_delivery_status" {
                 );
 
 
-                MERGE `${local.project}.${local.bq_dataset_ls_customers}.tb_delivery_status` AS T
+                MERGE `${local.project}.${local.bq_dataset_ls_customers}.${var.tb_delivery_status}` AS T
                 USING RecentData AS S
                 ON T.delivery_id = S.delivery_id
                 WHEN MATCHED THEN
@@ -363,14 +362,14 @@ resource "google_bigquery_routine" "sp_delete_delivery_status" {
             BEGIN TRANSACTION;
 
                 DELETE FROM
-                    `${local.project}.${local.bq_dataset_staging}.tb_delivery_status_stage`
+                    `${local.project}.${local.bq_dataset_staging}.${var.tb_delivery_status}_stage`
                 WHERE
                     DATE(created_at) <= DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
                 AND delivery_id IN (
                     SELECT
                         delivery_id
                     FROM
-                        `${local.project}.${local.bq_dataset_ls_customers}.tb_delivery_status`
+                        `${local.project}.${local.bq_dataset_ls_customers}.${var.tb_delivery_status}`
                     WHERE
                         DATE(created_at) <= DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
                 );
