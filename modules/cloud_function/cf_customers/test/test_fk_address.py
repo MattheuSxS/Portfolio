@@ -10,6 +10,7 @@ def fk():
 
 
 def test_get_random_address_structure_and_types(fk):
+
     addr = fk.get_random_address()
 
     required_keys = {

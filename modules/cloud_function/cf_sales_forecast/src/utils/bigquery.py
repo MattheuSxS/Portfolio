@@ -77,11 +77,22 @@ class BigQuery:
 
     def execute_ddl(self, query: str) -> None:
         """
+            Executes a DDL command in BigQuery.
+
+            Parameters
+            ----------
+            query : str
+                The DDL command to execute.
+
+            Raises
+            ------
+            Exception
+                If there is an error executing the DDL command.
         """
         job_config = QueryJobConfig()
         job_config.use_legacy_sql = False
 
-        logging.info(f"Executing DDL command: {query[:100]}...")
+        logging.info(f"Executing DDL command on project {self.project}...")
 
         try:
             query_job = self.client.query(query, job_config=job_config)

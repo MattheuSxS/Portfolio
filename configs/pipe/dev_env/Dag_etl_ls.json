@@ -23,7 +23,6 @@
                     "useLegacySql": false,
                     "dependOnPast": false
                 }
-
             }
         },
         "cloud_functions": {
@@ -54,26 +53,42 @@
                     "project_id": "gcp-mts-pf",
                     "secret_id": "ps_wh_sensor_access_authorization"
                 }
+            },
+            "cf-sales-forecast": {
+                "cloud_function_url": "https://{VAR_CF_NAME}-{VAR_PRJ_NUMBER}.us-east1.run.app",
+                "cloud_function_dict": {
+                    "project_id": "gcp-mts-pf",
+                    "secret_id": "bq_sales_forecast_access_authorization"
+                }
             }
         },
         "dataproc_tables": {
             "tb_order": {
                 "spark_job_name": "spark_job_tb_order",
-                "args": ["--project_id", "gcp-mts-pf",
-                          "--dataset_id", "ls_customers",
-                          "--num_purchases", "200000",
-                          "--job_id"
-                        ],
+                "args": [
+                    "--project_id",
+                    "gcp-mts-pf",
+                    "--dataset_id",
+                    "ls_customers",
+                    "--num_purchases",
+                    "200000",
+                    "--job_id"
+                ],
                 "jar_file_uris": null
             },
             "tb_feedback": {
                 "spark_job_name": "spark_job_tb_feedback",
-                "args": ["--project_id", "gcp-mts-pf",
-                      "--dataset_id", "ls_customers",
-                      "--dataset_write_id", "production",
-                      "--num_feedbacks", "75000",
-                      "--job_id"
-                    ],
+                "args": [
+                    "--project_id",
+                    "gcp-mts-pf",
+                    "--dataset_id",
+                    "ls_customers",
+                    "--dataset_write_id",
+                    "production",
+                    "--num_feedbacks",
+                    "75000",
+                    "--job_id"
+                ],
                 "jar_file_uris": null
             }
         },

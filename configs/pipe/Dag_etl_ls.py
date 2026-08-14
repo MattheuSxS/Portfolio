@@ -365,6 +365,7 @@ def delete_dataproc_cluster() -> DataprocDeleteClusterOperator:
 with DAG(dag_id=__artefact__, start_date=default_args["start_date"], **dag_kwargs):
 
     bq_merge_delivery   = bq_procedure_exec("merge_delivery")
+    cf_delivery_sensor   = call_cf("cf-delivery-sensor")
 
 
     dummy("Start") >> [
@@ -372,7 +373,7 @@ with DAG(dag_id=__artefact__, start_date=default_args["start_date"], **dag_kwarg
         call_cf("cf-products-inventory")
         ] >> create_dataproc_cluster() >> \
             spark_submit_job("tb_order") >> \
-                call_cf("cf-delivery-sensor") >> \
+                cf_delivery_sensor >> \
                     bq_merge_delivery >> \
                         spark_submit_job("tb_feedback") >> \
                             delete_dataproc_cluster() >> \
@@ -380,3 +381,6 @@ with DAG(dag_id=__artefact__, start_date=default_args["start_date"], **dag_kwarg
 
     if datetime.now().time() >= time(7, 0):
        bq_procedure_exec("delete_delivery_status") >> bq_merge_delivery
+
+
+    cf_delivery_sensor >> call_cf("cf-sales-forecast") >> bq_merge_delivery
