@@ -6,6 +6,12 @@
         "description": "Data of the sales forecast"
     },
     {
+        "name": "state",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "State of the sales forecast"
+    },
+    {
         "name": "actual",
         "type": "FLOAT64",
         "mode": "NULLABLE",

@@ -1,25 +1,49 @@
+import polars as pl
 import streamlit as st
-from utils.customer import CustomerDashboard
-from utils.region_sales import GeoSalesDashboard
+from utils.br_sul import BrSulDashboard
+from utils.br_norte import BrNorteDashboard
+from utils.br_general import BrGeneralDashboard
+from utils.br_sudeste import BrSulDesteDashboard
+from utils.br_nordeste import BrNordesteDashboard
+from utils.br_centro_oeste import BrCentroOesteDashboard
+
+try:
+    from utils.bigquery import BigQuery
+except ImportError:
+    from bigquery import BigQuery
 
 
+@st.cache_resource(show_spinner=False, ttl="3h")
+def load_data(_bq_client: BigQuery) -> pl.DataFrame:
+    try:
+        df = _bq_client.read_bq()
+        return df
+    except Exception as e:
+        st.error(f"Error loading customer data: {e}")
+        return pl.DataFrame()
 
-class Dashboard:
+
+class Dashboard(BigQuery):
     def __init__(self, project: str):
-        self.project    = project
+        super().__init__(project)
+        self.project = project
         self.dashboards = {
-            "💰 Region Sales": GeoSalesDashboard,
-            "👤 Customer": CustomerDashboard,
+            "Brazil": BrGeneralDashboard,
+            "Region Sudeste": BrSulDesteDashboard,
+            "Region Norte": BrNorteDashboard,
+            "Region Nordeste": BrNordesteDashboard,
+            "Region Centro-Oeste": BrCentroOesteDashboard,
+            "Region Sul": BrSulDashboard,
         }
+
+        self.df = load_data(self)
 
     def main_page(self):
         st.set_page_config(
-            page_title  = "LogiStream Solutions report",
-            page_icon   = "📊",
-            layout      = "wide"
+            page_title="Sales forecast for Brazil",
+            page_icon=":chart_with_upwards_trend:",
+            layout="wide",
         )
-
-        st.sidebar.header(body = "👇🏾 Navigation")
 
         selected_dashboard = st.sidebar.radio(
             label               = "Select Dashboard:",
@@ -28,40 +52,31 @@ class Dashboard:
             label_visibility    = "collapsed"
         )
 
-        st.title("📊 LogiStream Solutions report")
-
         dashboard_class = self.dashboards[selected_dashboard]
-        dashboard_instance = dashboard_class(self.project, st)
+        dashboard_instance = dashboard_class(self.df, st)
 
         match selected_dashboard:
-            case "💰 Region Sales":
+            case "Brazil":
                 dashboard_instance.render_dashboard()
-            case "💬 Feedback":
+            case "Region Sudeste":
                 dashboard_instance.render_dashboard()
-            case "👤 Customer":
+            case "Region Norte":
                 dashboard_instance.render_dashboard()
-            case "📦 Products":
+            case "Region Nordeste":
                 dashboard_instance.render_dashboard()
+            case "Region Centro-Oeste":
+                dashboard_instance.render_dashboard()
+            case "Region Sul":
+                dashboard_instance.render_dashboard()
+
 
         with st.sidebar.expander("🌐 General Information"):
             st.write(
                 """
-                    This dashboard provides insights into various aspects of LogiStream Solutions'
-                    operations, including sales performance across regions, customer feedback analysis,
-                    customer demographics, and product sales trends.
                 """
             )
 
         with st.sidebar.expander("📝 Add Resources"):
             st.write(
                 """
-                - **Region Sales**: Visualizes sales data across different regions, highlighting top-performing areas and trends over time.
-                - **Feedback**: Analyzes customer feedback to identify common themes, sentiment trends, and areas for improvement.
-                - **Customer**: Provides insights into customer demographics, purchasing behavior, and lifetime value.
-                - **Products**: Examines product performance, including sales trends, top-selling items, and inventory status.
                 """)
-
-        st.sidebar.header("🔄 Data Management")
-        if st.sidebar.button("🔄 Reload All Data"):
-            st.cache_data.clear()
-            st.rerun()

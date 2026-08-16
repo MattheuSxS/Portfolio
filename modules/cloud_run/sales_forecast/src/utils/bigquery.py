@@ -82,90 +82,7 @@ class BigQuery:
             raise
 
 
-    def get_query(self, query_name: str) -> str:
-        """
-        """
-        query_scripts = \
-            {
-                "sql_feedback"        : f"""
-                                            SELECT
-                                                TFS.sentiment,
-                                                TF.rating,
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TF.fb_date) AS feedback_date
-                                            FROM
-                                                `gcp-mts-pf.ls_customers.tb_feedback_sentiment` AS TFS
-                                            INNER JOIN
-                                                `gcp-mts-pf.production.tb_feedback` AS TF
-                                            USING
-                                                (feedback_id)
-                                            """,
-                "sql_customer"        : f"""
-                                            SELECT
-                                                COUNT(associate_id) AS associate_count,
-                                                TBAS.region,
-                                                TBAS.state
-                                            FROM
-                                                `gcp-mts-pf.ls_customers.tb_customers` AS TBCS
-                                            INNER JOIN
-                                                `gcp-mts-pf.ls_customers.tb_address` AS TBAS
-                                            ON
-                                                TBCS.associate_id = TBAS.fk_associate_id
-                                            GROUP BY
-                                                TBAS.region,
-                                                TBAS.state
-                                            """,
-                "sql_region_sales"    : f"""
-                                            SELECT
-                                                SUM(TBSS.discount_applied) AS discount_applied,
-                                                SUM(TBSS.final_price) AS final_price,
-                                                TBSS.region,
-                                                TBAS.state,
-                                                TBSS.order_status,
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
-                                            FROM
-                                                `gcp-mts-pf.ls_customers.tb_sales` AS TBSS
-                                            INNER JOIN
-                                                `gcp-mts-pf.ls_customers.tb_address` AS TBAS
-                                            ON
-                                                TBSS.associate_id = TBAS.fk_associate_id
-                                                AND TBSS.order_status = "completed"
-                                            GROUP BY
-                                                TBSS.region,
-                                                TBAS.state,
-                                                TBSS.order_status,
-                                                TBSS.purchase_date;
-                                            """,
-                "sql_products_sales"  : f"""
-                                            SELECT
-                                                SUM(TBSS.discount_applied) AS discount_applied,
-                                                SUM(TBSS.final_price) AS final_price,
-                                                TBSS.region,
-                                                TBSS.order_status,
-                                                TBPS.category,
-                                                REGEXP_REPLACE(TBPS.name, r'[0-9]', '') AS name,
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
-                                            FROM
-                                                `gcp-mts-pf.ls_customers.tb_sales` AS TBSS
-                                            INNER JOIN
-                                                `gcp-mts-pf.ls_customers.tb_products` AS TBPS
-                                            ON
-                                                TBSS.product_id = TBPS.product_id
-                                            WHERE
-                                                TBSS.order_status IN ("completed", "processing")
-                                                AND TBSS.purchase_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)
-                                            GROUP BY
-                                                TBSS.region,
-                                                TBSS.order_status,
-                                                TBPS.category,
-                                                REGEXP_REPLACE(TBPS.name, r'[0-9]', ''),
-                                                FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date);
-                                            """
-            }
-
-        return query_scripts[query_name]
-
-
-    def read_bq(self, query: str, ) -> pl.DataFrame:
+    def read_bq(self) -> pl.DataFrame:
         """
             Execute a BigQuery SQL query and return the results as a list of rows.
 
@@ -192,7 +109,7 @@ class BigQuery:
             This method submits the query using self.client, waits for the query job to finish
             (synchronous/blocking), and converts each returned Row to a plain list via list(row).
         """
-        _query = self.get_query(query)
+        _query = f"SELECT * FROM `{self.project}.production.tb_sales_forecast`"
 
         if not isinstance(_query, str) or not _query.strip():
             raise ValueError("The 'query' parameter must be a non-empty string.")
@@ -215,7 +132,5 @@ class BigQuery:
 
 if __name__ == '__main__':
     bq = BigQuery(project="gcp-mts-pf")
-    result = bq.read_bq(
-        query=bq.get_query('purchase_query')
-    )
+    result = bq.read_bq()
     print(result)

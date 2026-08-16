@@ -1,115 +1,115 @@
-#  ********************************************************************************************************    #
-#                                            Dataflow Warehouse Sensor                                         #
-#  ********************************************************************************************************    #
-resource "null_resource" "run_dataflow_wh_job" {
-  provisioner "local-exec" {
-    command = <<EOT
-    python "${path.cwd}${var.dfl_script_path}/dfl_wh_sensor/src/${var.dfl_wh_sensor_template}.py" \
-        --runner "DataflowRunner" \
-        --region "${var.region}" \
-        --job_name "${var.dfl_wh_sensor_job_name}" \
-        --bkt_dataflow "${local.bkt_dataflow}" \
-        --project "${local.project}" \
-        --dataset "${local.bq_dataset_ls_customers}" \
-        --table "${var.tb_wh_sensor}" \
-        --topics "${local.pb_wh_sensor_topic}" \
-        --setup_file ${path.cwd}${var.dfl_script_path}/dfl_wh_sensor/src/setup.py \
-        --template_location "gs://${local.bkt_dataflow}/template/${var.dfl_wh_sensor_template}"
-    EOT
-  }
-}
+# #  ********************************************************************************************************    #
+# #                                            Dataflow Warehouse Sensor                                         #
+# #  ********************************************************************************************************    #
+# resource "null_resource" "run_dataflow_wh_job" {
+#   provisioner "local-exec" {
+#     command = <<EOT
+#     python "${path.cwd}${var.dfl_script_path}/dfl_wh_sensor/src/${var.dfl_wh_sensor_template}.py" \
+#         --runner "DataflowRunner" \
+#         --region "${var.region}" \
+#         --job_name "${var.dfl_wh_sensor_job_name}" \
+#         --bkt_dataflow "${local.bkt_dataflow}" \
+#         --project "${local.project}" \
+#         --dataset "${local.bq_dataset_ls_customers}" \
+#         --table "${var.tb_wh_sensor}" \
+#         --topics "${local.pb_wh_sensor_topic}" \
+#         --setup_file ${path.cwd}${var.dfl_script_path}/dfl_wh_sensor/src/setup.py \
+#         --template_location "gs://${local.bkt_dataflow}/template/${var.dfl_wh_sensor_template}"
+#     EOT
+#   }
+# }
 
-resource "google_dataflow_job" "dataflow_wh_job" {
+# resource "google_dataflow_job" "dataflow_wh_job" {
 
-    depends_on              = [
-                                null_resource.run_dataflow_wh_job,
-                                google_project_iam_member.roles_sa_dataflow
-                            ]
-    project                 = local.project
-    region                  = var.region
-    name                    = var.dfl_wh_sensor_job_name
-    template_gcs_path       = "gs://${local.bkt_dataflow}/template/${var.dfl_wh_sensor_template}"
-    temp_gcs_location       = "gs://${local.bkt_dataflow}/tmp_dir"
-    enable_streaming_engine = true
-    service_account_email   = local.sa_dataflow
+#     depends_on              = [
+#                                 null_resource.run_dataflow_wh_job,
+#                                 google_project_iam_member.roles_sa_dataflow
+#                             ]
+#     project                 = local.project
+#     region                  = var.region
+#     name                    = var.dfl_wh_sensor_job_name
+#     template_gcs_path       = "gs://${local.bkt_dataflow}/template/${var.dfl_wh_sensor_template}"
+#     temp_gcs_location       = "gs://${local.bkt_dataflow}/tmp_dir"
+#     enable_streaming_engine = true
+#     service_account_email   = local.sa_dataflow
 
-    parameters = {
-        project          = local.project
-        region           = var.region
-        job_name         = var.dfl_wh_sensor_job_name
-        bkt_dataflow     = local.bkt_dataflow
-        dataset          = local.bq_dataset_ls_customers
-        table            = var.tb_wh_sensor
-        topics           = local.pb_wh_sensor_topic
-    }
+#     parameters = {
+#         project          = local.project
+#         region           = var.region
+#         job_name         = var.dfl_wh_sensor_job_name
+#         bkt_dataflow     = local.bkt_dataflow
+#         dataset          = local.bq_dataset_ls_customers
+#         table            = var.tb_wh_sensor
+#         topics           = local.pb_wh_sensor_topic
+#     }
 
-    on_delete = "cancel"
+#     on_delete = "cancel"
 
-    lifecycle {
-        prevent_destroy = false
-    }
+#     lifecycle {
+#         prevent_destroy = false
+#     }
 
-    labels = {
-        "created_by": "terraform",
-        "env": var.environment
-    }
-}
-
-
-#  ********************************************************************************************************    #
-#                                            Dataflow Delivery Sensor                                          #
-#  ********************************************************************************************************    #
-resource "null_resource" "dfl_run_delivery_job" {
-    provisioner "local-exec" {
-        command = <<EOT
-        python "${path.cwd}${var.dfl_script_path}/dfl_delivery_sensor/src/${var.dfl_delivery_sensor_template}.py" \
-            --runner "DataflowRunner" \
-            --region "${var.region}" \
-            --job_name "${var.dfl_delivery_sensor_job_name}" \
-            --bkt_dataflow "${local.bkt_dataflow}" \
-            --project "${local.project}" \
-            --dataset "${local.bq_dataset_staging}" \
-            --table "${var.tb_delivery_status}_stage" \
-            --topics "${local.pb_delivery_sensor_topic}" \
-            --setup_file ${path.cwd}${var.dfl_script_path}/dfl_delivery_sensor/src/setup.py \
-            --template_location "gs://${local.bkt_dataflow}/template/${var.dfl_delivery_sensor_template}"
-        EOT
-    }
-}
-
-resource "google_dataflow_job" "dfl_delivery_job" {
-    depends_on              = [
-                                null_resource.dfl_run_delivery_job,
-                                google_project_iam_member.roles_sa_dataflow
-                            ]
-
-    project                 = local.project
-    region                  = var.region
-    name                    = var.dfl_delivery_sensor_job_name
-    template_gcs_path       = "gs://${local.bkt_dataflow}/template/${var.dfl_delivery_sensor_template}"
-    temp_gcs_location       = "gs://${local.bkt_dataflow}/tmp_dir"
-    enable_streaming_engine = true
-    service_account_email   = local.sa_dataflow
+#     labels = {
+#         "created_by": "terraform",
+#         "env": var.environment
+#     }
+# }
 
 
-    parameters = {
-        project          = local.project
-        region           = var.region
-        job_name         = var.dfl_delivery_sensor_job_name
-        bkt_dataflow     = local.bkt_dataflow
-        dataset          = local.bq_dataset_staging
-        table            = "${var.tb_delivery_status}_stage"
-        topics           = local.pb_delivery_sensor_topic
-    }
+# #  ********************************************************************************************************    #
+# #                                            Dataflow Delivery Sensor                                          #
+# #  ********************************************************************************************************    #
+# resource "null_resource" "dfl_run_delivery_job" {
+#     provisioner "local-exec" {
+#         command = <<EOT
+#         python "${path.cwd}${var.dfl_script_path}/dfl_delivery_sensor/src/${var.dfl_delivery_sensor_template}.py" \
+#             --runner "DataflowRunner" \
+#             --region "${var.region}" \
+#             --job_name "${var.dfl_delivery_sensor_job_name}" \
+#             --bkt_dataflow "${local.bkt_dataflow}" \
+#             --project "${local.project}" \
+#             --dataset "${local.bq_dataset_staging}" \
+#             --table "${var.tb_delivery_status}_stage" \
+#             --topics "${local.pb_delivery_sensor_topic}" \
+#             --setup_file ${path.cwd}${var.dfl_script_path}/dfl_delivery_sensor/src/setup.py \
+#             --template_location "gs://${local.bkt_dataflow}/template/${var.dfl_delivery_sensor_template}"
+#         EOT
+#     }
+# }
 
-    on_delete = "cancel"
+# resource "google_dataflow_job" "dfl_delivery_job" {
+#     depends_on              = [
+#                                 null_resource.dfl_run_delivery_job,
+#                                 google_project_iam_member.roles_sa_dataflow
+#                             ]
 
-    lifecycle {
-        prevent_destroy = false
-    }
+#     project                 = local.project
+#     region                  = var.region
+#     name                    = var.dfl_delivery_sensor_job_name
+#     template_gcs_path       = "gs://${local.bkt_dataflow}/template/${var.dfl_delivery_sensor_template}"
+#     temp_gcs_location       = "gs://${local.bkt_dataflow}/tmp_dir"
+#     enable_streaming_engine = true
+#     service_account_email   = local.sa_dataflow
 
-    labels = {
-        "created_by": "terraform",
-        "env": var.environment
-    }
-}
+
+#     parameters = {
+#         project          = local.project
+#         region           = var.region
+#         job_name         = var.dfl_delivery_sensor_job_name
+#         bkt_dataflow     = local.bkt_dataflow
+#         dataset          = local.bq_dataset_staging
+#         table            = "${var.tb_delivery_status}_stage"
+#         topics           = local.pb_delivery_sensor_topic
+#     }
+
+#     on_delete = "cancel"
+
+#     lifecycle {
+#         prevent_destroy = false
+#     }
+
+#     labels = {
+#         "created_by": "terraform",
+#         "env": var.environment
+#     }
+# }
