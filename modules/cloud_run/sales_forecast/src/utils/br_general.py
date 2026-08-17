@@ -37,16 +37,5 @@ class BrGeneralDashboard:
             .sort("Date")
 )
 
-        with right_cell:
-            chart = alt.Chart(normalized.to_pandas()).transform_fold(
-                fold=["actual", "Prophet", "Holt-Winters"],
-                as_=["Model", "Value"]
-            ).mark_line().encode(
-                x="Date:T",
-                y="Value:Q",
-                color="Model:N"
-            ).properties(
-                title="Sales Forecast Comparison"
-            )
 
-            self.st.altair_chart(chart, use_container_width=True)
+
