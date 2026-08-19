@@ -1,23 +1,23 @@
-resource "google_secret_manager_secret" "create_secrets" {
+# resource "google_secret_manager_secret" "create_secrets" {
 
-    project     = local.project
-    count       = length(var.sm_create_secrets)
-    secret_id   = var.sm_create_secrets[count.index]
+#     project     = local.project
+#     count       = length(var.sm_create_secrets)
+#     secret_id   = var.sm_create_secrets[count.index]
 
-    labels = {
-        "created_by": "terraform",
-        "env": var.environment
-    }
+#     labels = {
+#         "created_by": "terraform",
+#         "env": var.environment
+#     }
 
-    replication {
-        auto {}
-    }
+#     replication {
+#         auto {}
+#     }
 
-    lifecycle {
-        prevent_destroy = false
-    }
+#     lifecycle {
+#         prevent_destroy = false
+#     }
 
-}
+# }
 
 # resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorization" {
 #     secret      = local.secret_ps_wh_sensor_access_authorization
@@ -58,11 +58,11 @@ resource "google_secret_manager_secret" "create_secrets" {
 #     })
 # }
 
-resource "google_secret_manager_secret_version" "bq_sales_access_authorization" {
-    secret      = local.secret_bq_sales_access_authorization
-    secret_data = jsonencode({
-        "project_id"        = local.project
-        "dataset_id"        = [local.bq_dataset_ls_customers, local.bq_dataset_production]
-        "table_id"          = [var.tb_sales, var.tb_address, var.tb_sales_forecast]
-    })
-}
+# resource "google_secret_manager_secret_version" "bq_sales_access_authorization" {
+#     secret      = local.secret_bq_sales_access_authorization
+#     secret_data = jsonencode({
+#         "project_id"        = local.project
+#         "dataset_id"        = [local.bq_dataset_ls_customers, local.bq_dataset_production]
+#         "table_id"          = [var.tb_sales, var.tb_address, var.tb_sales_forecast]
+#     })
+# }

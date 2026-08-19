@@ -57,13 +57,21 @@
 #     member  = "serviceAccount:${local.project_id}-compute@developer.gserviceaccount.com"
 # }
 
-# # resource "google_cloud_run_v2_service_iam_member" "dashboard_invoker" {
+# # resource "google_cloud_run_v2_service_iam_member" "logistream_solutions_report_invoker" {
 # #     project  = local.project
-# #     location = google_cloud_run_v2_service.logistream_dashboard.location
-# #     name     = google_cloud_run_v2_service.logistream_dashboard.name
+# #     location = google_cloud_run_v2_service.logistream_solutions_report.location
+# #     name     = google_cloud_run_v2_service.logistream_solutions_report.name
 # #     role     = "roles/run.invoker"
 # #     member   = "allUsers"
 # # }
+
+# resource "google_cloud_run_v2_service_iam_member" "sales_forecast_report_invoker" {
+#     project  = local.project
+#     location = google_cloud_run_v2_service.sales_forecast_report.location
+#     name     = google_cloud_run_v2_service.sales_forecast_report.name
+#     role     = "roles/run.invoker"
+#     member   = "allUsers"
+# }
 
 # resource "google_project_iam_member" "roles_sa_cloud_run" {
 #     project = local.project

@@ -1,4 +1,4 @@
-# resource "google_cloud_run_v2_service" "logistream_dashboard" {
+# resource "google_cloud_run_v2_service" "logistream_solutions_report" {
 #     depends_on          = [
 #                             null_resource.push_logistream_solutions_report_image,
 #                             google_project_iam_member.roles_sa_cloud_run
@@ -63,6 +63,74 @@
 
 #     ingress = "INGRESS_TRAFFIC_ALL"
 # }
+
+
+# resource "google_cloud_run_v2_service" "sales_forecast_report" {
+#     depends_on          = [
+#                             null_resource.push_sales_forecast_report_image,
+#                             google_project_iam_member.roles_sa_cloud_run
+#                             ]
+
+#     name                = var.sales_forecast_report
+#     project             = local.project
+#     location            = var.region
+#     description         = "Sales Forecast Report"
+#     deletion_protection = false
+
+#   template {
+
+#         timeout = "3600s"
+#         max_instance_request_concurrency = 50
+
+#         containers {
+#             image = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}/${var.sales_forecast_report}:${local.sales_forecast_report_image_tag}"
+
+#             resources {
+#                 limits = {
+#                 cpu    = "1"
+#                 memory = "2Gi"
+#                 }
+#             }
+
+#             startup_probe {
+#                         initial_delay_seconds = 10
+#                         timeout_seconds       = 10
+#                         period_seconds        = 10
+#                         failure_threshold     = 60
+
+#                         tcp_socket {}
+#                     }
+#             env {
+#                     name  = "TRANSFORMERS_CACHE"
+#                     value = "/app/report_cache"
+#                 }
+#             env {
+#                     name  = "HF_HOME"
+#                     value = "/app/report_cache"
+#                 }
+#         }
+
+
+#     }
+
+#     scaling {
+#         min_instance_count = 1
+#         max_instance_count = 2
+#     }
+
+#     build_config {
+#         environment_variables = {}
+#         service_account = "projects/${local.project}/serviceAccounts/${local.sa_cloud_run}"
+#     }
+
+#     traffic {
+#         type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
+#         percent = 100
+#     }
+
+#     ingress = "INGRESS_TRAFFIC_ALL"
+# }
+
 
 # resource "google_cloud_run_v2_job" "sentiment_analysis_job" {
 #     depends_on          = [

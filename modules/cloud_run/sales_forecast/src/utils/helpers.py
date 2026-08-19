@@ -9,46 +9,6 @@ except ImportError:
     from bigquery import BigQuery
 
 
-# state_dict = {
-#     "centro_oeste": {
-#         "DF": "Distrito Federal",
-#         "GO": "Goiás",
-#         "MT": "Mato Grosso",
-#         "MS": "Mato Grosso do Sul"
-#     },
-#     "norte": {
-#         "AC": "Acre",
-#         "AP": "Amapá",
-#         "AM": "Amazonas",
-#         "PA": "Pará",
-#         "RO": "Rondônia",
-#         "RR": "Roraima",
-#         "TO": "Tocantins"
-#     },
-#     "nordeste": {
-#         "AL": "Alagoas",
-#         "BA": "Bahia",
-#         "CE": "Ceará",
-#         "MA": "Maranhão",
-#         "PB": "Paraíba",
-#         "PE": "Pernambuco",
-#         "PI": "Piauí",
-#         "RN": "Rio Grande do Norte",
-#         "SE": "Sergipe"
-#     },
-#     "sudeste": {
-#         "ES": "Espírito Santo",
-#         "MG": "Minas Gerais",
-#         "RJ": "Rio de Janeiro",
-#         "SP": "São Paulo"
-#     },
-#     "sul": {
-#         "PR": "Paraná",
-#         "RS": "Rio Grande do Sul",
-#         "SC": "Santa Catarina"
-#     }
-# }
-
 STATES_DICT = {
     "Region Centro-Oeste": {
         "DF": "Distrito Federal",
@@ -88,6 +48,8 @@ STATES_DICT = {
         "SC": "Santa Catarina"
     }
 }
+
+FULL_STATE_DICT = {k: v for region in STATES_DICT.values() for k, v in region.items()}
 
 @st.cache_resource(show_spinner=False, ttl="3h")
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
@@ -129,7 +91,7 @@ class Dashboard(BigQuery):
         )
 
         if selected_dashboard == "Brazil":
-            dashboard_instance = BrGeneralDashboard(self.df, st)
+            dashboard_instance = BrGeneralDashboard(self.df, FULL_STATE_DICT, st)
         else:
             dashboard_instance = MockupDashboard(self.df, STATES_DICT[selected_dashboard], st)
 

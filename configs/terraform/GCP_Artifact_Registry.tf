@@ -49,3 +49,25 @@
 #         EOT
 #     }
 # }
+
+
+# resource "null_resource" "push_sales_forecast_report_image" {
+#     depends_on = [google_artifact_registry_repository.docker_repository]
+
+#     triggers = {
+#         context_hash = local.sales_forecast_report_hash
+#     }
+
+#     provisioner "local-exec" {
+#         command = <<EOT
+#         set -e
+#         IMAGE="${local.artifact_registry_url}/${var.sales_forecast_report}:${local.sales_forecast_report_image_tag}"
+#         echo "Building image: $IMAGE"
+#         cd ${local.sales_forecast_report_context_path}
+#         docker build --platform linux/amd64 -t $IMAGE .
+#         gcloud auth configure-docker ${var.region}-docker.pkg.dev --quiet
+#         docker push $IMAGE
+#         echo "Image pushed: $IMAGE"
+#         EOT
+#     }
+# }

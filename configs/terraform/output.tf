@@ -30,9 +30,9 @@ locals {
     # secret_bq_feedback_access_authorization         = google_secret_manager_secret.create_secrets[2].id
     # secret_bq_customers_access_authorization        = google_secret_manager_secret.create_secrets[3].id
     # secret_bq_products_access_authorization         = google_secret_manager_secret.create_secrets[4].id
-    secret_bq_sales_access_authorization            = google_secret_manager_secret.create_secrets[5].id
+    # secret_bq_sales_access_authorization            = google_secret_manager_secret.create_secrets[5].id
 
-    # artifact_registry_url   = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}"
+    artifact_registry_url   = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}"
     # dfl_script_path         = "${path.cwd}/../../modules/dataflow"
 
     # sentiment_context_path = "${var.run_path_all_files}/${replace(var.sentiment_analysis, "-", "_")}/src"
@@ -43,15 +43,26 @@ locals {
     # sentiment_image_tag = substr(local.sentiment_hash, 0, 12)
 
     # #TODO: I need to back here and solve the variable name
-    # logistream_solutions_report_context_path = "${var.run_path_all_files}/market_research/src"
-    # logistream_solutions_report_hash = sha256(join("", [
-    #     for f in fileset(local.logistream_solutions_report_context_path, "**") :
-    #     filesha256("${local.logistream_solutions_report_context_path}/${f}")
-    # ]))
-    # logistream_solutions_report_image_tag = substr(local.logistream_solutions_report_hash, 0, 12)
+    logistream_solutions_report_context_path = "${var.run_path_all_files}/market_research/src"
+    logistream_solutions_report_hash = sha256(join("", [
+        for f in fileset(local.logistream_solutions_report_context_path, "**") :
+        filesha256("${local.logistream_solutions_report_context_path}/${f}")
+    ]))
+    logistream_solutions_report_image_tag = substr(local.logistream_solutions_report_hash, 0, 12)
+
+    sales_forecast_report_context_path = "${var.run_path_all_files}/sales_forecast/src"
+    sales_forecast_report_hash = sha256(join("", [
+        for f in fileset(local.sales_forecast_report_context_path, "**") :
+        filesha256("${local.sales_forecast_report_context_path}/${f}")
+    ]))
+    sales_forecast_report_image_tag = substr(local.sales_forecast_report_hash, 0, 12)
 
 }
 
-# output "service_url" {
-#     value = google_cloud_run_v2_service.logistream_dashboard.uri
+# output "logistream_solutions_report_service_url" {
+#     value = google_cloud_run_v2_service.logistream_solutions_report.uri
+# }
+
+# output "sales_forecast_report_service_url" {
+#     value = google_cloud_run_v2_service.sales_forecast_report.uri
 # }

@@ -419,6 +419,11 @@ variable "logistream_solutions_report" {
     description = "The name of the Logistream Solutions reporting image"
     type        = string
 }
+
+variable "sales_forecast_report" {
+    description = "The name of the Sales Forecast reporting image"
+    type        = string
+}
 #   ********************************************************************************************************    #
 #                                                   Cloud Run                                                   #
 #   ********************************************************************************************************    #

@@ -13,10 +13,21 @@ class MockupDashboard:
                 self.state.keys()
             )
         )
+
         self.model_colors = {
             "Actual": "#EFAFAD",
             "Prophet": "#3566C1",
             "Holt-Winters": "#95C6FB",
+        }
+
+        self.horizon_map = {
+            "1 Month": "1mo",
+            "3 Months": "3mo",
+            "6 Months": "6mo",
+            "1 Year": "1y",
+            "5 Years": "5y",
+            "10 Years": "10y",
+            "20 Years": "20y",
         }
 
         self.delta_colors = {
@@ -35,42 +46,20 @@ class MockupDashboard:
             "🗺 Region Sudeste Information about the product"
         )
 
-    # ============================================================
-    # HORIZON CONFIGURATION
-        # ============================================================
-
-        horizon_map = {
-            "1 Month": "1mo",
-            "3 Months": "3mo",
-            "6 Months": "6mo",
-            "1 Year": "1y",
-            "5 Years": "5y",
-            "10 Years": "10y",
-            "20 Years": "20y",
-        }
-
-        # ============================================================
-        # LAYOUT
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> LAYOUT <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         cols = self.st.columns([1, 3])
 
-        left_cell, right_cell = cols
+        _ , right_cell = cols
 
-        # ============================================================
-        # TOP LEFT - FILTERS
-        # ============================================================
 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> TOP LEFT - FILTERS <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         top_left_cell = cols[0].container(
             border = True,
             height = "stretch",
             vertical_alignment = "center",
         )
 
-        # ============================================================
-        # STATE FILTER
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> STATE FILTER <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         if "tickers_input" not in self.st.session_state:
             self.st.session_state.tickers_input = (
                 self.st.query_params.get(
@@ -93,23 +82,18 @@ class MockupDashboard:
                 accept_new_options = True,
             )
 
-        # ============================================================
-        # TIME HORIZON
-        # ============================================================
 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> TIME HORIZON <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         with top_left_cell:
             selected_horizon = self.st.pills(
                 label = "Time horizon",
                 options = list(
-                    horizon_map.keys()
+                    self.horizon_map.keys()
                 ),
                 default = "6 Months",
             )
 
-        # ============================================================
-        # VALIDATE STATE SELECTION
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> VALIDATE STATE SELECTION <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         if not tickers:
             self.st.warning(
                 "Please select at least one state."
@@ -117,10 +101,7 @@ class MockupDashboard:
 
             return
 
-        # ============================================================
-        # FORECAST ORIGIN
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> FORECAST ORIGIN <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         forecast_origin = (
             self.df
             .filter(
@@ -140,11 +121,8 @@ class MockupDashboard:
 
             return
 
-        # ============================================================
-        # CALCULATE HORIZON
-        # ============================================================
-
-        horizon = horizon_map[
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> CALCULATE HORIZON <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        horizon = self.horizon_map[
             selected_horizon
         ]
 
@@ -164,14 +142,10 @@ class MockupDashboard:
                 .dt.offset_by(
                     f"-{horizon}"
                 )
-            )
-            .item()
+            ).item()
         )
 
-        # ============================================================
-        # FILTER DATA BY DATE
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> FILTER DATA BY DATE <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         filtered_df = self.df.filter(
             pl.col("ds").is_between(
                 lower_bound = history_start,
@@ -180,10 +154,7 @@ class MockupDashboard:
             )
         )
 
-        # ============================================================
-        # FILTER DATA BY STATE
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> FILTER DATA BY STATE <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         filtered_df = filtered_df.filter(
             pl.col("state").is_in(
                 tickers
@@ -199,10 +170,7 @@ class MockupDashboard:
 
             return
 
-        # ============================================================
-        # NORMALIZED DATA
-        # ============================================================
-        #
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> NORMALIZED DATA <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         # We aggregate the selected states by date.
         #
         # IMPORTANT:
@@ -211,8 +179,7 @@ class MockupDashboard:
         #
         # This guarantees that the Actual line stops exactly
         # at the last historical date.
-        #
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         normalized = (
             filtered_df
             .group_by("ds")
@@ -225,19 +192,15 @@ class MockupDashboard:
                 pl.when(pl.col("ds") > forecast_origin).then(pl.lit(None))
                 .otherwise(pl.col("Actual")).alias("Actual")
             )
-            .rename({
-                "ds": "Date",
-            })
+            .rename({"ds": "Date"})
             .sort("Date")
         )
 
-        # ============================================================
-        # STATE AGGREGATION
-        # ============================================================
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> STATE AGGREGATION <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         #
         # Only historical actual sales are used.
         #
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         state_agg = (
             filtered_df
             .filter(pl.col("ds") <= forecast_origin)
@@ -248,25 +211,19 @@ class MockupDashboard:
             )
         )
 
-        # ============================================================
-        # CHART
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> CHART <<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         with right_cell:
 
-            # --------------------------------------------------------
-            # Base chart
-            # --------------------------------------------------------
-
+            #  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Base chart <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
             base_chart = (
                 alt.Chart(normalized)
                 .transform_fold(
-                    fold=[
+                    fold = [
                         "Actual",
                         "Prophet",
                         "Holt-Winters",
                     ],
-                    as_=[
+                    as_ = [
                         "Model",
                         "Value",
                     ],
@@ -292,14 +249,14 @@ class MockupDashboard:
 
                     color = alt.Color(
                         shorthand = "Model:N",
-                        title="Model",
-                        scale=alt.Scale(
-                            domain=[
+                        title = "Model",
+                        scale = alt.Scale(
+                            domain = [
                                 "Holt-Winters",
                                 "Prophet",
                                 "Actual",
                             ],
-                            range=[
+                            range = [
                                 self.model_colors["Holt-Winters"],
                                 self.model_colors["Prophet"],
                                 self.model_colors["Actual"],
@@ -307,7 +264,7 @@ class MockupDashboard:
                         ),
                     ),
 
-                    tooltip=[
+                    tooltip = [
                         alt.Tooltip(
                             shorthand = "Date:T",
                             title = "Date",
@@ -334,10 +291,7 @@ class MockupDashboard:
                 )
             )
 
-            # --------------------------------------------------------
-            # Forecast origin
-            # --------------------------------------------------------
-
+            #  ~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Forecast origin <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
             forecast_rule = (
                 alt.Chart(
                     pl.DataFrame({
@@ -367,10 +321,7 @@ class MockupDashboard:
                 )
             )
 
-            # --------------------------------------------------------
-            # Combine charts
-            # --------------------------------------------------------
-
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Combine charts <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
             chart = (
                 base_chart
                 + forecast_rule
@@ -381,20 +332,14 @@ class MockupDashboard:
                 use_container_width = True,
             )
 
-        # ============================================================
-        # BOTTOM LEFT - METRICS
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Bottom left - metrics <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         bottom_left_cell = cols[0].container(
             border = True,
             height = "stretch",
             vertical_alignment = "center",
         )
 
-        # ============================================================
-        # SELECTED STATES
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Selected states <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         selected_states = (
             state_agg
             .filter(
@@ -404,7 +349,7 @@ class MockupDashboard:
             )
             .sort(
                 "actual",
-                descending=True,
+                descending = True,
             )
         )
 
@@ -417,10 +362,7 @@ class MockupDashboard:
 
             return
 
-        # ============================================================
-        # AVERAGE SALES
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Average sales <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         average_sales = (
             selected_states
             .select(
@@ -429,10 +371,7 @@ class MockupDashboard:
             .item()
         )
 
-        # ============================================================
-        # BEST / WORST STATE
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Best / worst state <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         best_state = (
             selected_states
             .row(
@@ -449,10 +388,7 @@ class MockupDashboard:
             )
         )
 
-        # ============================================================
-        # DELTA VS AVERAGE
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Delta vs average <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         if (
             average_sales is not None
             and average_sales != 0
@@ -479,10 +415,7 @@ class MockupDashboard:
             best_delta = 0
             worst_delta = 0
 
-        # ============================================================
-        # METRICS
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Metrics <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         with bottom_left_cell:
 
             metric_cols = self.st.columns(2)
@@ -536,10 +469,7 @@ class MockupDashboard:
             .sort(["state", "ds"])
         )
 
-        # ============================================================
-        # STATE FORECAST COMPARISON
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> State Forecast Comparison <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~ #
         self.st.subheader(
             "📊 State Sales Forecast Comparison"
         )
@@ -549,10 +479,7 @@ class MockupDashboard:
         chart_cols = self.st.columns(NUM_COLS)
 
 
-        # ============================================================
-        # STATE NORMALIZED DATA
-        # ============================================================
-
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> State Normalized Data <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         state_normalized = (
             filtered_df
             .group_by(["ds", "state"])
@@ -588,15 +515,10 @@ class MockupDashboard:
         )
 
 
-        # ============================================================
-        # CREATE ONE SET OF CHARTS FOR EACH STATE
-        # ============================================================
+        # ~~~~~~~~~~~~~~~~~~ >>>> CREATE ONE SET OF CHARTS FOR EACH STATE <<<<< ~~~~~~~~~~~~~~~~~~ #
+        for _, ticker in enumerate(tickers):
 
-        for i, ticker in enumerate(tickers):
-
-            # --------------------------------------------------------
-            # Current state
-            # --------------------------------------------------------
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Current state <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
             current_state = (
                 state_normalized
@@ -609,10 +531,7 @@ class MockupDashboard:
             if current_state.is_empty():
                 continue
 
-            # ========================================================
-            # FIRST CHART
-            # ========================================================
-
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> First Chart <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
             plot_data = (
                 current_state
                 .select([
@@ -697,9 +616,7 @@ class MockupDashboard:
                 )
             )
 
-            # --------------------------------------------------------
-            # Forecast origin
-            # --------------------------------------------------------
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ >>>> Forecast origin <<<<< ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
             forecast_rule = (
                 alt.Chart(
@@ -746,17 +663,14 @@ class MockupDashboard:
                 use_container_width = True,
             )
 
-            # ========================================================
-            # SECOND CHART - DELTA BETWEEN MODELS
-            # ========================================================
+            # ~~~~~~~~~~~~~~~~~~ >>>> Second Chart - Delta Between Models <<<<< ~~~~~~~~~~~~~~~~~~ #
             #
             # Instead of comparing with Peer Average, this chart
             # shows the difference between the forecast models.
             #
             # Prophet - Actual
             # Holt-Winters - Actual
-            #
-
+            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
             delta_data = (
                 current_state
                 .select([
@@ -798,7 +712,7 @@ class MockupDashboard:
                         title = "Date",
                     ),
 
-                    y=alt.Y(
+                    y = alt.Y(
                         shorthand = "Delta:Q",
                         title = "Difference",
                         scale = alt.Scale(
@@ -848,10 +762,7 @@ class MockupDashboard:
                 )
             )
 
-            # --------------------------------------------------------
-            # Forecast origin for delta chart
-            # --------------------------------------------------------
-
+            # ~~~~~~~~~~~~~~~~~~~~ >>>> Forecast origin for Delta Chart <<<<< ~~~~~~~~~~~~~~~~~~~~ #
             delta_forecast_rule = (
                 alt.Chart(
                     pl.DataFrame({
