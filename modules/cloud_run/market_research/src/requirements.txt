@@ -1,4 +1,6 @@
+nltk==3.10.3
 plotly==6.9.0
 polars==1.43.1
+wordcloud==1.9.6
 streamlit==1.60.0
 google-cloud-bigquery==3.42.2

@@ -89,6 +89,7 @@ class BigQuery:
             {
                 "sql_feedback"  : f"""
                     SELECT
+                        TF.comment,
                         TFS.sentiment,
                         TF.rating,
                         FORMAT_TIMESTAMP('%Y-%m-%d', TF.fb_date) AS feedback_date

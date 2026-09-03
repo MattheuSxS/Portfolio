@@ -4,16 +4,28 @@ import plotly.express as px
 from utils.bigquery import BigQuery
 
 
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+import nltk
+nltk.download('stopwords')
+
+
 @st.cache_data(ttl=1800)
 def load_data(_bq_client: BigQuery) -> pl.DataFrame:
     try:
         df = _bq_client.read_bq("sql_feedback")
 
+        df = df.with_columns([
+            pl.col("feedback_date").cast(pl.Utf8),
+            pl.col("comment").cast(pl.String)
+        ])
+
         df = df.with_columns(
-                pl.col("feedback_date").cast(pl.Utf8)
+            pl.col("feedback_date")
+            .str.strptime(
+                pl.Date,
+                "%Y-%m-%d"
             )
-        df = df.with_columns(
-            pl.col("feedback_date").str.strptime(pl.Date, "%Y-%m-%d").alias("feedback_date")
         )
         return df
     except Exception as e:
@@ -26,6 +38,60 @@ class FeedbackDashboard(BigQuery):
         super().__init__(project)
         self.st = st
         self.df = None
+
+
+    def generate_wordcloud(
+        self,
+        df: pl.DataFrame,
+        column: str = "comment"
+    ):
+        """Generate a word cloud from English comments."""
+
+        stopwords_en = set(
+            nltk.corpus.stopwords.words("english")
+        )
+
+        comments = (
+            df
+            .select(column)
+            .drop_nulls()
+            .filter(
+                pl.col(column).str.strip_chars() != ""
+            )
+            .get_column(column)
+            .to_list()
+        )
+
+        if not comments:
+            return None
+
+        text = " ".join(
+            str(comment)
+            for comment in comments
+        )
+
+        wordcloud = WordCloud(
+            width=1000,
+            height=500,
+            background_color="white",
+            stopwords=stopwords_en,
+            collocations=False,
+            min_font_size=10
+        ).generate(text)
+
+        fig, ax = plt.subplots(
+            figsize=(10, 5)
+        )
+
+        ax.imshow(
+            wordcloud,
+            interpolation="bilinear"
+        )
+
+        ax.axis("off")
+
+        return fig
+
 
     def render_dashboard(self):
         self.df = load_data(self)
@@ -98,11 +164,24 @@ class FeedbackDashboard(BigQuery):
                     title       = "Evolution of Feelings Over Time",
                     labels      = {
                                     'feedback_date': 'Feedback Date',
-                                    'count': 'Number of Feedbacks'
-                                }
+                                    'count': 'Number of Feedbacks',
+                                    'sentiment': 'Feeling'
+                                },
+                    markers     = True
                 )
-                fig.update_layout(height=400)
-                self.st.plotly_chart(fig, use_container_width=True)
+
+                max_abs = daily_sentiment["count"].abs().max()
+                fig.update_layout(
+                    height = 400,
+                    yaxis = {
+                        "range": [0, max_abs]
+                    }
+                )
+
+                self.st.plotly_chart(
+                    fig,
+                    use_container_width = True
+                )
 
         with col2:
             self.st.subheader("📋 Feedback Metrics")
@@ -192,10 +271,108 @@ class FeedbackDashboard(BigQuery):
             else:
                 self.st.info("No data available to display the bar chart.")
 
+        # ============================================================
+        # Word Clouds
+        # ============================================================
+
+        self.st.subheader(
+            "☁️ Customer Feedback Word Clouds"
+        )
+
+        positive_df = filtered_df.filter(
+            pl.col("sentiment").str.to_lowercase() == "positive"
+        )
+
+        negative_df = filtered_df.filter(
+            pl.col("sentiment").str.to_lowercase() == "negative"
+        )
+
+        col_positive, col_negative = self.st.columns(2)
+
+
+        # ============================================================
+        # Positive
+        # ============================================================
+
+        with col_positive:
+
+            self.st.markdown(
+                "### 😊 Positive Feedback"
+            )
+
+            if not positive_df.is_empty():
+
+                positive_wordcloud = self.generate_wordcloud(
+                    positive_df,
+                    column="comment"
+                )
+
+                if positive_wordcloud is not None:
+
+                    self.st.pyplot(
+                        positive_wordcloud,
+                        use_container_width=True
+                    )
+
+                    plt.close(positive_wordcloud)
+
+            else:
+
+                self.st.info(
+                    "No positive feedback available."
+                )
+
+
+        # ============================================================
+        # Negative
+        # ============================================================
+
+        with col_negative:
+
+            self.st.markdown(
+                "### 😞 Negative Feedback"
+            )
+
+            if not negative_df.is_empty():
+
+                negative_wordcloud = self.generate_wordcloud(
+                    negative_df,
+                    column="comment"
+                )
+
+                if negative_wordcloud is not None:
+
+                    self.st.pyplot(
+                        negative_wordcloud,
+                        use_container_width=True
+                    )
+
+                    plt.close(negative_wordcloud)
+
+            else:
+
+                self.st.info(
+                    "No negative feedback available."
+                )
+
+
+        # ============================================================
+        # View Filtered Data
+        # ============================================================
+
         with self.st.expander("🔍 View Filtered Data"):
-            self.st.write(f"**Total records after filters:** {filtered_df.height}")
+
+            self.st.write(
+                f"**Total records after filters:** {filtered_df.height}"
+            )
+
             self.st.dataframe(
-                filtered_df.select(['sentiment', 'rating', 'feedback_date']),
-                use_container_width = True,
-                height              = 300
+                filtered_df.select([
+                    "comment",
+                    "sentiment",
+                    "rating",
+                    "feedback_date"
+                ]),
+                use_container_width=True,
+                height=300
             )

@@ -14,6 +14,45 @@ class Dashboard:
             "👤 Customer": CustomerDashboard,
             "📦 Products": ProductsSalesDashboard
         }
+        self.STATES_DICT = {
+            "Region Centro-Oeste": {
+                "DF": "Distrito Federal",
+                "GO": "Goiás",
+                "MT": "Mato Grosso",
+                "MS": "Mato Grosso do Sul"
+            },
+            "Region Norte": {
+                "AC": "Acre",
+                "AP": "Amapá",
+                "AM": "Amazonas",
+                "PA": "Pará",
+                "RO": "Rondônia",
+                "RR": "Roraima",
+                "TO": "Tocantins"
+            },
+            "Region Nordeste": {
+                "AL": "Alagoas",
+                "BA": "Bahia",
+                "CE": "Ceará",
+                "MA": "Maranhão",
+                "PB": "Paraíba",
+                "PE": "Pernambuco",
+                "PI": "Piauí",
+                "RN": "Rio Grande do Norte",
+                "SE": "Sergipe"
+            },
+            "Region Sudeste": {
+                "ES": "Espírito Santo",
+                "MG": "Minas Gerais",
+                "RJ": "Rio de Janeiro",
+                "SP": "São Paulo"
+            },
+            "Region Sul": {
+                "PR": "Paraná",
+                "RS": "Rio Grande do Sul",
+                "SC": "Santa Catarina"
+            }
+        }
 
     def main_page(self):
         st.set_page_config(
