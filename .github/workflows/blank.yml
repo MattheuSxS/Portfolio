@@ -29,7 +29,7 @@ jobs:
     container: python:3.11-bullseye
     steps:
       - name: 🕵🏾 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 👨🏾‍🔧 Install dependencies
         run: |
@@ -58,7 +58,7 @@ jobs:
       options: --platform=linux/amd64
     steps:
       - name: 🕵🏾 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 🧑🏾‍✈️ Authenticate to GCP
         uses: google-github-actions/auth@v2
@@ -94,7 +94,7 @@ jobs:
       options: --platform=linux/amd64
     steps:
       - name: 🕵🏾 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 🧑🏾‍✈️ Authenticate to GCP
         uses: google-github-actions/auth@v2
@@ -133,7 +133,7 @@ jobs:
       options: --platform=linux/amd64
     steps:
       - name: 🕵🏾 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 🧑🏾‍✈️ Authenticate to GCP
         uses: google-github-actions/auth@v2
