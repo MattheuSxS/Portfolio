@@ -1,7 +1,5 @@
-#TODO: I must finished it between the days 19/20
 import uuid
 import random
-
 from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 from datetime import datetime, timedelta
@@ -42,7 +40,7 @@ def sql_query(project_id:str, dataset_id:str, row_limit:int) -> dict:
                 TBCU.associate_id = TBAD.fk_associate_id
             ORDER BY
                 RAND()
-            LIMIT {int(row_limit * (70 / 100))};
+            LIMIT {int(row_limit * (80 / 100))};
         """,
         "tb_products": f"""
             SELECT
@@ -73,12 +71,12 @@ def _generate_order_id() -> str:
 
 def _generate_random_date() -> datetime:
     """
-        Generates a random datetime within the past 180 days from the current date.
+        Generates a random datetime within the past 240 days from the current date.
 
         Returns:
-            datetime: A randomly generated datetime object between now and 180 days ago.
+            datetime: A randomly generated datetime object between now and 240 days ago.
     """
-    days_ago = random.randint(0, 180)
+    days_ago = random.randint(0, 240)
     return datetime.now() - timedelta(days=days_ago)
 
 

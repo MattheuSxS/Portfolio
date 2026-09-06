@@ -48,12 +48,13 @@
 #     })
 # }
 
+#TODO: I need to back here
 # resource "google_secret_manager_secret_version" "bq_products_access_authorization" {
 #     secret      = local.secret_bq_products_access_authorization
 #     secret_data = jsonencode({
 #         "project_id"        = local.project
 #         "dataset_id"        = local.bq_dataset_ls_customers
-#         "table_id"          = [var.tb_products, var.tb_inventory]
+#         "table_id"          = [var.tb_products, var.tb_inventory, var.tb_vehicles]
 #         "number_products"   = var.number_products
 #     })
 # }

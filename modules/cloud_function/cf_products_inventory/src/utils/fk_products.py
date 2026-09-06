@@ -308,7 +308,7 @@ class FkCommerce(GeneratorDate):
                 })
         return inventory
 
-
+    #TODO: I must use the table names consistently throughout the code
     def generate_complete_dataset(self, qtd_products: int, qtd_vehicles: int = 750) -> Dict[str, List[Dict]]:
         """
             Generates a complete dataset containing products, inventory, and vehicles.
