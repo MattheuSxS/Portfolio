@@ -40,7 +40,7 @@ cf_customers/
 └── test/
 ```
 
-![Architecture](./cf_customer.png)
+![Architecture](./images/cf_customer.png)
 The function contains utilities for:
 
 * BigQuery integration
@@ -71,7 +71,7 @@ cf_delivery_sensor/
 └── test/
 ```
 
-![Architecture](./cf_delivery_sensor.png)
+![Architecture](./images//cf_delivery_sensor.png)
 The function integrates with:
 
 * Google BigQuery
@@ -102,7 +102,7 @@ cf_products_inventory/
 └── test/
 ```
 
-![Architecture](./cf_products_inventory.png)
+![Architecture](./images/cf_products_inventory.png)
 The function provides utilities for generating and managing relationships between:
 
 * Dates
@@ -136,7 +136,7 @@ cf_sales_forecast/
 └── test/
 ```
 
-![Architecture](./cf_sales_forecast.png)
+![Architecture](./images/cf_sales_forecast.png)
 
 This function is responsible for the forecasting workflow and includes implementations based on:
 
@@ -168,7 +168,7 @@ cf_wh_sensor/
 └── test/
 ```
 
-![Architecture](./cf_wh_sensor.png)
+![Architecture](./images/cf_wh_sensor.png)
 
 The function integrates sensor-related processing with:
 
@@ -349,3 +349,7 @@ The architecture separates:
 * **Automated testing**
 
 This organization makes the platform easier to maintain, test, deploy, and scale as new data-processing requirements are introduced.
+
+
+
+
