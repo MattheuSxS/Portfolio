@@ -197,6 +197,10 @@ variable "groq_api_key" {
     type        = string
 }
 
+variable "embedding_model" {
+    description = "The embedding model to be used"
+    type        = string
+}
 #   ********************************************************************************************************    #
 #                                               Cloud Composer                                                  #
 #   ********************************************************************************************************    #
