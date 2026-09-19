@@ -190,6 +190,13 @@ variable "number_products" {
     description = "Number of products to be inserted"
     type        = number
 }
+
+
+variable "groq_api_key" {
+    description = "API key for Groq"
+    type        = string
+}
+
 #   ********************************************************************************************************    #
 #                                               Cloud Composer                                                  #
 #   ********************************************************************************************************    #

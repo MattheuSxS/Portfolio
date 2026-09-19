@@ -48,6 +48,18 @@
 #     })
 # }
 
+#TODO: I need to review the secret version for the cloud run access authorization
+# resource "google_secret_manager_secret_version" "cr_access_authorization" {
+#     secret      = local.secret_cr_access_authorization
+#     secret_data = jsonencode({
+#         "project_id"    = local.project
+#         "dataset_id"    = local.bq_dataset_ls_customers
+#         "table_id"      = [var.tb_customers, var.tb_cards, var.tb_address]
+#         "groq_api_key"  = var.groq_api_key
+#     })
+# }
+
+
 #TODO: I need to back here
 # resource "google_secret_manager_secret_version" "bq_products_access_authorization" {
 #     secret      = local.secret_bq_products_access_authorization

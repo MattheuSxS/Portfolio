@@ -31,6 +31,7 @@ locals {
     # secret_bq_customers_access_authorization        = google_secret_manager_secret.create_secrets[3].id
     # secret_bq_products_access_authorization         = google_secret_manager_secret.create_secrets[4].id
     # secret_bq_sales_access_authorization            = google_secret_manager_secret.create_secrets[5].id
+    secret_cr_access_authorization                  = google_secret_manager_secret.create_secrets[6].id
 
     artifact_registry_url   = "${var.region}-docker.pkg.dev/${local.project}/${var.docker_repository}"
     # dfl_script_path         = "${path.cwd}/../../modules/dataflow"
