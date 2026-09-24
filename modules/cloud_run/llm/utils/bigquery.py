@@ -156,13 +156,12 @@ class BigQuery:
                 """,
                 "sql_products_sales"  : f"""
                     SELECT
-                        SUM(TBSS.discount_applied) AS discount_applied,
-                        SUM(TBSS.final_price) AS final_price,
-                        TBSS.region,
-                        TBSS.order_status,
                         TBPS.category,
                         REGEXP_REPLACE(TBPS.name, r'[0-9]', '') AS name,
-                        FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date) AS purchase_date
+                        TBSS.region,
+                        SUM(TBSS.final_price) AS total_sales,
+                        SUM(TBSS.discount_applied) AS total_discount,
+                        COUNT(*) AS total_orders
                     FROM
                         `gcp-mts-pf.ls_customers.tb_sales` AS TBSS
                     INNER JOIN
@@ -171,13 +170,14 @@ class BigQuery:
                         TBSS.product_id = TBPS.product_id
                     WHERE
                         TBSS.order_status IN ("completed", "processing")
-                        AND TBSS.purchase_date >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 90 DAY)
+                        AND TBSS.purchase_date >= TIMESTAMP_SUB(
+                            CURRENT_TIMESTAMP(),
+                            INTERVAL 90 DAY
+                        )
                     GROUP BY
-                        TBSS.region,
-                        TBSS.order_status,
                         TBPS.category,
                         REGEXP_REPLACE(TBPS.name, r'[0-9]', ''),
-                        FORMAT_TIMESTAMP('%Y-%m-%d', TBSS.purchase_date);
+                        TBSS.region;
                     """,
                 "sql_sales_forecast"  : f"""
                     SELECT
@@ -225,11 +225,15 @@ class BigQuery:
             job_config = QueryJobConfig()
             job_config.use_legacy_sql = False
 
-            logging.info(f"Executing query: {_query}")
-            _query = self.get_query(sql_script)
-            rows = self.client.query(_query, job_config=job_config).result()
+            logging.info(f"Executing query: {sql_script}")
+            sql_query = self.get_query(sql_script)
 
-            logging.info(f"Query executed successfully: {_query}")
+            if sql_query is None:
+                raise ValueError(f"No query found for key: {sql_script}")
+
+            rows = self.client.query(sql_query, job_config=job_config).result()
+
+            logging.info(f"Query executed successfully: {sql_script}")
             return pl.from_arrow(rows.to_arrow())
 
         except Exception as e:

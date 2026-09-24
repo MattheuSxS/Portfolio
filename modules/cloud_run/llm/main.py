@@ -1,6 +1,6 @@
 import logging
 import streamlit as st
-from utils.helpers import dataframe_to_documents
+from utils.vectorstore.bq_processor import dataframe_to_documents
 from dotenv import load_dotenv
 from sympy import im
 
@@ -31,10 +31,24 @@ def load_bigquery_data(_bq_client):
         "feedback"  : _bq_client.read_bq("sql_feedback"),
         "customers" : _bq_client.read_bq("sql_customer"),
         "sales"     : _bq_client.read_bq("sql_region_sales"),
-        "products"  : _bq_client.read_bq("sql_products_sales"),
+        # "products"  : _bq_client.read_bq("sql_products_sales"),
         "forecast"  : _bq_client.read_bq("sql_sales_forecast"),
     }
 
+def build_bigquery_documents(dataframes: dict) -> list[dict]:
+
+    documents = []
+
+    for source, df in dataframes.items():
+
+        documents.extend(
+            dataframe_to_documents(
+                df=df,
+                source=source
+            )
+        )
+
+    return documents
 
 def main():
     """"""
@@ -43,16 +57,7 @@ def main():
     df_bq = load_bigquery_data(_bq_client)
 
 
-    documents = []
-
-    for source, df in df_bq.items():
-
-        docs = dataframe_to_documents(
-            df=df,
-            source=source
-        )
-
-        documents.extend(docs)
+    documents = build_bigquery_documents(df_bq)
 
     # Configuração da página
     st.set_page_config(
@@ -91,9 +96,9 @@ def main():
         st.session_state.retriever = None
 
     # Lógica de carregamento/processamento do documento
-    if uploaded_file:
-        st.session_state.retriever = create_vector_store(uploaded_file, embeddings)
-    elif not uploaded_file and st.session_state.retriever is None:
+    if documents:
+        st.session_state.retriever = create_vector_store(documents, embeddings)
+    elif not documents and st.session_state.retriever is None:
         st.session_state.retriever = load_existing_vector_store(embeddings)
 
     # Question section
