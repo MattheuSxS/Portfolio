@@ -213,7 +213,7 @@ The architecture separates the platform into different layers:
      Batch              Streaming
 ```
 
----
+<!-- ---
 
 # 🖼️ Architecture
 
@@ -229,7 +229,7 @@ If the image is stored inside a documentation directory:
 
 ```markdown
 ![LogiStream Solutions Architecture](./docs/architecture.png)
-```
+``` -->
 
 ---
 
@@ -1202,6 +1202,12 @@ The complete solution can be summarized as:
 ```
 
 ---
+# 🔄 It's coming ...
+
+* **Hybrid Cloud [ AWS ]**
+* **AI agent to explain dashboards**
+* **Implement a VPC within GCP**
+---
 
 # 🏁 Conclusion
 
@@ -1221,6 +1227,7 @@ terraform apply -auto-approve
 
 This approach transforms the original business requirements into a scalable and automated cloud data platform.
 
+---
 
 ## Document Version
 
