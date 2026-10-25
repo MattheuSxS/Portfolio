@@ -1207,6 +1207,7 @@ The complete solution can be summarized as:
 * **Hybrid Cloud [ AWS ]**
 * **AI agent to explain dashboards**
 * **Implement a VPC within GCP**
+* **Update Python version**
 ---
 
 # 🏁 Conclusion
