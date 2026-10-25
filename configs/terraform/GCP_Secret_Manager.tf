@@ -1,81 +1,81 @@
-# resource "google_secret_manager_secret" "create_secrets" {
+resource "google_secret_manager_secret" "create_secrets" {
 
-#     project     = local.project
-#     count       = length(var.sm_create_secrets)
-#     secret_id   = var.sm_create_secrets[count.index]
+    project     = local.project
+    count       = length(var.sm_create_secrets)
+    secret_id   = var.sm_create_secrets[count.index]
 
-#     labels = {
-#         "created_by": "terraform",
-#         "env": var.environment
-#     }
+    labels = {
+        "created_by": "terraform",
+        "env": var.environment
+    }
 
-#     replication {
-#         auto {}
-#     }
+    replication {
+        auto {}
+    }
 
-#     lifecycle {
-#         prevent_destroy = false
-#     }
+    lifecycle {
+        prevent_destroy = false
+    }
 
-# }
+}
 
-# resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorization" {
-#     secret      = local.secret_ps_wh_sensor_access_authorization
-#     secret_data = jsonencode({
-#         "project_id"    = local.project
-#         "topic_id"      = local.pb_wh_sensor_topic
-#         "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
-#     })
-# }
+resource "google_secret_manager_secret_version" "ps_wh_sensor_access_authorization" {
+    secret      = local.secret_ps_wh_sensor_access_authorization
+    secret_data = jsonencode({
+        "project_id"    = local.project
+        "topic_id"      = local.pb_wh_sensor_topic
+        "subscriber_id" = google_pubsub_subscription.pub_sub_wh_sensor_subs.name
+    })
+}
 
-# resource "google_secret_manager_secret_version" "ps_delivery_sensor_access_authorization" {
-#     secret      = local.secret_ps_delivery_sensor_access_authorization
-#     secret_data = jsonencode({
-#         "project_id"    = local.project
-#         "topic_id"      = local.pb_delivery_sensor_topic
-#         "subscriber_id" = google_pubsub_subscription.pub_sub_delivery_sensor_subs.name
-#     })
-# }
+resource "google_secret_manager_secret_version" "ps_delivery_sensor_access_authorization" {
+    secret      = local.secret_ps_delivery_sensor_access_authorization
+    secret_data = jsonencode({
+        "project_id"    = local.project
+        "topic_id"      = local.pb_delivery_sensor_topic
+        "subscriber_id" = google_pubsub_subscription.pub_sub_delivery_sensor_subs.name
+    })
+}
 
 
-# resource "google_secret_manager_secret_version" "bq_customers_access_authorization" {
-#     secret      = local.secret_bq_customers_access_authorization
-#     secret_data = jsonencode({
-#         "project_id"        = local.project
-#         "dataset_id"        = local.bq_dataset_ls_customers
-#         "table_id"          = [var.tb_customers, var.tb_cards, var.tb_address]
-#         "number_customers"  = var.number_customers
-#     })
-# }
+resource "google_secret_manager_secret_version" "bq_customers_access_authorization" {
+    secret      = local.secret_bq_customers_access_authorization
+    secret_data = jsonencode({
+        "project_id"        = local.project
+        "dataset_id"        = local.bq_dataset_ls_customers
+        "table_id"          = [var.tb_customers, var.tb_cards, var.tb_address]
+        "number_customers"  = var.number_customers
+    })
+}
 
 #TODO: I need to review the secret version for the cloud run access authorization
-# resource "google_secret_manager_secret_version" "cr_access_authorization" {
-#     secret      = local.secret_cr_access_authorization
-#     secret_data = jsonencode({
-#         "project_id"    = local.project
-#         "dataset_id"    = local.bq_dataset_ls_customers
-#         "table_id"      = [var.tb_customers, var.tb_cards, var.tb_address]
-#         "groq_api_key"  = var.groq_api_key
-#     })
-# }
+resource "google_secret_manager_secret_version" "cr_access_authorization" {
+    secret      = local.secret_cr_access_authorization
+    secret_data = jsonencode({
+        "project_id"    = local.project
+        "dataset_id"    = local.bq_dataset_ls_customers
+        "table_id"      = [var.tb_customers, var.tb_cards, var.tb_address]
+        "groq_api_key"  = var.groq_api_key
+    })
+}
 
 
 #TODO: I need to back here
-# resource "google_secret_manager_secret_version" "bq_products_access_authorization" {
-#     secret      = local.secret_bq_products_access_authorization
-#     secret_data = jsonencode({
-#         "project_id"        = local.project
-#         "dataset_id"        = local.bq_dataset_ls_customers
-#         "table_id"          = [var.tb_products, var.tb_inventory, var.tb_vehicles]
-#         "number_products"   = var.number_products
-#     })
-# }
+resource "google_secret_manager_secret_version" "bq_products_access_authorization" {
+    secret      = local.secret_bq_products_access_authorization
+    secret_data = jsonencode({
+        "project_id"        = local.project
+        "dataset_id"        = local.bq_dataset_ls_customers
+        "table_id"          = [var.tb_products, var.tb_inventory, var.tb_vehicles]
+        "number_products"   = var.number_products
+    })
+}
 
-# resource "google_secret_manager_secret_version" "bq_sales_access_authorization" {
-#     secret      = local.secret_bq_sales_access_authorization
-#     secret_data = jsonencode({
-#         "project_id"        = local.project
-#         "dataset_id"        = [local.bq_dataset_ls_customers, local.bq_dataset_production]
-#         "table_id"          = [var.tb_sales, var.tb_address, var.tb_sales_forecast]
-#     })
-# }
+resource "google_secret_manager_secret_version" "bq_sales_access_authorization" {
+    secret      = local.secret_bq_sales_access_authorization
+    secret_data = jsonencode({
+        "project_id"        = local.project
+        "dataset_id"        = [local.bq_dataset_ls_customers, local.bq_dataset_production]
+        "table_id"          = [var.tb_sales, var.tb_address, var.tb_sales_forecast]
+    })
+}
