@@ -2,194 +2,154 @@ name: LogiStream Solutions
 
 on:
   push:
-    branches:
-      - dev_matheus
+    branches: [ "dev_matheus" ]
+  pull_request:
+    branches: [ "main" ]
+    types: [closed]
 
   workflow_dispatch:
     inputs:
       action:
         type: choice
-        description: "Choose Terraform action"
-        required: true
+        description: '⚙️ Choose Terraform action'
         options:
           - deploy
           - destroy
         default: deploy
 
-permissions:
-  contents: read
-
 jobs:
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-  #                               Environmental Development Python Tests                              #
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+#                               Environmental Development                                           #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
   code-test:
-    name: Python Code Tests
+    name: 🐍 Code Python Test
     runs-on: ubuntu-latest
-
-    if: >-
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/dev_matheus'
-
-    container:
-      image: python:3.11-bullseye
-
+    if: github.ref != 'refs/heads/main'
+    container: python:3.11-bullseye
     steps:
-      - name: Checkout code
+      - name: 🕵🏾 Checkout code
         uses: actions/checkout@v7
 
-      - name: Install system dependencies
+      - name: 👨🏾‍🔧 Install dependencies
         run: |
           apt-get update
           apt-get install -y build-essential make
 
-      - name: Setup Python and install dependencies
+      - name: 🐍 Setup Python and Install Python dependencies
         run: |
           python3 -m venv /opt/venv
           /opt/venv/bin/pip install --upgrade pip
           /opt/venv/bin/pip install -r ./modules/requirements-dev.txt
-          echo "/opt/venv/bin" >> "$GITHUB_PATH"
+          echo "/opt/venv/bin" >> $GITHUB_PATH
 
-      - name: Run Python tests
+      - name: 🧪 Run tests
         run: |
-          echo "Running Python tests"
+          echo "Running tests 👀"
           make coverage
 
-
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-  #                               Environmental Development Terraform Tests                           #
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
   tf-test:
-    name: Terraform Tests
+    name: ⚙️ Terraform Test
     runs-on: ubuntu-latest
-
     needs: code-test
-
-    if: >-
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/dev_matheus'
-
+    if: github.ref != 'refs/heads/main'
     container:
       image: ${{ vars.TF_DEPLOY_IMAGE }}
       options: --platform=linux/amd64
-
     steps:
-      - name: Checkout code
+      - name: 🕵🏾 Checkout code
         uses: actions/checkout@v7
 
-      - name: Authenticate to GCP
-        uses: google-github-actions/auth@v3
+      - name: 🧑🏾‍✈️ Authenticate to GCP
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: ${{ vars.GCP_PROJECT_ID }}
+          project_id: ${{ vars.GCP_PROJECT_ID}}
 
-      - name: Validate and test Terraform
-        env:
-          TERRAFORM_TFVARS: ${{ secrets.TERRAFORM_TFVARS }}
+      - name: 🕵🏾 validate Terraform configuration
         run: |
           cd ./configs/terraform
-
-          printf '%s\n' "$TERRAFORM_TFVARS" > terraform.tfvars
-
+          echo '🚧 Creating credentials file... 🚧'
+          echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
           terraform init
           terraform workspace select dev || terraform workspace new dev
           terraform validate
           terraform test
+          echo "Whole Terraform configuration is valid ✅"
 
-          echo "Terraform tests completed successfully"
+      - name: 💁🏾‍♂️ Clean up
+        run: rm -f ./configs/terraform/*.json
 
-      - name: Cleanup
-        if: always()
-        run: rm -f ./configs/terraform/terraform.tfvars ./configs/terraform/*.json
 
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-  #                               Environmental Production Terraform Deploy                           #
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+#                             Environmental Development / Production                                #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
   tf-deploy:
-    name: Terraform Deploy
+    name: ⚙️ Terraform Deploy
     runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'workflow_dispatch' &&
-      github.ref == 'refs/heads/main' &&
-      inputs.action == 'deploy'
-
+    needs: tf-test
+    if: github.event.inputs.action == 'deploy'
     container:
       image: ${{ vars.TF_DEPLOY_IMAGE }}
       options: --platform=linux/amd64
-
     steps:
-      - name: Checkout code
+      - name: 🕵🏾 Checkout code
         uses: actions/checkout@v7
 
-      - name: Authenticate to GCP
+      - name: 🧑🏾‍✈️ Authenticate to GCP
         uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
-      - name: Setup Python and install dependencies
+      - name: 🐍 Setup Python and Install Python dependencies
         run: |
-          python3 -m venv /opt/venv
-          /opt/venv/bin/pip install --upgrade pip
-          /opt/venv/bin/pip install -r ./src/requirements.txt
+            python3 -m venv /opt/venv
+            . /opt/venv/bin/activate
+            pip install --upgrade pip
+            pip install -r ./src/requirements.txt
 
       - name: Terraform Deploy
-        env:
-          TERRAFORM_TFVARS: ${{ secrets.TERRAFORM_TFVARS }}
         run: |
-          cd ./configs/terraform
+            . /opt/venv/bin/activate
+            cd ./configs/terraform
+            echo '🚧 Creating credentials file... 🚧'
+            echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
+            terraform init
+            terraform workspace select dev || terraform workspace new dev
+            terraform apply -auto-approve
+            echo "Whole Terraform configuration is applied successfully ✅"
 
-          printf '%s\n' "$TERRAFORM_TFVARS" > terraform.tfvars
+      - name: 💁🏾‍♂️ Clean up
+        run: rm -f ./configs/terraform/*.json
 
-          terraform init
-          terraform workspace select dev || terraform workspace new dev
-          terraform apply -auto-approve
 
-          echo "Terraform deployment completed successfully"
-
-      - name: Cleanup
-        if: always()
-        run: rm -f ./configs/terraform/terraform.tfvars ./configs/terraform/*.json
-
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-  #                               Environmental Production Terraform Destroy                          #
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
   tf-destroy:
-    name: Terraform Destroy
+    name: 🔨 Terraform Destroy
     runs-on: ubuntu-latest
-    if: >-
-      github.event_name == 'workflow_dispatch' &&
-      github.ref == 'refs/heads/main' &&
-      inputs.action == 'destroy'
-
+    if: github.event.inputs.action == 'destroy'
     container:
       image: ${{ vars.TF_DEPLOY_IMAGE }}
       options: --platform=linux/amd64
-
     steps:
-      - name: Checkout code
+      - name: 🕵🏾 Checkout code
         uses: actions/checkout@v7
 
-      - name: Authenticate to GCP
+      - name: 🧑🏾‍✈️ Authenticate to GCP
         uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Terraform Destroy
-        env:
-          TERRAFORM_TFVARS: ${{ secrets.TERRAFORM_TFVARS }}
         run: |
           cd ./configs/terraform
-
-          printf '%s\n' "$TERRAFORM_TFVARS" > terraform.tfvars
-
+          echo '🚧 Creating tfvars file... 🚧'
+          echo '${{ secrets.TERRAFORM_TFVARS }}' > terraform.tfvars
           terraform init
           terraform workspace select dev || terraform workspace new dev
           terraform destroy -auto-approve
+          echo "✅ Terraform resources destroyed"
 
-          echo "Terraform resources destroyed successfully"
-
-      - name: Cleanup
-        if: always()
-        run: rm -f ./configs/terraform/terraform.tfvars ./configs/terraform/*.json
+      - name: 💁🏾‍♂️ Clean up
+        run: rm -f ./configs/terraform/*.json
