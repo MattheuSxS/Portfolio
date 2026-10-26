@@ -1,0 +1,111 @@
+[
+    {
+        "name": "product_id",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Unique identifier for the product"
+    },
+    {
+        "name": "name",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Name of the product"
+    },
+    {
+        "name": "category",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Category of the product"
+    },
+    {
+        "name": "brand",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Brand of the product"
+    },
+    {
+        "name": "price",
+        "type": "FLOAT64",
+        "mode": "NULLABLE",
+        "description": "Price of the product"
+    },
+    {
+        "name": "weight",
+        "type": "FLOAT64",
+        "mode": "NULLABLE",
+        "description": "Weight of the product"
+    },
+    {
+        "name": "dimensions",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+        {
+            "name": "length",
+            "type": "FLOAT64",
+            "mode": "NULLABLE",
+            "description": "Length of the product"
+        },
+        {
+            "name": "width",
+            "type": "FLOAT64",
+            "mode": "NULLABLE",
+            "description": "Width of the product"
+        },
+        {
+            "name": "height",
+            "type": "FLOAT64",
+            "mode": "NULLABLE",
+            "description": "Height of the product"
+        }
+        ]
+    },
+    {
+        "name": "condition",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Condition of the product"
+    },
+    {
+        "name": "in_stock",
+        "type": "INTEGER",
+        "mode": "NULLABLE",
+        "description": "Quantity of the product in stock"
+    },
+    {
+        "name": "sku",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Stock Keeping Unit of the product"
+    },
+    {
+        "name": "manufacturer",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Manufacturer of the product"
+    },
+    {
+        "name": "description",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Description of the product"
+    },
+    {
+        "name": "created_at",
+        "type": "DATE",
+        "mode": "NULLABLE",
+        "description": "Creation date of the product"
+    },
+    {
+        "name": "updated_at",
+        "type": "DATE",
+        "mode": "NULLABLE",
+        "description": "Last update date of the product"
+    },
+    {
+        "name": "deleted_at",
+        "type": "DATE",
+        "mode": "NULLABLE",
+        "description": "Deletion date of the product"
+    }
+]

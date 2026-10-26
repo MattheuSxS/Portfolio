@@ -1,0 +1,5 @@
+plotly==6.9.0
+altair==6.2.2
+polars==1.43.1
+streamlit==1.60.0
+google-cloud-bigquery==3.42.2

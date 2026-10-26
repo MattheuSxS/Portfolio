@@ -1,0 +1,44 @@
+[
+    {
+        "name": "feedback_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the feedback entry."
+    },
+    {
+        "name": "sentiment",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Sentiment classification of the feedback (e.g., positive, negative, neutral)."
+    },
+    {
+        "name": "confidence",
+        "type": "FLOAT64",
+        "mode": "REQUIRED",
+        "description": "Confidence score of the sentiment analysis."
+    },
+    {
+        "name": "is_positive",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED",
+        "description": "Indicates if the sentiment is positive."
+    },
+    {
+        "name": "is_neutral",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED",
+        "description": "Indicates if the sentiment is neutral."
+    },
+    {
+        "name": "created_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the feedback Sentiment was created."
+    },
+    {
+        "name": "updated_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the feedback Sentiment was last updated."
+    }
+]

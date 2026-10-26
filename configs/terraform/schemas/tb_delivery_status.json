@@ -1,0 +1,56 @@
+[
+    {
+        "name": "delivery_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the delivery location"
+    },
+    {
+        "name": "vehicle_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the vehicle"
+    },
+    {
+        "name": "purchase_id",
+        "type": "STRING",
+        "mode": "REQUIRED",
+        "description": "Unique identifier for the purchase"
+    },
+    {
+        "name": "remaining_distance_km",
+        "type": "INTEGER",
+        "mode": "NULLABLE",
+        "description": "Remaining distance to the delivery location in kilometers"
+    },
+    {
+        "name": "estimated_time_min",
+        "type": "INTEGER",
+        "mode": "NULLABLE",
+        "description": "Estimated time to delivery in minutes"
+    },
+    {
+        "name": "delivery_difficulty",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Delivery difficulty of the delivery location"
+    },
+    {
+        "name": "status",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Current status of the delivery"
+    },
+    {
+        "name": "created_at",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED",
+        "description": "Timestamp when the delivery location was created."
+    },
+    {
+        "name": "updated_at",
+        "type": "TIMESTAMP",
+        "mode": "NULLABLE",
+        "description": "Timestamp when the delivery was last updated."
+    }
+]

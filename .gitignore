@@ -172,3 +172,37 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform-version
+terraform.tfvars
+*.tfvars.json
+*.tfplan
+*.tfplan.json
+# Terraform workspace files
+*.tfworkspace
+# Terraform module cache
+.terraform-cache/
+# Terraform plan files
+*.tfplan
+# Terraform variable files
+.DS_Store
+*DS_Store
+# GCP
+mts-default-portfolio.json
+Solve.md
+backup/*
+.editorconfig
+terraform.debug.log
+
+.vscode/
+tests-result.xml
+*tests-result.xml
+
+
+# llm
+.llm_cache/
+chroma_db_persist/

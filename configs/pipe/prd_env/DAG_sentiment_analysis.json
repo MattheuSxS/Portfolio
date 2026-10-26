@@ -1,0 +1,19 @@
+{
+    "DAG_sentiment_analysis": {
+        "schedule_interval": "*/20 * * * *",
+        "retries": 2,
+        "retry_delay": 15,
+        "dagrun_timeout": 30,
+        "project_vars": "gcp-mts-pf",
+        "project_number": "914954438122",
+        "region": "us-east1",
+        "Artifact_registry": {
+            "project_id": "gcp-mts-pf",
+            "region": "us-east1",
+            "repository": "docker-repository",
+            "image": "sentiment-analysis",
+            "tag": "latest",
+            "startup_timeout_seconds": 3600
+        }
+    }
+}
